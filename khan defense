@@ -1,0 +1,1165 @@
+/* 
+I'm still working on this game (mostly just adding more maps in).
+
+Current map being added: #3
+
+*/
+noStroke();
+var emap = [
+[
+    [1,,,,,1,,,,,1,,,,1,,1,,,1,,,1,,,1,,,1,,,,,1,,1,,,,1,,,1,,,,,1,1,,,,,1,,,,,1,,1,1,,,,,1,1,,,,1,,,1,1,,,,,1,,,1,1,,,1,1,,,1,1,1,,,,1,1,1,,,1,1,,1,1,,,1,1,1,1],
+    
+    [2,, 2,,1,,1,1,,,,2,,,2,,2,,,1,,2,,,1,,,2,,,2,,,,,2,,,,,2,,,,1,,,1,1,,,2,,,,,2,,1,,,1,,,2,,,1,,,1,,2,1,,,,1,,1,1,,,2,2,,,2,,2,2,2,,1,,,2,,2,,3,3],
+    
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,,,,,3,3,3,3,3,3,3,3,,2,2,2,3,1,3,2,,3,,3,3,,,3,,2,2,,2,,2,2,,2,,,2,,4,,4,4,3,3,3,3,2,2,2,1,2,,3,,2,2,3,1,,,,,4,4,2,3,1,,,4,,2,3,,1,1,,1,,4,4,4,4,3,3,3,3,3,,,,4,4,4,5,4,,,,2,3,3,3,3,,,,3,3,3,3,,,,3,3,2,2,,,,2,2,2,2,4,4,2,,,,4,4,,2],
+    
+    [2,,2,,2,,3,3,3,1,2,2,4,4,4,,,4,3,3,3,4,,4,4,4,4,,2,2,1,,2,2,,,,1,,2,3,3,2,,3,1,1,1,3,4,4,4,4,2,3,2,3,2,3,,,2,2,3,3,3,4,4,4,4,4,3,2,3,3,3,,3,3,1,4,4,4,4,3,2,2,1,1,1,1,3,3,3,3,3,4,4,4,,,2,2,2,2,2,1,1,1,1,1,2,3,2,3,2,2,3,3,3,3,,4,,,4,,,4,,,3,3,3,3,3,3,4,4,4,4,4,,,3,,2,,3,1,,4,2,,3,3,3,,1,4,2,,2,1,1,2,2,2,2,2,,4,4,4,3,3,3,3,1,1,2,,4,4,3,3,3,1,1,1,1,1,3,3,3,2,2,4,4,,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,,,5,5,7,7,7,4,4,4,4,4,4],
+    
+    [4,4,4,3,2,1,4,4,4,4,4,4,4,3,2,,3,3,,,,3,2,2,2,2,2,,4,4,,,,,4,4,4,,2,1,2,1,1,1,2,2,2,1,1,1,1,1,2,3,3,,,,4,4,4,3,,2,2,2,2,1,1,1,1,,1,,,,1,,1,,1,2,,2,2,3,2,3,2,3,4,,4,4,,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,6,6,6,6]
+],//stage 1
+[
+    [2,,,,2,,,,,2,,,,1,1,1,1,,,1,,1,1,1,,,,1,1,1,1,,,,,2,2,,,2,2,2,,,,,,2,,,,2,,,2,2,,,2,,,3,1,3,,3,3,,,2,,2,,,3,,3,,,,,1,,1,1,1,1,,,,,1,1,1,1,,2,,2,3,3,,,,,,,4,,,,,,,4,,,,,,,,,,,5,,,,,,,,,,,4,,,,,,,,,,3,,,,,2,2,2,,,,,2,,2,2,,,,,,,3,,1,,5,5,5,,,4,4,4,,,,,,,,4,,4,,4,,4,,,4],
+    [4,,4,,4,,4,,,1,1,1,1,1,1,1,1,1,1,,,2,2,2,2,2,3,3,3,3,3,3,,4,4,4,,3,3,,,3,1,2,3,,,1,1,1,1,1,1,1,1,1,,,,3,2,,2,2,3,4,5,,2,3,2,1,2,2,2,2,2,, 4,,4,,3,3,3,3,3,3,3,3,,,,,6,,,,,6,,,2,1,1,1,4,,2,2,2,3,3,3,3,3,4,,4,4,4,4,4,4],
+    [6,,,,7,,,5,,,,,,4,,,,4,,4,,,5,,,4,,5,,2,3,2,3,2,3,2,,,3,,,5,5,,5,5,,,6,,6,6,,,,6,7,3,5,,4,6,,,4,4,,,,6,6,,,7,,,4,,,,4,5,5,7,,,7,7,,,,7,7,7,,,7,6,,,5,,2,2,2,2,,,5,5,,6,,,4,7,,4,7,,,7,8,,,,8,,,,,8,,,,,8,,8,8,8],
+    [1,1,1,1,1,1,1,,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,4,4,4,4,4,4,,4,4,4,2,2,2,2,2,3,3,,3,3,3,3,,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [4,,,,6,6,6,5,3,7,,,,,8,8,8,8,8,,,,2,,3,,2,2,,5,,2,2,2,5,6,3,4,7,,7,8,8,4,,7,,5,8,5,7,6,8,,8,,4,8,4,7,7,5,5,2,6,1,1,1,1,1,,3,6,2,5,,5,3,7,,7,7,7,7,3,6,6,,8,8,,8,8,8,8,,,,,4,,3,,4,3,4,4,4,3,,,,3,,4,,4,4,4,,4,4,,8,8,8,8,8,8],
+    [5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,8,,,,8,8,8,8,8,,8,8,8,8,,,8,,8,8,8,,8,,8,,,8,,8,8,8],
+    [8,8,8,8,9,8,8,8,8]
+],//stage 2
+[
+    [9],
+    [9],
+    [9],
+    [9],
+    [9],
+    [9],
+    [9],
+    [9]
+]//stage 3
+];
+var emapS = Array(100).fill(2);
+
+var plots = [
+    [
+        {x: 120, y: 160},
+        {x: 250, y: 80},
+        {x: 380, y: 160},
+        {x: 380, y: 260},
+        {x: 460, y: 220},
+        {x: 250, y: 260},
+        {x: 300, y: 340},
+        {x: 180, y: 340},
+        {x: 100, y: 400},
+        {x: 180, y: 460},
+        {x: 350, y: 460},
+        {x: 450, y: 540}
+    ],
+    [
+        {x: 80, y: 160},
+        {x: 130, y: 250},
+        {x: 240, y: 160},
+        {x: 340, y: 250},
+        {x: 430, y: 170},
+        {x: 220, y: 340},
+        {x: 430, y: 300},
+        {x: 440, y: 460},
+        {x: 130, y: 400},
+        {x: 130, y: 530},
+        {x: 220, y: 460},
+        {x: 350, y: 540}
+    ],
+    [
+        {x: 80, y: 160},
+        {x: 130, y: 250},
+        {x: 240, y: 160},
+        {x: 340, y: 250},
+        {x: 430, y: 170},
+        {x: 220, y: 340},
+        {x: 430, y: 300},
+        {x: 440, y: 460},
+        {x: 130, y: 400},
+        {x: 130, y: 530},
+        {x: 220, y: 460},
+        {x: 350, y: 540}
+    ]
+];
+var startMoney = [40, 60, 60];
+var currPlots = [];
+
+{
+var setting = [false, false, false];
+var settings = false;
+var stc = 1;
+var timer = 100; var timer2 = 0;
+var hometimer = 0;
+var Pstage = 1;
+var stage = 1;
+var sc = 'home';
+var done = 0;
+var currmap = emap[0];
+var paused = true;
+var emapt = 0;
+var enemies = [];
+var towers = [];
+var money = 40;
+var wave = 1;
+var health = 20;
+var randomObject = {x:undefined, y:undefined, h:undefined};
+}//variables
+
+var y = 0;
+var x = 250;
+var speed = 15;
+var px = 300;
+
+var ts = {
+    t1: [
+        {
+            size: 40,
+            range: 80,
+            damage: 4,
+            fireRate: 0.7,
+            cost: 15
+        },
+        {
+            size: 40,
+            range: 80,
+            damage: 10,
+            fireRate: 1.1,
+            cost: 30
+        },
+        {
+            size: 40,
+            range: 80,
+            damage: 18,
+            fireRate: 1.6,
+            cost: 45
+        }
+    ],
+    t2: [
+        {
+            size: 40,
+            range: 100,
+            damage: 0.9,
+            fireRate: 7,
+            cost: 20
+        },
+        {
+            size: 40,
+            range: 120,
+            damage: 1.4,
+            fireRate: 11,
+            cost: 35
+        },
+        {
+            size: 40,
+            range: 150,
+            damage: 2,
+            fireRate: 18,
+            cost: 50
+        }
+    ],
+    t3: [
+        {
+            size: 20,
+            range: 300,
+            damage: 18,
+            fireRate: 0.7,
+            cost: 25
+        },
+        {
+            size: 20,
+            range: 400,
+            damage: 30,
+            fireRate: 1,
+            cost: 40
+        },
+        {
+            size: 20,
+            range: 500,
+            damage: 45,
+            fireRate: 1.5,
+            cost: 60
+        }
+    ]
+};
+
+var E1 = {speed: 1.5, health: 9};
+var E2 = {speed: 1, health: 24};
+var E3 = {speed: 3.5, health: 6};
+var E4 = {speed: 0.7, health: 72};
+var E5 = {speed: 1.5, health: 30};
+var E6 = {speed: 1, health: 60};
+var E7 = {speed: 1.8, health: 66};
+var E8 = {speed: 1, health: 120};
+var B1 = {speed: 0.4, health: 2000};
+
+var sloc = [[-60, 110],[-60, 110], [100, -60]];
+//{
+function enemy(x, y, speed, h, t, m, cost, dead) {
+    this.x = x;
+    this.y = y;
+    this.speed = speed;
+    this.h = h;
+    this.t = t;
+    this.m = m;
+    this.cost = cost;
+    this.dead = dead;
+}
+enemy.prototype.die = function() {
+    if(this.h <= 0 && !this.dead) {
+        money += this.cost;
+        this.x = undefined;
+        this.dead = true;
+    }
+};
+enemy.prototype.move = function() {
+    switch(Pstage) {
+    case 0: 
+        if(emapt/20 > this.t) {
+            if(this.x < 410 && this.y < 200) {
+                this.x += this.speed;
+            } else if(this.x > 400 && this.y < 290) {
+                this.y += this.speed;
+            } else if(this.x > 131 &&this.y > 250 && this.y < 400){
+                this.x -= this.speed;
+            } else if(this.x < 150) {
+                this.y += this.speed;
+            }if(this.y > 470) {
+                this.x += this.speed;
+            }
+        } break;
+    case 1:
+        if(emapt/20 > this.t) {
+            if(this.y < 150 && this.x < 460) {
+                this.x += this.speed;
+            }
+            if(this.x > 450 && this.y < 480) {
+                this.y += this.speed;
+            }
+            if(this.y > 470 && this.y < 500 && this.x > 170) {
+                this.x -= this.speed;
+            }
+            if(this.x > 150 && this.x < 180 && this.y > 290 && this.y < 500) {
+                this.y -= this.speed;
+            }
+            if(this.y < 300 && this.y > 280 && this.x > 100 && this.x < 370) {
+                this.x += this.speed; 
+            }
+            if(this.x > 360 && this.x < 390 && this.y > 190 && this.y < 300) {
+                this.y -= this.speed;
+            }
+            if(this.y > 180 && this.y < 200 && this.x > 70 && this.x < 400) {
+                this.x -= this.speed;
+            }
+            if(this.x < 80 && this.y > 150 && this.y < 570) {
+                this.y += this.speed;
+            }
+            if(this.y > 560) {
+                this.x += this.speed;
+            }
+        }
+    }
+};
+enemy.prototype.pass = function() {
+    if(this.x > 600) {
+        health -= this.cost;
+        this.x = undefined;
+        this.dead = true;
+    }
+};
+
+function e1(x, y, speed, h, t, m, cost, dead) {
+    enemy.call(this, x, y, speed, h, t, m, cost, dead);
+}
+e1.prototype = Object.create(enemy.prototype);
+e1.prototype.draw = function() {
+    image(getImage("avatars/aqualine-seed"), this.x, this.y, 30, 30);
+    stroke(0);
+    fill(200, 200, 200);
+    rect(this.x, this.y-10, 27, 8, 3);
+    fill(0, 255, 0);
+    rect(this.x, this.y-10, 30*(this.h/9), 8, 3);
+};
+
+function e2(x, y, speed, h, t, m, cost, dead) {
+    enemy.call(this, x, y, speed, h, t, m, cost, dead);
+}
+e2.prototype = Object.create(enemy.prototype);
+e2.prototype.draw = function() {
+    stroke(0);
+    image(getImage("avatars/aqualine-seedling"), this.x-5, this.y-5, 40, 30);
+    fill(200, 200, 200);
+    rect(this.x-5, this.y-10, 36, 8, 3);
+    fill(0, 255, 0);
+    rect(this.x-5, this.y-10, 27*(this.h/18), 8, 3);
+};
+
+function e3(x, y, speed, h, t, m, cost, dead) {
+    enemy.call(this, x, y, speed, h, t, m, cost, dead);
+}
+e3.prototype = Object.create(enemy.prototype);
+e3.prototype.draw = function() {
+    stroke(0);
+    image(getImage("avatars/spunky-sam"), this.x-5, this.y-5, 30, 30);
+    fill(200, 200, 200);
+    rect(this.x-5, this.y-15, 30, 8, 3);
+    fill(0, 255, 0);
+    rect(this.x-5, this.y-15, 30*(this.h/8), 8, 3);
+};
+
+function e4(x, y, speed, h, t, m, cost, dead) {
+    enemy.call(this, x, y, speed, h, t, m, cost, dead);
+}
+e4.prototype = Object.create(enemy.prototype);
+e4.prototype.draw = function() {
+    stroke(0);
+    image(getImage("avatars/aqualine-sapling"), this.x-10, this.y-20, 50, 50);
+    fill(200, 200, 200);
+    rect(this.x-10, this.y-30, 40, 8, 3);
+    fill(0, 255, 0);
+    rect(this.x-10, this.y-30, 30*(this.h/54), 8, 3);
+};
+
+function e5(x, y, speed, h, t, m, cost, dead) {
+    enemy.call(this, x, y, speed, h, t, m, cost, dead);
+}
+e5.prototype = Object.create(enemy.prototype);
+e5.prototype.draw = function() {
+    stroke(0);
+    image(getImage("avatars/aqualine-sapling"), this.x-10, this.y-20, 50, 50);
+    fill(200, 200, 200);
+    rect(this.x-10, this.y-30, 40, 8, 3);
+    fill(0, 255, 0);
+    rect(this.x-10, this.y-30, 30*(this.h/22), 8, 3);
+};
+
+function e6(x, y, speed, h, t, m, cost, dead) {
+    enemy.call(this, x, y, speed, h, t, m, cost, dead);
+}
+e6.prototype = Object.create(enemy.prototype);
+e6.prototype.draw = function() {
+    stroke(0);
+    image(getImage("avatars/aqualine-tree"), this.x-10, this.y-20, 50, 50);
+    fill(200, 200, 200);
+    rect(this.x-10, this.y-30, 40, 8, 3);
+    fill(0, 255, 0);
+    rect(this.x-10, this.y-30, 30*(this.h/45), 8, 3);
+};
+
+function e7(x, y, speed, h, t, m, cost, dead) {
+    enemy.call(this, x, y, speed, h, t, m, cost, dead);
+}
+e7.prototype = Object.create(enemy.prototype);
+e7.prototype.draw = function() {
+    stroke(0);
+    image(getImage("avatars/aqualine-ultimate"), this.x-10, this.y-20, 50, 50);
+    fill(200, 200, 200);
+    rect(this.x-10, this.y-30, 40, 8, 3);
+    fill(0, 255, 0);
+    rect(this.x-10, this.y-30, 30*(this.h/50), 8, 3);
+};
+
+function e8(x, y, speed, h, t, m, cost, dead) {
+    enemy.call(this, x, y, speed, h, t, m, cost, dead);
+}
+e8.prototype = Object.create(enemy.prototype);
+e8.prototype.draw = function() {
+    stroke(0);
+    image(getImage("avatars/old-spice-man"), this.x-10, this.y-20, 50, 50);
+    fill(200, 200, 200);
+    rect(this.x-10, this.y-30, 40, 8, 3);
+    fill(0, 255, 0);
+    rect(this.x-10, this.y-30, 30*(this.h/91), 8, 3);
+};
+
+function b1(x, y, speed, h, t, m, cost, dead) {
+    enemy.call(this, x, y, speed, h, t, m, cost, dead);
+}
+b1.prototype = Object.create(enemy.prototype);
+b1.prototype.draw = function() {
+    stroke(0);
+    image(getImage("creatures/Hopper-Happy"), this.x-10, this.y-20, 50, 50);
+    fill(200, 200, 200);
+    rect(this.x-10, this.y-30, 45, 8, 3);
+    fill(0, 255, 0);
+    rect(this.x-10, this.y-30, 30*(this.h/1300), 8, 3);
+};
+//} //enemies
+
+//{
+function projectile(x, y, angle, targ, damage, speed, ct, hit) {
+    this.x = x;
+    this.y = y;
+    this.angle = angle;
+    this.targ = targ;
+    this.damage = damage;
+    this.speed = speed;
+    this.ct = ct;
+    this.hit = hit;
+}
+projectile.prototype.shoot = function() {
+    if(!this.ct) {
+    this.angle = atan2(this.x-(this.targ.x+10), this.y-(this.targ.y+10));
+    }
+    this.x -= this.speed*sin(this.angle);
+    this.y -= this.speed*cos(this.angle);
+};
+projectile.prototype.shoot2 = function() {
+    this.x -= this.speed*sin(this.angle);
+    this.y -= this.speed*cos(this.angle);
+};
+projectile.prototype.impact = function() {
+    for(var h = 0; h < enemies.length; h++) {
+        if(dist(this.x, this.y, enemies[h].x+10, enemies[h].y+10) < 15) {
+            if(setting[0]) {
+            this.ct = true;
+            }
+            if(this.damage < enemies[h].h && !this.hit) {
+                enemies[h].h -= this.damage;
+                this.hit = true;
+            } else if(!this.hit) {
+                enemies[h].h -= enemies[h].h;
+            }
+        }
+    }
+};
+projectile.prototype.draw = function() {
+    fill(255, 0, 0);
+    ellipse(this.x, this.y, 10, 10);
+};
+
+function upgrade(v, obj) {
+    mouseReleased = function() {
+        if(mouseX > v.x-15 && mouseX < v.x+15 && mouseY > v.y-30 && mouseY < v.y && money >= obj[v.lvl].cost) {
+            money -= obj[v.lvl].cost;
+            v.lvl += 1;
+        }
+        v.lvl = constrain(v.lvl, 1, 3);
+    };
+    v.range = obj[v.lvl-1].range;
+    v.fireRate = obj[v.lvl-1].fireRate;
+    v.damage = obj[v.lvl-1].damage;
+}
+// } //projectile
+
+//{
+function sell(obj, v, c) {
+    var cot = 3/5;
+    if(setting[1]) {cot = 1;} else {cot = 3/5;}
+    mousePressed = function() {
+    if(mouseX > v.x+20 && mouseX < v.x+50 && mouseY > v.y-30 && mouseY < v.y) {
+        money += obj.cost*cot;
+        v.id = true;
+        for(var s = 0; s < currPlots.length; s++) {
+            if(v.x === currPlots[s].x-20 && v.y === currPlots[s].y-20) {
+                currPlots[s].built = false;
+            }
+        }
+    }};
+}
+function tower(type, x,y,size,range, damage, fireRate,currTarg,p,pt,offsetX,offsetY, selecting, cost, lvl, id) {
+    this.type = type;
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.range = range;
+    this.damage = damage;
+    this.currTarg = currTarg;
+    this.fireRate = fireRate;
+    this.p = p;
+    this.pt = pt;
+    this.offsetX = this.x+this.size/2;
+    this.offsetY = this.y+this.size/2;
+    this.selecting = selecting;
+    this.cost = cost;
+    this.lvl = lvl;
+    this.id = id;
+}
+tower.prototype.targ = function() {
+    this.currTarg = randomObject;
+    for(var f = 0; f < enemies.length; f++) {
+        if(dist(enemies[f].x, enemies[f].y, this.x+(this.size/2), this.y+(this.size/2)) < this.range && this.currTarg === randomObject) {
+            this.currTarg = enemies[f];
+        }
+        if(this.currTarg.h < 0) {
+            this.currTarg = randomObject;
+        }
+    }
+};
+tower.prototype.shoot = function() {
+    this.pt += this.fireRate;
+    if(this.pt > 60 && this.currTarg !== randomObject) {
+        this.p.push(new projectile(this.offsetX, this.offsetY, atan2(this.offsetX-this.currTarg.x, this.offsetY-this.currTarg.y), this.currTarg, this.damage, this.range/20, false, false));
+        this.pt = 0;
+        if(this.p.length >= 10) {
+            this.p.shift();
+        }
+    }
+    for(var g = 0; g < this.p.length; g++) {
+        if(this.p[g].x !== undefined) {
+            this.p[g].shoot();
+            this.p[g].draw();
+            this.p[g].impact();
+        }
+    }
+};
+tower.prototype.select = function() {
+    if(mouseIsPressed) {
+        if(mouseX > this.x && mouseX < this.x+40 && mouseY > this.y-40 && mouseY < this.y+30) {
+            this.selecting = true;
+        } else {
+            this.selecting = false;
+        }
+    }
+    if(this.selecting) {
+        pushMatrix();
+        translate(this.x, this.y);
+        if(this.lvl < 3) {
+        if((this.type === 1 && money >= ts.t1[this.lvl-1].cost) || (this.type === 2 && money >= ts.t2[this.lvl-1].cost) || (this.type === 3 && money >= ts.t3[this.lvl-1].cost)) {
+            fill(220, 220, 220);
+        } else {
+            fill(100, 100, 100);
+        }
+        rect(-15, -30, 30, 30);
+        fill(0, 255, 0);
+        triangle(-10, -15, 0, -28, 10, -15);
+        }
+        fill(220, 220, 220);
+        rect(20, -30, 30, 30);
+        fill(0);
+        textSize(18);
+        text("$", 30, -15);
+        noFill();
+        stroke(0);
+        ellipse(20, 20, this.range*2, this.range*2);
+        fill(0);
+        textSize(13);
+        var cot = 3/5;
+        if(setting[1]) {cot = 1;} else {cot = 3/5;}
+        switch(this.type) {
+            case 1: text(round(ts.t1[this.lvl-1].cost*cot), 28, -2);break;
+            case 2: text(round(ts.t2[this.lvl-1].cost*cot), 28, -2);break;
+            case 3: text(round(ts.t3[this.lvl-1].cost*cot), 28, -2);
+        }
+        if(this.lvl < 4) {
+        switch(this.type) {
+            case 1: 
+                if(this.lvl<3){text(ts.t1[this.lvl].cost, -7, -2);}
+                sell(ts.t1[this.lvl-1], this);
+                if(this.lvl<3){upgrade(this, ts.t1);} break;
+            case 2: 
+                if(this.lvl<3){text(ts.t2[this.lvl].cost, -7, -2);}
+                sell(ts.t2[this.lvl-1], this);
+                if(this.lvl<3){upgrade(this, ts.t2);} break;
+            case 3:
+                if(this.lvl<3){text(ts.t3[this.lvl].cost,-7,-2);}
+                sell(ts.t3[this.lvl-1], this);
+                if(this.lvl<3){upgrade(this, ts.t3);} break;
+        }
+        }
+        popMatrix();
+    }
+};
+
+function tower1(type, x,y,size,range, damage, fireRate,currTarg,p,pt,offsetX,offsetY, selecting, cost, lvl, id){
+    tower.call(this, type, x, y, size, range, damage, fireRate, currTarg, p, pt, offsetX, offsetY, selecting, cost, lvl, id);
+}
+tower1.prototype = Object.create(tower.prototype);
+tower1.prototype.draw = function() {
+    pushMatrix();
+    fill(200, 200, 200);
+    stroke(0);
+    translate(this.x+this.size/2, this.y+this.size/2);
+    pushMatrix();
+    rect(0, -3, -23, 6);
+    rotate(45);
+    rect(0, -2, -23, 6);
+    rotate(45);
+    rect(0, -3, -23, 6);
+    rotate(45);
+    rect(0, -4, -23, 6);
+    rotate(45);
+    rect(0, -4, -23, 6);
+    rotate(45);
+    rect(0, -5, -23, 6);
+    rotate(45);
+    rect(0, -5, -23, 6);
+    rotate(45);
+    rect(0, -5, -23, 6);
+    popMatrix();
+    ellipse(0, 0, this.size*0.8, this.size*0.8);
+    if(this.lvl >= 2) {ellipse(0, 0, 20, 20);}
+    if(this.lvl >= 3) {ellipse(0, 0, 10, 10);}
+    popMatrix();
+};
+tower1.prototype.shoot2 = function() {
+    this.pt += this.fireRate;
+    if(this.pt > 60 && this.currTarg !== randomObject) {
+        for(var q = 0; q < 8; q++) {
+            this.p.push(new projectile(this.offsetX, this.offsetY, q*45, this.currTartg, this.damage, this.range/20));
+        }
+        this.pt = 0;
+        if(this.p.length >= 16) {
+            for(var r = 0; r < this.p.length-16; r++) {
+                this.p.shift();
+            }
+        }
+    }
+    for(var g = 0; g < this.p.length; g++) {
+        this.p[g].shoot2();
+        this.p[g].draw();
+        this.p[g].impact();
+    }
+};
+
+function tower2(type, x,y,size,range, damage, fireRate,currTarg,p,pt,offsetX,offsetY, selecting, cost, lvl, id){
+    tower.call(this, type, x, y, size, range, damage, fireRate, currTarg, p, pt, offsetX, offsetY, selecting, cost, lvl, id);
+}
+tower2.prototype = Object.create(tower.prototype);
+tower2.prototype.draw = function() {
+    pushMatrix();
+    fill(200, 200, 200);
+    stroke(0);
+    translate(this.x+this.size/2, this.y+this.size/2);
+    rotate(atan2(this.y-this.currTarg.y, this.x-this.currTarg.x));
+    ellipse(0, 0, this.size*0.8, this.size*0.8);
+    if(this.lvl >= 2) {ellipse(0, 0, 25, 25);}
+    if(this.lvl >= 3) {ellipse(0, 0, 20, 20);}
+    rect(-this.size+24, -this.size+37, -15, 6);
+    popMatrix();
+};
+
+function tower3(type, x,y,size,range, damage, fireRate,currTarg,p,pt,offsetX,offsetY, selecting, cost, lvl, id){
+    tower.call(this, type, x, y, size, range, damage, fireRate, currTarg, p, pt, offsetX, offsetY, selecting, cost, lvl, id);
+}
+tower3.prototype = Object.create(tower.prototype);
+tower3.prototype.draw = function() {
+    pushMatrix();
+    fill(200, 200, 200);
+    stroke(0);
+    translate(this.x+20, this.y+20);
+    rotate(atan2(this.y-this.currTarg.y, this.x-this.currTarg.x));
+    rect(-10, -10, this.size*0.5, this.size*0.5, 5);
+    if(this.lvl >= 2) {rect(-6, -6, 12, 12);}
+    if(this.lvl >= 3) {rect(-3, -3, 6, 6);}
+    rect(-this.size+30, -this.size+38, -18, 4);
+    popMatrix();
+};
+//} //tower
+
+//{
+function build(type, t, v, obj) {
+    mousePressed = function() {
+        if(!v.built && money >= obj.cost && v.selecting){
+            money -= obj.cost;
+            towers.push(new type(t, v.x-20, v.y-20, 40, obj.range, obj.damage, obj.fireRate, randomObject, [], 0, v.x, v.y, false, obj.cost, 1, false));
+            v.built = true;
+        }
+    };
+}
+function plot(x, y, selecting, built) {
+    this.x = x;
+    this.y = y;
+    this.selecting = selecting;
+    this.built = built;
+}
+plot.prototype.draw = function() {
+    fill(255, 255, 150);
+    ellipse(this.x, this.y, 40, 40);
+    fill(100, 0, 0);
+    rect(this.x-2, this.y-5, 5, 15);
+    fill(150, 150, 150);
+    rect(this.x-5, this.y-10, 12, 5);
+};
+plot.prototype.select = function() {
+    if(mouseX > this.x-20 && mouseX < this.x+20 && mouseY > this.y-20 && mouseY < this.y+20) {
+        this.selecting = true;
+    } else if(mouseX < this.x-45 || mouseX > this.x+45 || mouseY < this.y-50 || mouseY > this.y+30) {
+        this.selecting = false;
+    }
+    if(this.selecting) {
+        for(var cd = 0; cd < 3; cd++) {
+            if(((cd === 0 && money >= ts.t1[0].cost) || (cd === 1 && money >= ts.t2[0].cost) || (cd === 2 && money >= ts.t3[0].cost))) {fill(200, 200, 200);} else {fill(100, 100, 100);}
+            pushMatrix();
+            translate(this.x, this.y);
+            rect(-45+cd*30, -50, 30, 30);
+            fill(0);
+            ellipse(-29, -33, 20, 20);
+            ellipse(0, -32, 17, 17);
+            rect(-2, -32, 4, -15);
+            rect(24, -36, 12, 12);
+            textSize(15);
+            rect(29, -36, 2, -11);
+            textSize(19);
+            text(ts.t1[0].cost, -40, -50);
+            text(ts.t2[0].cost, -10, -50);
+            text(ts.t3[0].cost, 20, -50);
+            translate(-30, -35);
+            rect(0, 2, 3, 12);
+            rotate(45);
+            rect(0, 1, 3, 12);
+            rotate(45);
+            rect(0, 0, 3, 12);
+            rotate(45);
+            rect(-2, 0, 3, 11);
+            rotate(45);
+            rect(-3, 0, 3, 11); 
+            rotate(45);
+            rect(-3, 1, 3, 11);
+            rotate(45);
+            rect(-3, 1, 3, 12);
+            rotate(45);
+            rect(-1, 2, 3, 12);
+            popMatrix();
+            if(mouseY > this.y-50 && mouseY < this.y-20 && mouseX > this.x-45+cd*30 && mouseX < this.x-15+cd*30) {
+                switch(cd) {
+                    case 0: text("Damage: "+ts.t1[0].damage+"\nFire rate: "+ts.t1[2].fireRate+"\nRange: "+ts.t1[0].range,485, 233);break;               
+                    case 1:text("Damage: "+ts.t2[0].damage+"\nFire rate: "+ts.t2[2].fireRate+"\nRange: "+ts.t2[0].range,485, 233);break;
+                    case 2:text("Damage: "+ts.t3[1].damage+"\nFire rate: "+ts.t3[2].fireRate+"\nRange: "+ts.t3[0].range,485, 233);
+                }
+            }
+        }
+        if(mouseY > this.y-50 && mouseY < this.y-20) {
+            if(mouseX > this.x-45 && mouseX < this.x-15) {
+                build(tower1, 1, this, ts.t1[0]);
+            } 
+            if(mouseX > this.x-15 && mouseX < this.x+15) {
+                build(tower2, 2, this, ts.t2[0]);
+            }
+            if(mouseX > this.x+15 && mouseX < this.x+45) {
+                build(tower3, 3, this, ts.t3[0]);
+            }
+        }
+    }
+};
+// } //plots
+
+//{
+function Map(st) {
+    noStroke();
+    fill(200, 200, 10);
+    switch(st) {
+        case 1: 
+            rect(0, 100, 400, 40);
+            rect(400, 100, 40, 200);
+            rect(120, 280, 320, 40);
+            rect(120, 320, 40, 160);
+            rect(120, 480, 480, 40);
+        break;
+        case 2: 
+            rect(0, 100, 500, 40);
+            rect(460, 140, 40, 380);
+            rect(160, 480, 300, 40);
+            rect(160, 280, 40, 200);
+            rect(160, 280, 240, 40);
+            rect(360, 180, 40, 100);
+            rect(100, 180, 260, 40);
+            rect(60, 180, 40, 500);
+            rect(100, 560, 540, 40);
+        break;
+        case 3:
+            rect(0, 100, 500, 40);
+            rect(460, 140, 40, 380);
+            rect(160, 480, 300, 40);
+            rect(160, 280, 40, 200);
+            rect(160, 280, 240, 40);
+            rect(360, 180, 40, 100);
+            rect(100, 180, 260, 40);
+            rect(60, 180, 40, 500);
+            rect(100, 560, 540, 40);
+    }
+}
+//} //maps
+function loadEnemies() {
+    for(var g = 0; g < currmap.length; g++) {
+        switch(currmap[g]) {
+            case 1: enemies.push(new e1(sloc[Pstage][0], sloc[Pstage][1], E1.speed, E1.health, g, 0, 1, false)); break;
+            case 2: enemies.push(new e2(sloc[Pstage][0], sloc[Pstage][1], E2.speed, E2.health, g, 0, 2, false)); break;
+            case 3: enemies.push(new e3(sloc[Pstage][0], sloc[Pstage][1], E3.speed, E3.health, g, 0, 1, false)); break;
+            case 4: enemies.push(new e4(sloc[Pstage][0], sloc[Pstage][1], E4.speed, E4.health, g, 0, 3, false)); break;
+            case 5: enemies.push(new e5(sloc[Pstage][0], sloc[Pstage][1], E5.speed, E5.health, g, 0, 2, false)); break;
+            case 6: enemies.push(new e6(sloc[Pstage][0], sloc[Pstage][1], E6.speed, E6.health, g, 0, 4, false)); break;
+            case 7: enemies.push(new e7(sloc[Pstage][0], sloc[Pstage][1], E7.speed, E7.health, g, 0, 2, false)); break;
+            case 8: enemies.push(new e8(sloc[Pstage][0], sloc[Pstage][1], E8.speed, E8.health, g, 0, 5, false)); break;
+            case 9: enemies.push(new b1(sloc[Pstage][0], sloc[Pstage][1], B1.speed, B1.health, g, 0, 50, false)); break;
+        }
+    }
+}
+for(var ab = 0; ab < 6; ab++) {
+towers.push(new tower2(2, 100+ab*50, 150, 40, ts.t2[1].range, ts.t2[1].damage, ts.t2[1].fireRate, randomObject, [], 1, 120, 120, false, 0, 2, 1));
+}
+for(var z = 0; z < emapS.length; z++) {
+    enemies.push(new e2(-60, 110, E2.speed*1.5, E2.health, z, 0, 2));
+}
+draw = function() {
+switch(sc) {
+    case 'home': {
+    Pstage = 0;
+    emapt++;
+    fill(0);
+    currmap = emapS;
+    background(50, 255, 50);
+    Map(1);
+    for(var z = 0; z < towers.length; z++) {
+        towers[z].targ();
+        towers[z].shoot();
+        towers[z].draw();
+    }
+    for(var w = 0; w < enemies.length; w++) {
+        if(enemies[w].x !== undefined) {
+            enemies[w].move();
+            enemies[w].draw();
+            enemies[w].die();
+            enemies[w].pass();
+            enemies[w].h = constrain(enemies[w].h,0,Infinity);
+        }
+    }
+    fill(0);
+    textSize(45);
+    text("  Khan Defense", 45, 250);
+    textSize(30);
+    hometimer += 10;
+    fill(cos(hometimer)*50, cos(hometimer)*255, cos(hometimer)*50);
+    text("Press SHIFT to begin", 200, 400);
+    textSize(20);
+    text("Press S for Settings", 50, 580);
+    keyPressed = function() {
+    if(key.toString() === 's') {
+        settings = !settings;
+    }
+    };
+    if(settings) {
+        fill(220, 220, 220);stroke(0); strokeWeight(5);
+        rect(100, 100, 400, 400);
+        noStroke(); strokeWeight(1);
+        textSize(35);fill(0);
+        text("Settings", 240, 160);
+        textSize(20);
+        text("Press S to close", 230, 480);
+        text("Enemy Penetration", 140, 220);
+        text("100% sell return", 140, 260);
+        text("1 health", 140, 300);
+        for(var l = 0; l < 3; l++) {
+        text(setting[l], 400, 220+l*40);
+        }
+        mousePressed = function() {
+            if(mouseX > 380 && mouseX < 460) {
+                if(mouseY > 200 && mouseY < 240) {setting[0] = !setting[0];}
+                if(mouseY > 240 && mouseY < 280) {setting[1] = !setting[1];}
+                if(mouseY > 280 && mouseY < 320) {setting[2] = !setting[2];}
+            }
+        };
+    }
+    if(keyIsPressed && keyCode === SHIFT) {
+        if(sc === 'home') {
+            sc = 'story';
+            currmap = [];
+            enemies = [];
+            towers = [];
+            emapt = 0;
+            money = 40;
+            if(setting[2]) {health = 1;} else {health = 20;}
+            wave = 1;
+        }
+    }
+    }
+    break;
+    case 'story': {
+        switch(stc) {
+        case 1: {
+        timer++;
+        noStroke();
+        background(255, 255, 255);
+        fill(0); textSize(30);
+        text("One day...", 200, 100);
+        fill(255, 255, 255);
+        pushMatrix();
+        translate(timer*5, 0);
+        rect(100, 70, 300, 40);
+        popMatrix();
+        pushMatrix();
+        if(timer > 60) {translate((timer-60)*5, 0);}
+        rect(100, 110, 300, 40);
+        popMatrix();
+        fill(0); textSize(20);
+        text("var playerx = 0", 100, 250);
+        fill(255, 255, 255);
+        pushMatrix();
+        if(timer > 150) {translate((timer-150)*2, 0);}
+        rect(100, 230, 300, 50);
+        fill(0);
+        if(timer > 220) {
+        translate(-(timer-220)*2, 0);
+        }
+        if(timer > 150 && timer < 220) {rect(98, 230, 3, 26);}
+        if(timer > 220) {
+            popMatrix(); rect(98, 260, 3, 26);
+            pushMatrix();
+            translate(250, 250);
+            scale((timer-220)/10);
+            image(getImage("creatures/OhNoes"), -50, -50);
+            textSize(15);
+            popMatrix();
+        }
+        if(timer > 300) {timer = 300;}
+        if(timer >= 300) {
+            textSize(50);
+            fill(255, 0, 0);
+            translate(random(-30, 30), random(-30, 30));
+            text("It looks like you're\nmissing a semicolon.", 100, 280);
+            timer2 += 1;
+            if(timer2 > 100) {
+                timer = 0;
+                stc = 2;
+                timer2 = 0;
+            }
+        }}
+        popMatrix();
+        break;
+        case 2: {
+            timer += 1;
+            background(255, 255, 255);
+            fill(255, 0, 0);
+            pushMatrix();
+            textSize(50);
+            translate(random(-10, 10), random(-10, 10));
+            text("OhNoes is\n ANGRYYYYY", 150, 150);
+            image(getImage("creatures/OhNoes"), 50, 250);
+            popMatrix();
+            if(timer > 60 && timer < 200) {
+                textSize(25);
+                text("So he sends an army of creatures\n               after you", 100, 420);
+                for(var c = 0; c < 5; c++) {
+                    image(getImage("avatars/avatar-team"), c*100, 490);
+                }
+            }
+            if(timer > 200) {
+                background(255, 255, 255);
+                textSize(20);
+                text("You could not fight them in your position.\n                       So you ran.", 120, 100);
+                pushMatrix();
+                translate(400, 200);
+                scale(0.3);
+                fill(0);
+                translate(300-px, cos(y*2.5)*10);
+                rect(185, 80, 10, 20);
+                pushMatrix();
+                translate(200, 220);
+                rotate((cos(y)*100+200)/2);
+                rect(0, 0, 100, 20);
+                rotate(-60);
+                rect(30, 80, 100, 20);
+                popMatrix();
+            
+                pushMatrix();
+                translate(200, 100);
+                rotate((cos(y)*100+150)/2);
+                rect(0, 0, 80, 15);
+                rotate(100);
+                rect(0, -80, 60, 15);
+                popMatrix();
+    
+                rect(175, 100, 30, 130, 20);
+                
+                pushMatrix();
+                translate(200, 100);
+                rotate((sin(x)*100+150)/2);
+                rect(0, 0, 80, 15);
+                rotate(100);
+                rect(0, -80, 60, 15);
+                popMatrix();
+                
+                pushMatrix();
+                translate(200, 220);
+                rotate((sin(x)*100+200)/2);
+                rect(0, 0, 100, 20);
+                rotate(-60);
+                rect(30, 80, 100, 20);
+                popMatrix();
+                ellipse(190, 70, 50, 50);
+                popMatrix();
+                if(keyIsPressed) {
+                    switch(keyCode) {
+                        case UP: speed += 0.1; break;
+                        case DOWN: speed -= 0.1;
+                    }
+                }
+                speed = constrain(speed, 0, 20);
+                x += 10;
+                y += 10;
+                px += 20;
+            }
+            if(timer > 320) {
+                
+                text("but they came after you", 200, 180);
+                for(var v = 0; v < 15; v++) {
+                    pushMatrix();
+                    translate(-(timer-200)*10, 0);
+                    image(getImage("avatars/avatar-team"), v*150+300, 200);
+                    popMatrix();
+                }
+            }
+            if(timer > 420) {
+                textSize(25);
+                text("And our story begins...", 200, 400);
+                if(timer2 >= 300) {
+                    sc = 'map';
+                }
+            }
+        }
+        }
+        break;
+    }
+    break;
+    case 'map':{
+    background(100, 255, 100);
+    fill(200, 200, 200);
+    for(var d = 0; d < 3; d++) {
+        if(stage-1 >= d) {
+        fill(255, 255, 150);
+        ellipse(120+d*180, 120, 120, 70);
+        if(d === stage-1) {
+            fill(0, 0, 255);
+        } else {
+            fill(255, 0, 0);
+        }
+        rect(118+d*180, 38, 50, 30);
+        fill(150, 150, 150);
+        rect(118+d*180, 67, 8, 55, 20);
+        }
+        if(stage > d && mouseIsPressed && mouseX > 60+d*200 && mouseX < 180+d*200) {
+            wave = 1;
+            paused = true;
+            Pstage = d;
+            money = startMoney[Pstage];
+            if(setting[2]) {health = 1;} else {health = 20;}
+            currmap = emap[Pstage][0];
+            for(var f = 0; f < plots[Pstage].length; f++) {
+                currPlots.push(new plot(plots[Pstage][f].x, plots[Pstage][f].y, false, false));
+            }
+            loadEnemies();
+            sc = 'game';
+        }
+    }
+    if(stage === 1) {fill(0);text("Start Here!", 70, 180);}
+    }
+    break;
+    case 'game':{
+    switch(Pstage) {
+        case 0: background(50, 255, 50); break;
+        case 1: background(255, 255, 100); break;
+        case 2: background(150, 150, 200);
+    }
+    Map(Pstage+1);
+    for(var e = 0; e < enemies.length; e++) {
+        if(enemies[e].x !== undefined) {
+            enemies[e].draw();
+            enemies[e].die();
+            if(!paused) {
+                enemies[e].move();
+                enemies[e].pass();
+            }
+            enemies[e].h = constrain(enemies[e].h, 0, Infinity);
+        }
+    }
+    for(var c = 0; c < towers.length; c++) {
+        if(!towers[c].id) {
+            if(!paused) {
+                towers[c].targ();
+                if(towers[c].type !== 1) {
+                    towers[c].shoot();
+                } else {
+                    towers[c].shoot2();
+                }
+            }
+            towers[c].draw();
+            towers[c].select();
+        }
+    }
+    for(var ef = 0; ef < currPlots.length; ef++) {
+        if(!currPlots[ef].built) {
+            currPlots[ef].draw();
+            currPlots[ef].select();
+        }
+    }
+    {
+    mouseOut = function() {
+        paused = true;
+    };
+    mouseOver = function() {
+        paused = false;
+    };
+    if(paused) {
+        fill(0);
+        textSize(40);
+        text("Press P to start", 100, 50);
+    }
+    if(keyIsPressed && key.toString() === 'p') {
+        paused = false;
+    }
+    done = 0;
+    for(var u = 0; u < enemies.length; u++) {
+        if(enemies[u].dead) {
+            done += 1;
+        }
+    }
+    if(done >= enemies.length) {
+        wave += 1;
+        if(wave >= emap[stage-1].length+1) {
+            sc = 'finished';
+            stage += 1;
+        } else {
+            emapt = 0;
+            currmap = emap[stage-1][wave-1];
+            enemies = [];
+            loadEnemies();
+        }
+    }
+    fill(0);
+    textSize(25);
+    text('Health: '+health+'\nMoney: '+money+'\nWave: '+ wave + '/' + emap[Pstage].length, 460, 30);
+    if(!paused) {
+        emapt++;
+    }
+    if(health <= 0) {background(255, 0, 0);}
+    textSize(15);
+    text(round(this.__frameRate), 10, 20);
+    }
+    }
+    break;
+    case 'finished':{
+        background(255, 255, 255);
+        paused = true;
+        fill(200, 200, 200);
+        rect(200, 200, 200, 200);
+        fill(0);
+        textSize(30);
+        text("    Stage\nCompleted", 220, 240);
+        fill(150, 150, 150);
+        rect(240, 310, 120, 70);
+        fill(0);
+        textSize(25);
+        text("Back to\n  Map", 260, 340);
+        if(mouseIsPressed && mouseX > 240 && mouseX < 360 && mouseY > 310 && mouseY < 380) {
+            currmap = [];
+            enemies = [];
+            towers = [];
+            sc = 'map';
+        }}
+    break;
+} 
+    {if(timer > 460) {
+        if(sc === 'story') {timer2 += 5;}
+        if(sc === 'map') {timer2 -= 5;}
+        fill(0);
+        pushMatrix();
+        translate(timer2, 0);
+        rect(-300, 0, 300, 600);
+        popMatrix();
+        pushMatrix();
+        translate(-timer2, 0);
+        rect(900, 0, -300, 600);
+        popMatrix();
+    }}
+};
