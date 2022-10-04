@@ -1,0 +1,3658 @@
+/*
+All art credit to Tristan Starky Seed and whoever helped him
+Note: 
+-This game is heavily lagged, depending on your device, due to the amount of for loops running in the background. 
+-Also, the difficulty for nights 4+ will be almost impossible, due to the imbalance of animatronic AI in those nights.
+This game will have animatronics and more art slowly added in, because I am working on other games right now.
+LATEST NEWS:
+
+UPDATE 9.4: BB has been added, however, it is currently not affecting gameplay.
+UPDATE 9.3: TB in right vent cam has been added
+UPDATE 9.2: Main Hall camera drawing has been added. 
+UPDATE 9.1: Prize Corner camera drawing has been added.
+UPDATE 9.0: Music box has been replaced by a more efficient music box, which should help to reduce lag  
+
+*/
+
+{
+var scene = "office";
+var movecamy = 400;
+var camdisplay = 9;
+var hourclock = 12;
+var milltime = 0;
+var animloc = 0;
+var mbtime = 360;
+var tbonloc = 0;
+var forcetimer = 0;
+var forcemasktimer = 0;
+var animaway2 = false;
+var bbloc = 0;
+var tfredinoffice = false;
+var wfredinoffice = false;
+var foxyloc = 0;
+var animchange = 0;
+var tbonchange = 0;
+var tfredchange = 0;
+var wfredchange = 0;
+var bbchange = 0;
+var inofficefreq = 10;
+var Size = 1;
+var XSize = 10;
+var YSize = 10;
+var inofficefade = 0;
+var tfredloc = 0;
+var wfredloc = 0;
+var introstarted = false;
+var cam = 50;
+var chicaloc = 'show stage';
+var tbonloct = 'show stage';
+var tfredloct = 'show stage';
+var wfredloct = 'parts and service';
+var bbloct = 'game area';
+var cameraopen = false;
+var camforced = false;
+var maskon = false;
+var tbonmaskx = 200;
+var bigeyes = false;
+var inshadows = false;
+var nightmenu = false;
+var night = 1;
+var deathcause = 'none';
+var flashbattery = 100;
+var deathtime = 0;
+var staticfreq = 150;
+var dead = false;
+var animhere = false;
+var inofficeback = false;
+var animaway = false;
+var bbaway = false;
+var animvent = random(0, 10);
+var lightflash = 0;
+var warningflash = 0;
+var maskY = -450;
+var camY = 400;
+var camX1 = 300;
+var camX2 = 100;
+var chicadeath = 0;
+var camhovered = false;
+var closehovered = false;
+var menuclosed = false;
+var masktimer = 0;
+var masktimerbon = 0;
+var sixam = 200;
+var introtimer = 0;
+var foxyreset = false;
+var foxyresettimer = 0;
+var camtext = "Show Stage";
+var flashmove = false;
+var Psize = 1;
+var xsize = 10;
+var ysize = 10;
+}// too many variables
+noStroke();
+{
+    var drawTchica = function(x,y,Eeye,c,s,r){
+
+
+noStroke();
+
+
+fill(255, 234, 0);
+ellipse(x+119,y+220,s+-4,s+-4);
+
+rect(x+106,y+240,s+-20,s+-7);
+rect(x+106,y+279,s+-37,s+-15);
+rect(x+123,y+279,s+-37,s+-15);
+ellipse(x+136,y+259,s+-41,s+-16);
+ellipse(x+133,y+241,s+-35,+11);
+ellipse(x+103,y+241,s+-35,s+-36);
+ellipse(x+102,y+265,s+-40,s+4);
+fill(92, 92, 92);
+rect(x+98,y+256,s+-40,s+-33);
+rect(x+134,y+266,s+-32,s+-41);
+fill(128, 85, 10);
+rect(x+144,y+259,s+-31,s+-34);
+fill(255, 0, 238);
+arc(x+152,y+260,s+-30,s+-32,-183,0);
+fill(102, 102, 102,0);
+strokeWeight(s+-46);
+stroke(255, 234, 0);
+arc(x+134,y+202,s+-33,s+-19,-182,-25);
+arc(x+111,y+201,s+-34,s+-16,-145,-9);
+line(x+122,y+202,x+122,y+176);
+
+noStroke();
+
+fill(255, 162, 0);
+ellipse(x+128,y+315,s+-37,s+-37);
+ellipse(x+111,y+315,s+-37,s+-37);
+
+fill(255, 255, 255);
+rect(x+108,y+242,s+-23,s+-12);
+fill(221, 0, 255);
+textSize(s+-38);
+text("LET'S\nEAT!",x+108,y+254);
+fill(255, 132, 0);
+ellipse(x+121,y+231,s+-28,s+-42);
+ellipse(x+121,y+227,s+-28,s+-42);
+
+
+if(Eeye === true){
+fill(0, 0, 0);
+ellipse(x+111,y+216,10,10);
+ellipse(x+131,y+216,10,10);
+fill(255, 255, 255);
+ellipse(x+111,y+216,5,5);
+ellipse(x+131,y+216,5,5);
+
+}else{
+fill(255, 255, 255);
+ellipse(x+111,y+213,s+-37,s+-37);
+ellipse(x+131,y+213,s+-37,s+-37);
+fill(242, 0, 255);
+ellipse(x+111,y+213,s+-42,s+-42);
+ellipse(x+131,y+213,s+-42,s+-42);
+
+}
+
+
+
+}; // toy chica
+    var openeyes = false;
+    var drawTbonnie = function(x,y,openeyes){
+   stroke(0, 0, 0);
+    fill(133, 133, 133);
+    rect(x+-12,y+-48,4,10);
+    fill(0, 153, 255);
+    ellipse(x,y,62,62);
+    noStroke();
+    rect(x+-18,y+-43,16,20,6);
+    stroke(0, 0, 0);
+    rect(x+-18,y+-67,16,20,6);
+    fill(255, 255, 255);
+    rect(x+-15,y+-65,10,15,6);
+     rect(x+-15,y+-41,10,15,6);
+     pushMatrix();
+     noStroke();  
+     translate(23,0);
+      fill(133, 133, 133);
+    rect(x+-12,y+-48,4,10);
+     fill(0, 153, 255);
+    rect(x+-18,y+-43,16,20,6);
+    stroke(0, 0, 0);
+    rect(x+-18,y+-67,16,20,6);
+    fill(255, 255, 255);
+    rect(x+-15,y+-65,10,15,6);
+     rect(x+-15,y+-41,10,15,6);
+     popMatrix();
+     noStroke();
+     fill(0);
+     
+      rect(x+-12,y+9,23,10);//mouth
+     fill(255, 255, 255);
+     ellipse(x,y+20,26,7);//top part if mouth
+      ellipse(x,y+9,26,7);//other part of mouth
+      fill(0);
+     ellipse(x,y+6,5,5);//nose
+     fill(255, 255, 255);
+     ellipse(x+16,y+-8,16,16);//eyes
+     ellipse(x+-14,y+-8,16,16);
+     fill(0, 255, 17);
+      ellipse(x+16,y+-8,10,10);//puple
+       ellipse(x+-14,y+-8,10,10);
+       fill(0, 0, 0);
+       ellipse(x+-14,y+-8,5,5);
+        ellipse(x+16,y+-8,5,5);
+       fill(0, 0, 0);
+     fill(183, 0, 255);
+     arc(x+-14,y+-9,16,17,-178,-4);//eyelids
+      arc(x+16,y+-9,16,17,-178,-4);
+     fill(0, 153, 255);
+   rect(x+-19,y+23,36,55);//body
+   fill(255, 255, 255);
+   rect(x+-15,y+27,29,50);//other part of body
+   fill(214, 51, 51);
+   rect(x+-7,y+30,14,8,10);//bowtie
+   ellipse(x+-10,y+34,10,10);
+   ellipse(x+12,y+34,10,10);
+   fill(232, 93, 93);
+   ellipse(x+19,y+15,10,10);//face thingy?
+   ellipse(x+-20,y+15,10,10);
+    fill(0, 153, 255);
+    rect(x+-19,y+77,13,39);//legs
+     rect(x+4,y+77,13,39);
+      ellipse(x+-13,y+120,24,9);
+      ellipse(x+11,y+120,24,9);
+      stroke(0, 0, 0);
+     ellipse(x+-22,y+122,5,5);
+     ellipse(x+-15,y+122,5,5);
+      ellipse(x+-7,y+122,5,5);
+       ellipse(x+4,y+122,5,5);
+        ellipse(x+12,y+122,5,5);
+         ellipse(x+19,y+122,5,5);
+         noStroke();
+          ellipse(x+24,y+32,15,15);
+           ellipse(x+-25,y+32,15,15);
+           rect(x+-31,y+37,10,39);
+             rect(x+20,y+36,10,46);
+               fill(214, 51, 51);
+               rect(x+-31,y+70,33,30);
+                rect(x+1,y+81,51,10);
+                    rect(x+51,y+78,18,17);
+                pushMatrix();
+                translate(-94,70);
+                triangle(x+69,y+17,x+67,y+1,x+37,y);
+                translate(-2,16);
+                 triangle(x+65,y+14,x+76,y+0,x+35,y+12);
+                 stroke(255, 255, 255);
+                 line(x+147,y+4,x+100,y+4);
+                 translate(0,-3);
+                  line(x+147,y+4,x+100,y+4);
+                  translate(0,-3);
+                   line(x+147,y+4,x+100,y+4);
+                    line(x+69,y+4,x+92,y+4);
+                    
+                    translate(0,5);
+                     line(x+69,y+4,x+92,y+4);
+                      line(x+89,y+-6,x+89,y+10);
+                      translate(-5,0);
+                      line(x+89,y+-6,x+89,y+10);
+                      translate(-5,0);
+                      line(x+89,y+-6,x+89,y+10);
+                      translate(-6,0);
+                      line(x+89,y+-6,x+89,y+10);
+                popMatrix();
+                noStroke();
+                if(openeyes === true){
+                      fill(255, 255, 255);
+     ellipse(x+16,y+-8,16,16);//eyes
+     ellipse(x+-14,y+-8,16,16);
+     fill(0, 255, 17);
+      ellipse(x+16,y+-8,10,10);//puple
+       ellipse(x+-14,y+-8,10,10);
+       fill(0, 0, 0);
+       ellipse(x+-14,y+-8,5,5);
+        ellipse(x+16,y+-8,5,5);
+       fill(0, 0, 0);
+     fill(183, 0, 255);
+    
+                }
+}; // toy bonnie
+    var drawToyFreddy = function(x,y,s,bigeyes,inshadows){
+        scale(s);
+    fill(99, 81, 8);
+    ellipse(x+111,y+140,60,60);
+   ellipse(x+113,y+193,60,89);
+   rect(x+94,y+219,12,53);
+   rect(x+120,y+219,12,53);
+   ellipse(x+100,y+274,23,9);
+  ellipse(x+126,y+274,23,9);
+  stroke(0, 0, 0);
+  ellipse(x+93,y+274,5,5);
+    ellipse(x+100,y+274,5,5);
+      ellipse(x+107,y+274,5,5);
+        ellipse(x+120,y+274,5,5);
+          ellipse(x+127,y+274,5,5);
+            ellipse(x+134,y+274,5,5);
+            noStroke();
+              ellipse(x+83,y+172,15,15);
+                ellipse(x+145,y+172,15,15);
+                  rect(x+144,y+172,9,45);
+                   rect(x+75,y+172,8,45);
+                   
+                    ellipse(x+78,y+217,16,10);
+                     ellipse(x+150,y+217,16,10);
+                     
+                      ellipse(x+72,y+221,4,15);
+                       ellipse(x+78,y+221,4,15);
+                        ellipse(x+84,y+221,4,15);
+                         ellipse(x+144,y+221,4,15);
+                          ellipse(x+150,y+221,4,15);
+                           ellipse(x+156,y+221,4,15);
+                 
+                 ellipse(x+87,y+114,17,17);          
+                 ellipse(x+138,y+114,17,17); 
+  noStroke();
+ 
+   fill(217, 162, 104);
+    ellipse(x+113,y+194,50,71);
+    fill(255, 255, 255);
+    rect(x+97,y+150,5,10);
+     rect(x+106,y+150,5,10);
+     rect(x+115,y+150,5,10);
+     rect(x+123,y+150,5,10);
+      fill(99, 81, 8);
+     ellipse(x+112,y+147,35,9);
+    ellipse(x+112,y+160,35,9);
+    fill(0, 0, 0);
+     ellipse(x+114,y+147,12,5);
+     fill(255, 255, 255);
+      ellipse(x+98,y+130,15,15);
+       ellipse(x+126,y+130,15,15);
+       fill(0, 115, 255);
+        ellipse(x+98,y+130,10,10);
+          ellipse(x+126,y+130,10,10);
+          fill(0);
+            ellipse(x+98,y+130,5,5);
+             ellipse(x+126,y+130,5,5);
+              ellipse(x+113,y+117,37,11);
+               rect(x+104,y+98,18,16);
+                fill(0, 0, 0);
+   rect(x+108,y+165,13,7,10);
+    ellipse(x+106,y+169,8,8);
+    ellipse(x+123,y+169,8,8);
+    fill(209, 94, 94);
+    ellipse(x+90,y+153,8,8);
+    ellipse(x+134,y+153,8,8);
+    fill(0, 0, 0);
+    arc(x+98,y+129,16,14,-179,-2);
+    arc(x+126,y+129,16,14,-179,-2);
+    if(bigeyes === true){
+         fill(255, 255, 255);
+      ellipse(x+98,y+130,15,15);
+       ellipse(x+126,y+130,15,15);
+       fill(0, 115, 255);
+        ellipse(x+98,y+130,10,10);
+          ellipse(x+126,y+130,10,10);
+          fill(0);
+            ellipse(x+98,y+130,5,5);
+             ellipse(x+126,y+130,5,5);
+            
+    }
+    if(inshadows === true&&bigeyes === false){
+     
+ 
+   noStroke();
+    fill(0, 0, 0);
+    ellipse(x+87,y+114,17,17);          
+                 ellipse(x+138,y+114,17,17); 
+    ellipse(x+111,y+140,60,60);
+   ellipse(x+113,y+193,60,89);
+   rect(x+94,y+219,12,53);
+   rect(x+120,y+219,12,53);
+   ellipse(x+100,y+274,23,9);
+  ellipse(x+126,y+274,23,9);
+  stroke(0, 0, 0);
+  ellipse(x+93,y+274,5,5);
+    ellipse(x+100,y+274,5,5);
+      ellipse(x+107,y+274,5,5);
+        ellipse(x+120,y+274,5,5);
+          ellipse(x+127,y+274,5,5);
+            ellipse(x+134,y+274,5,5);
+            noStroke();
+              ellipse(x+83,y+172,15,15);
+                ellipse(x+145,y+172,15,15);
+                  rect(x+144,y+172,9,45);
+                   rect(x+75,y+172,8,45);
+                   
+                    ellipse(x+78,y+217,16,10);
+                     ellipse(x+150,y+217,16,10);
+                     
+                      ellipse(x+72,y+221,4,15);
+                       ellipse(x+78,y+221,4,15);
+                        ellipse(x+84,y+221,4,15);
+                         ellipse(x+144,y+221,4,15);
+                          ellipse(x+150,y+221,4,15);
+                           ellipse(x+156,y+221,4,15);
+                           
+  noStroke();
+ 
+   fill(0, 0, 0);
+    ellipse(x+113,y+194,50,71);
+    fill(0, 0, 0);
+    rect(x+97,y+150,5,10);
+     rect(x+106,y+150,5,10);
+     rect(x+115,y+150,5,10);
+     rect(x+123,y+150,5,10);
+      fill(0, 0, 0);
+     ellipse(x+112,y+147,35,9);
+    ellipse(x+112,y+160,35,9);
+    fill(0, 0, 0);
+     ellipse(x+114,y+147,12,5);
+     fill(0, 0, 0);
+      ellipse(x+98,y+130,15,15);
+       ellipse(x+126,y+130,15,15);
+       fill(0, 0, 0);
+        ellipse(x+98,y+130,10,10);
+          ellipse(x+126,y+130,10,10);
+          fill(255, 255, 255);
+            ellipse(x+98,y+130,5,5);
+             ellipse(x+126,y+130,5,5);
+             fill(0, 0, 0);
+              ellipse(x+113,y+117,37,11);
+               rect(x+104,y+98,18,16);
+                fill(0, 0, 0);
+   rect(x+108,y+165,13,7,10);
+    ellipse(x+106,y+169,8,8);
+    ellipse(x+123,y+169,8,8);
+  
+   
+  popMatrix();
+    }
+    
+};//toy freddy
+    var drawMangle = function(x,y,leftarmRot,rightarmRot,s,t,asleep){
+        pushMatrix();
+        translate(x,y);
+       scale(s);
+       rotate(t);
+     noStroke();
+  fill(255, 255, 255);
+  rotate(-9);
+  rect(155,100,116,203,58);
+  triangle(101,190,312,187,211,255); 
+  fill(122, 122, 122);
+  rect(210,405,32,-107);
+   fill(255, 255, 255);
+ pushMatrix();
+ translate(-15,45);
+  rotate(31);
+  ellipse(159,-22,80,30);
+  ellipse(270,-118,30,80);
+  fill(240, 175, 231);
+  ellipse(159,-18,63,19);
+  ellipse(274,-118,19,64);
+  popMatrix();
+  pushMatrix();
+  translate(-17,22);
+  rotate(-6);
+  fill(201, 119, 209);
+  ellipse(210,215,83,55);
+  fill(0, 0, 0);
+  ellipse(214,265,73,52);
+  rect(194,184,33,18,10);
+  fill(130, 50, 50);
+  ellipse(158,207,25,25);
+  ellipse(263,204,25,25);
+  rect(198,222,30,19,10);
+  rect(188,286,50,19,10);
+  fill(214, 214, 214);
+  triangle(196,261,197,243,185,244);
+  triangle(207,261,206,240,196,240);
+  triangle(215,260,217,242,207,241);
+  triangle(227,261,229,240,219,242);
+  triangle(237,261,242,247,231,241);
+  triangle(198,273,197,287,189,286);
+  triangle(205,270,206,287,199,286);
+  triangle(218,275,219,286,210,287);
+  triangle(228,275,233,288,225,287);
+  triangle(246,261,246,279,235,286);
+  popMatrix();
+ pushMatrix();
+ translate(-20,10);
+  rotate(-9);
+  fill(240, 175, 231);
+  ellipse(186,159,36,54);
+  ellipse(232,159,36,54);
+  fill(103, 58, 133);
+  ellipse(186,165,34,41);
+  ellipse(232,165,34,41);
+  fill(235, 235, 235);
+  ellipse(186,169,30,27);
+  fill(0, 0, 0);
+  ellipse(232,169,30,27);
+  fill(255, 255, 255);
+  ellipse(232,169,3,3);
+  fill(231, 245, 128);
+  ellipse(186,169,12,12);
+  fill(78, 84, 32);
+  arc(186,169,12,12,23,121);
+  fill(0, 0, 0);
+  ellipse(186,169,7,7);
+  popMatrix(); 
+ 
+ pushMatrix();
+ rotate(36);
+fill(122, 122, 122);
+rect(398,33,23,130);
+rect(366,-73,101,110,22);
+fill(8, 0, 0);
+rect(384,-27,68,43);
+fill(255, 255, 255);
+ellipse(439,-49,33,33);
+fill(0);
+ellipse(439,-49,20,20);
+popMatrix();
+pushMatrix();
+rotate(124);
+fill(122, 122, 122);
+rect(150,-376,23,128);
+rect(185,-419,23,71);
+rect(98,-527,23,128);
+
+rotate(64);
+rect(-167,-377,23,130);
+rect(-116,-421,-73,65);
+rect(-246,-441,23,116);
+fill(255, 255, 255);
+arc(-236,-461,61,88,6,186);
+fill(122, 122, 122);
+ellipse(-122,-447,16,71);
+ellipse(-141,-447,16,71);
+ellipse(-160,-447,16,71);
+ellipse(-182,-447,16,71);
+rotate(-18);
+ellipse(-61,-459,16,71);
+rotate(22);
+rect(-452,-399,23,111);
+
+fill(255, 255, 255);
+rect(-464,-404,54,58);
+ellipse(-413,-419,10,48);
+ellipse(-428,-419,10,48);
+ellipse(-445,-419,10,48);
+ellipse(-457,-419,10,48);
+rotate(-12);
+ellipse(-377,-484,10,48);
+rotate(-49);
+fill(122, 122, 122);
+rect(93,-493,23,111);
+rotate(81);
+rect(-482,-278,23,111);
+rotate(-23);
+fill(0, 0, 0);
+arc(-330,-452,61,88,6,186);
+popMatrix(); 
+fill(0, 0, 0);
+ellipse(349,189,34,34);
+ if(asleep === true){
+   fill(0, 0, 0);
+   ellipse(191,146,31,31);
+    ellipse(235,143,31,31);
+    fill(0);
+ellipse(384,219,34,34);
+ellipse(341,189,34,34);
+  }
+ 
+    pushMatrix(); 
+    translate(x, y);
+    rotate(leftarmRot);
+    
+   popMatrix();
+   popMatrix();
+   
+    }; // mangle
+    var BlackTiles = function(x,y){
+        fill(66, 66, 66);
+        quad(x+50,y,x+10,y,x+45,y+20,x+85,y+20);
+    }; 
+    var static = function() {
+        for(var i = 0; i < 500; i++) {
+        fill(100, 100, 100);
+        ellipse(random(0, 400), random(0, 400), random(40, 60), 1.5);
+        fill(50, 50, 50);
+        ellipse(random(0, 400), random(0, 400), random(40, 60), 1.5);
+    }
+    };
+}//drawings
+draw = function() {
+    {
+        {
+    fill(255, 0, 0);
+    var change = 0;
+var SCat = function(){
+background(0, 0, 0);
+fill(41, 38, 38);
+ellipse(266,127,273,273);
+//body
+rect(185,242,143,220);
+//shoulder
+ellipse(152,270,75,72);
+rect(133,299,38,120);
+ellipse(361,270,75,72);
+rect(343,299,38,120);
+//eye
+fill(5, 1, 5);
+ellipse(198,86,84,84);
+//other eye
+fill(10, 0, 10);
+ellipse(328,86,84,84);
+//puple
+fill(250, 250, 250);
+ellipse(199,86,44,44);
+//other puple
+fill(250, 247, 247);
+ellipse(325,86,44,44);
+
+//dark effect(Not really)
+fill(3, 0, 0,150);
+rect(266,-7,131,414);
+
+//mouth
+
+
+
+};
+var GLICHYGLICH = function(){
+//head
+noStroke();
+
+fill(69, 45, 15);
+ellipse(334,183,128,128);
+//body
+rect(296,156,76,172);
+//shoulder
+ellipse(287,249,33,33);
+ellipse(384,249,33,33);
+rect(272,260,22,59);
+rect(375,260,22,59);
+rect(296,319,28,84);
+rect(343,319,28,84);
+fill(255, 255, 255);
+rect(312,205,10,21);
+rect(355,191,10,59);
+rect(342,165,10,21);
+rect(356,182,10,21);
+fill(69, 45, 15);
+ellipse(333,193,91,19);
+ellipse(335,266,73,18);
+fill(0, 0, 0);
+ellipse(340,191,14,14);
+//eye
+fill(0, 0, 0);
+ellipse(305,170,37,37);
+ellipse(368,170,37,37);
+fill(0, 0, 0);
+ellipse(275,133,52,52);
+ellipse(397,133,52,52);
+//other eye
+
+//puple
+fill(0, 0, 0);
+ellipse(369,171,20,20);
+ellipse(305,171,20,20);
+//other puple
+fill(0, 0, 0);
+ellipse(304,172,10,10);
+ellipse(369,172,10,10);
+ellipse(369,162,36,22);
+ellipse(305,162,36,22);
+//dark effect(Not really)
+fill(3, 0, 0,200);
+rect(259,-7,206,414);
+
+//mouth
+
+
+
+
+
+};
+var Cat = function(){
+noStroke();
+background(0, 0, 0);
+fill(69, 45, 15);
+ellipse(334,183,128,128);
+//body
+rect(296,156,76,172);
+//shoulder
+ellipse(287,249,33,33);
+ellipse(384,249,33,33);
+rect(272,260,22,59);
+rect(375,260,22,59);
+rect(296,319,28,84);
+rect(343,319,28,84);
+fill(255, 255, 255);
+rect(312,205,10,21);
+rect(326,205,10,21);
+rect(342,205,10,21);
+rect(356,205,10,21);
+fill(69, 45, 15);
+ellipse(333,196,91,19);
+ellipse(335,228,73,18);
+fill(0, 0, 0);
+ellipse(340,191,14,14);
+//eye
+fill(255, 255, 255);
+ellipse(305,170,37,37);
+ellipse(368,170,37,37);
+fill(69, 46, 8);
+ellipse(275,133,52,52);
+ellipse(397,133,52,52);
+//other eye
+
+//puple
+fill(0, 204, 255);
+ellipse(369,171,20,20);
+ellipse(305,171,20,20);
+//other puple
+fill(0, 0, 0);
+ellipse(304,172,10,10);
+ellipse(369,172,10,10);
+ellipse(369,162,36,22);
+ellipse(305,162,36,22);
+//dark effect(Not really)
+fill(3, 0, 0,200);
+rect(259,-7,206,414);
+
+//mouth
+
+
+
+};
+var SSCat = function(){
+background(13, 8, 8);
+fill(255, 255, 255);
+ellipse(260,130,273,273);
+//body
+rect(185,242,143,220);
+//shoulder
+ellipse(152,270,75,72);
+rect(133,299,38,120);
+ellipse(361,270,75,72);
+rect(343,299,38,120);
+//eye
+fill(5, 1, 5);
+ellipse(198,86,84,84);
+//other eye
+fill(10, 0, 10);
+ellipse(328,86,84,84);
+//puple
+fill(250, 250, 250);
+ellipse(199,86,44,44);
+//other puple
+fill(250, 247, 247);
+ellipse(325,86,44,44);
+
+//dark effect(Not really)
+fill(3, 0, 0,150);
+rect(266,-7,131,414);
+
+//mouth
+
+
+
+};
+var creepy = random(7.25,148.7);
+background(0, 0, 0);
+if(change === 0){
+    drawTchica(50,0,false,true,47,true);
+    drawTbonnie(230, 200, true);
+if(creepy < 10){
+GLICHYGLICH();
+}
+if(creepy > 10 && creepy < 20){
+GLICHYGLICH();
+}
+if(creepy > 20 && creepy < 40){
+Cat();
+}
+if(creepy > 40){
+Cat();
+}
+} else if(change === 1){
+if(creepy < 10){
+SCat();
+}
+if(creepy > 10 && creepy < 20){
+SCat();
+}
+if(creepy > 20 && creepy < 40){
+SCat();
+}
+if(creepy > 40){
+SCat();
+}
+} else if(change === 2){
+if(creepy < 10){
+SSCat();
+}
+if(creepy > 10 && creepy < 20){
+SSCat();
+}
+if(creepy > 20 && creepy < 40){
+SSCat();
+}
+if(creepy > 40){
+SSCat();
+}
+} else if(change === 3){
+if(creepy < 10){
+SSCat();
+}
+if(creepy > 10 && creepy < 20){
+SSCat();
+}
+if(creepy > 20 && creepy < 40){
+SCat();
+}
+if(creepy > 40){
+SCat();
+}
+} else if(change === 133){
+if(creepy < 10){
+GLICHYGLICH();
+}
+if(creepy > 10 && creepy < 20){
+SSCat();
+}
+if(creepy > 20 && creepy < 40){
+SCat();
+}
+if(creepy > 40){
+Cat();
+}
+}
+}
+    static();
+    fill(255, 255, 255);
+    textSize(30);
+    text("Five", 50, 50);
+    text("Nights", 50, 90);
+    text("At", 50, 130);
+    text("Freddy's", 50, 170);
+    text("2", 50, 210);
+    text("New Game", 50, 300);
+    text("Continue", 50, 350);
+    if(mouseIsPressed && mouseX > 50 && mouseX < 200 && mouseY > 270 && mouseY < 305 && nightmenu === false) {
+        introstarted = true;
+    }
+    if(mouseIsPressed && mouseX > 50 && mouseX < 200 && mouseY > 330 && mouseY < 380) {
+        nightmenu = true;
+    }
+    if(introstarted === true) {
+        introtimer += 1;
+    }
+    if(nightmenu === true) {
+        background(0);
+        static();
+        fill(255, 255, 240);
+        text("Night 2", 50, 50);
+        text("Night 3", 50, 100);
+        text("Night 4", 50, 150);
+        text("Night 5", 50, 200);
+        text("Night 6", 50, 250);
+        text("Custom Night", 50, 300);
+        if(mouseX > 40 && mouseX < 200) {
+        mouseReleased = function() {
+            if(mouseY > 30 && mouseY < 55 && nightmenu === true) {
+                night = 2;
+                introstarted = true;
+            }
+            if(mouseY > 80 && mouseY < 105 && nightmenu === true) {
+                night = 3;
+                introstarted = true;
+            }
+            if(mouseY > 130 && mouseY < 155 && nightmenu === true) {
+                night = 4;
+                introstarted = true;
+            }
+            if(mouseY > 180 && mouseY < 205 && nightmenu === true) {
+                night = 5;
+                introstarted = true;
+            }
+            if(mouseY > 230 && mouseY < 255 && nightmenu === true) {
+                night = 6;
+                introstarted = true;
+            }
+            if(mouseY > 280 && mouseY < 305 && nightmenu === true) {
+                night = 7;
+                introstarted = true;
+            }
+        };
+        }
+    }
+    {
+        if(introtimer > 1 && introtimer < 10) {
+            nightmenu = false;
+            for(var i = 0; i < 50; i++) {
+            fill(255, 255, 255);
+            rect(random(0, 300), random(0, 400), random(150, 200), random(5, 10));
+    }
+        }
+        if(introtimer > 10 && introtimer < 150) {
+            background(0);
+            text("12:00 AM", 140, 160);
+            if(night === 1) {
+                text(night + "st Night", 140, 200);
+            }
+            if(night === 2) {
+                text(night + "nd Night", 140, 200);
+            }
+            if(night === 3) {
+                text(night + "rd Night", 140, 200);
+            }
+            if(night > 3) {
+                text(night + "th Night", 140, 200);
+            }
+        } 
+        if(introtimer > 149) {
+            menuclosed = true;
+            introstarted = false;
+        }
+    }// intro
+
+
+}// home screen
+    if(menuclosed === true) {
+    {
+        {
+        background(255, 255, 255);
+        fill(0, 0, 0);
+            rect(16,340,40,10);
+            rect(80,340,40,10);
+            rect(160,340,40,10);
+            rect(240,340,40,10);
+            rect(321,340,40,10);
+            rect(40,350,40,10);
+            rect(120,350,40,10);
+            rect(200,350,40,10);
+            rect(280,350,40,10);
+            rect(-2,360,40,10);
+            rect(80,360,40,10);///hh
+            rect(240,360,40,10);
+            rect(241,360,40,10);
+            rect(318,360,40,10);
+            rect(40,370,40,10);
+            rect(115,370,40,10);
+            rect(191,370,40,10);
+            rect(280,370,40,10);
+            rect(359,370,40,10);
+            rect(0,380,40,10);
+            rect(80,380,40,10);
+            rect(160,380,40,10);
+            rect(240,380,40,10);
+            rect(320,380,40,10);
+            rect(40,390,40,10);
+            rect(120,390,40,10);
+            rect(280,390,40,10);
+            rect(360,390,40,10);
+            
+            fill(89, 86, 71);
+            
+            quad(400,0,330,0,330,340,400,415);
+            quad(0,0,70,0,70,340,0,410);
+            fill(97, 87, 35);
+            rect(70,0,260,340);
+            fill(105, 105, 105);
+            quad(400,0,330,0,330,187,400,140);
+            quad(0,0,70,0,70,188,0,133);
+            fill(82, 82, 82);
+            rect(70,0,260,186);
+            fill(71, 71, 71);
+            rect(110,170,180,170);
+            fill(0, 0, 0);
+            rect(120,180,160,160);
+            scale(1);
+            //Main Entrance Function
+            if (keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                fill(247, 247, 247);
+                rect(160,330,40,10);
+                rect(240,330,40,10);
+                rect(120,320,40,10);
+                rect(200,320,40,10);
+                fill(255, 255, 255, 125);
+                ellipse(200,260,120,120);
+                fill(255, 0, 0);
+                if(tfredloc > 2000 && tfredloc < 2900) {
+                    flashbattery -= 0.1;
+                    drawToyFreddy(101, 80,1,true, true);
+        }
+                if(animloc > 2900 && animloc < 3000) {
+                    fill(0);
+                    rect(120, 180, 160, 160);
+                    fill(200, 200, 100);
+                    ellipse(250, 250, 150, 150);
+                }
+                if(wfredloc > 2000) {
+                    pushMatrix();
+translate(141,178);
+scale(0.3);
+stroke(0, 0, 0);
+fill(99, 56, 11);
+rect(136,183,127,156,100000);
+rect(150,99,96,102,1000000);  
+
+ellipse(249,107,30,30);
+ellipse(150,107,30,30);
+
+rect(95,239,37,60,10000); 
+
+rect(245,196,60,48,10000);
+
+ellipse(296,236,62,60);
+
+ellipse(316,223,15,39);
+
+ellipse(298,223,15,39);
+
+ellipse(278,223,15,39);
+
+ellipse(306,261,15,25);
+
+ellipse(122,221,55,50);
+
+ellipse(106,305,40,40);
+
+rect(138,326,40,123,10000);
+
+rect(211,326,40,123,10000);
+ellipse(158,449,72,25);
+ellipse(235,449,72,25);
+ellipse(138,449,15,15);
+ellipse(158,449,15,15);
+ellipse(179,449,15,15);
+ellipse(218,449,15,15);
+ellipse(239,449,15,15);
+ellipse(258,449,15,15);
+fill(105, 105, 105);
+rect(99,310,13,30);
+
+
+fill(0, 0, 0);
+
+ellipse(106,341,25,25);
+
+rect(166,159,67,24);
+
+ fill(176, 168, 143);
+ rect(217,174,9,6);
+rect(204,174,9,6);
+rect(188,174,9,6);
+rect(173,174,9,6);
+
+ rect(217,165,9,6);
+rect(204,165,9,6);
+rect(188,164,9,6);
+rect(205,165,9,6);
+
+
+fill(99, 56, 11);
+
+rect(160,178,75,20,28);
+
+
+fill(0, 0, 0);
+  quad(229,201,212,245,222,229,257,257);
+  ellipse(157,229,25,19);
+  rect(167,337,-10,-22,50);
+  strokeWeight(0);
+
+
+ 
+  
+fill(117, 59, 0);
+rect(140,233,119,92,100000);
+
+rect(163,140,35,30,100);
+rect(196,140,35,30,100);
+
+ellipse(256,107,20,20);
+ellipse(145,107,20,20);
+
+fill(0, 0, 0);
+ellipse(200,282,12,10);
+ ellipse(200,259,12,10);
+ellipse(200,235,12,10);
+ ellipse(214,236,21,16); 
+ ellipse(186,236,21,16);  
+ ellipse(197,145,16,7);   
+
+ellipse(200,100,68,16);
+rect(182,62,35,45,1000000);
+
+fill(99, 47, 8);
+ 
+ 
+ellipse(220,130,24,23);
+ellipse(177,130,24,23); 
+ 
+ fill(176, 168, 143);
+ellipse(220,130,20,20);
+ellipse(177,130,20,20);
+
+
+ 
+fill(0, 0, 0);
+rect(161,114,22,3);
+ rect(215,114,22,3);
+ellipse(176,129,10,10); 
+ 
+ ellipse(221,129.3,10,10); 
+ 
+fill(255, 255, 255);
+ ellipse(176,129,5,5); 
+ 
+ ellipse(221,129.3,5,5); 
+ fill(255, 0, 0);
+line(228, 353, 220,389);
+line(223, 353, 229,389);
+line(223, 341, 213,389);
+  stroke(255, 0, 0);
+  line(233,217,236,278);
+  line(233,218,217,247);
+   line(234,233,243,247);
+   stroke(66, 66, 66);
+    line(237,229,244,280);
+        line(225,229,244,280);
+        line(224,229,244,280);
+            stroke(255, 0, 0);
+            line(111,226,97,291);
+             line(111,256,109,232);
+        stroke(0, 0, 0);
+        fill(0, 0, 0);
+ellipse(115,231,21,39);
+rect(107,227,13,14,-10);
+    
+    popMatrix();
+                }
+                if(animloc > 3900 && animloc < 4000) {
+                    fill(0);
+                    rect(120, 180, 160, 160);
+                    fill(200, 200, 100);
+                    ellipse(250, 250, 150, 150);
+                }
+                if(animloc > 3000 && animloc < 3900) {
+                    fill(255, 234, 0);
+                    flashbattery -= 0.1;
+    ellipse(204,230,46,46);
+    rect(190,249,27,41);
+    rect(190,289,10,33);
+    rect(207,289,10,33);
+    ellipse(220,267,6,25);
+    ellipse(218,251,10,10);
+    ellipse(186,251,10,10);
+    ellipse(186,273,7,45);
+    fill(97, 97, 97);
+    rect(184,266,4,15);
+    rect(219,275,18,4);
+    fill(128, 85, 10);
+    rect(227,268,15,13);
+    fill(255, 0, 238);
+    arc(235,271,15,13,-183,0);
+    fill(102, 102, 102);
+    stroke(255, 234, 0);
+    arc(220,209,13,23,-182,-25);
+    arc(196,209,13,23,-145,-9);
+    line(208,212,207,188);
+    
+    noStroke();
+    
+    fill(255, 162, 0);
+    ellipse(213,325,10,10);
+    ellipse(194,325,10,10);
+    
+    fill(255, 255, 255);
+    rect(192,249,23,32);
+    fill(221, 0, 255);
+    textSize(9);
+    text("LET'S\nEAT!",192,261);
+    fill(255, 132, 0);
+    ellipse(205,241,18,6);
+    ellipse(205,245,18,6);
+    fill(0, 0, 0);
+    ellipse(195,226,10,10);
+    ellipse(215,226,10,10);
+                }
+            } else {
+                fill(0, 0, 0);
+                ellipse(200,260,120,120);
+            }
+            scale(1);
+            noStroke();
+            fill(0, 0, 0);
+            ellipse(115,175,5,5);
+            ellipse(125,175,5,5);
+            ellipse(135,175,5,5);
+            ellipse(145,175,5,5);
+            ellipse(155,175,5,5);
+            ellipse(165,175,5,5);
+            ellipse(175,175,5,5);
+            ellipse(185,175,5,5);
+            ellipse(195,175,5,5);
+            ellipse(205,175,5,5);
+            ellipse(215,175,5,5);
+            ellipse(225,175,5,5);
+            ellipse(235,175,5,5);
+            ellipse(245,175,5,5);
+            ellipse(255,175,5,5);
+            ellipse(265,175,5,5);
+            ellipse(275,175,5,5);
+            ellipse(285,175,5,5);
+            ellipse(115,185,5,5);
+            ellipse(115,195,5,5);
+            ellipse(115,205,5,5);
+            ellipse(115,215,5,5);
+            ellipse(115,225,5,5);
+            ellipse(115,235,5,5);
+            ellipse(115,245,5,5);
+            ellipse(115,255,5,5);
+            ellipse(115,265,5,5);
+            ellipse(115,275,5,5);
+            ellipse(115,285,5,5);
+            ellipse(115,295,5,5);
+            ellipse(115,305,5,5);
+            ellipse(115,315,5,5);
+            ellipse(115,325,5,5);
+            ellipse(115,335,5,5);
+            ellipse(285,185,5,5);
+            ellipse(285,195,5,5);
+            ellipse(285,205,5,5);
+            ellipse(285,215,5,5);
+            ellipse(285,225,5,5);
+            ellipse(285,235,5,5);
+            ellipse(285,245,5,5);
+            ellipse(285,255,5,5);
+            ellipse(285,265,5,5);
+            ellipse(285,275,5,5);
+            ellipse(285,285,5,5);
+            ellipse(285,295,5,5);
+            ellipse(285,305,5,5);
+            ellipse(285,315,5,5);
+            ellipse(285,325,5,5);
+            ellipse(285,335,5,5);
+            fill(77, 58, 25);
+            quad(259,346,292,386,102,386,132,346);
+            fill(26, 26, 26);
+            rect(102,386,190,30);
+            fill(255, 255, 255);
+            quad(124,361,169,358,178,372,137,375);
+            fill(222, 222, 222);
+            quad(188,361,162,361,150,381,185,382);
+            quad(236,361,206,361,210,381,247,382);
+            stroke(135, 135, 135);
+            strokeWeight(2);
+            ellipse(152,344,20,20);
+            ellipse(178,349,20,20);
+            noStroke();
+            fill(55, 100, 237);
+            quad(266,356,264,378,256,378,251,356);
+            ellipse(260,378,8,5);
+            stroke(255, 255, 255);
+            line(265,362,259,357);
+            line(265,370,254,361);
+            line(263,379,257,373);
+            noStroke();
+            fill(168, 168, 168);
+            ellipse(259,355,20,9);
+            fill(217, 217, 217);
+            ellipse(259,353,20,9);
+            stroke(55, 100, 237);
+            line(259,351,259,336);
+            line(270,341,259,336);
+            stroke(184, 0, 0);
+            fill(255, 255, 255);
+            strokeWeight(4);
+            triangle(142,120,163,156,119,156);
+            triangle(257,120,276,156,232,156);
+            fill(0, 0, 0);
+            textSize(30);
+            text("!",137,151);
+            text("!",251,151);
+            noStroke();
+            fill(71, 71, 71);
+            arc(200,87,100,60,-179,0);
+            noStroke();
+            fill(0, 0, 0);
+            arc(200,87,100,20,-179,0);
+            arc(200,87,100,20,0,179);
+            fill(252, 255, 214);
+            arc(200,77,13,20,0,179);
+            
+            stroke(214, 214, 214);
+            line(200,0,200,54);
+            noStroke();
+               if (keyIsPressed && keyCode === CONTROL) {
+                fill(255, 255, 255);
+                rect(160,330,40,10);
+                rect(240,330,40,10);
+                rect(120,320,40,10);
+                rect(200,320,40,10);
+                fill(255, 255, 255, 125);
+                ellipse(200,260,120,120);
+                if(animloc > 5000) {
+                    
+                }
+            } else {
+                fill(0, 0, 0);
+                ellipse(200,260,120,120);
+            } 
+            
+            fill(0, 0, 0);
+            
+            
+             
+            quad(19,300,34,289,34,272,18,280);
+            quad(384,310,383,291,370,283,370,300);
+           
+            fill(255, 255, 255);
+            quad(20,294,31,288,31,279,20,284);
+            quad(380,303,380,293,373,288,372,299);
+            
+            textSize(10);
+            text("light",14,259,100,100);
+            text("light",367,259,100,100);
+            fill(0, 0, 0);
+            }
+            if(mouseX<60&&mouseX>10&&mouseY<300&&mouseY>220){
+                fill(43, 255, 0); 
+               
+                quad(20,294,31,288,31,279,20,284);
+               
+          fill(160, 162, 163);
+                      
+            }
+           
+            pushMatrix();
+            translate(4,25);
+            quad(8,373,44,339,43,298,8,320);
+            popMatrix(); 
+            
+            if(mouseX<60&&mouseX>10&&mouseY<300&&mouseY>220){
+    pushMatrix();
+            fill(0, 0, 0);
+            rect(12,380,18,10);  
+            rect(12,360,28,10);  
+            fill(255, 255, 255);
+            rect(12,370,28,10);  
+            rect(40,360,28,10);  
+            rect(12,390,28,10);  
+            popMatrix();
+            if(animloc > 6000) {
+                fill(255, 255, 0);
+                ellipse(50, 350, 50, 50);
+                fill(255, 255, 255);
+                fill(0);
+                ellipse(40, 340, 8, 8);
+                ellipse(60, 340, 8, 8);
+            }
+            }
+           
+            fill(0, 0, 0);
+            fill(0, 0, 0);
+        
+        if(mouseX<390&&mouseX>350&&mouseY<300&&mouseY>220){
+           fill(179, 179, 179);
+        }
+        
+        pushMatrix();
+        translate(-3,26);
+        quad(392,378,391,330,359,304,359,344);
+        popMatrix();
+          if(mouseX<390&&mouseX>350&&mouseY<300&&mouseY>220){
+              fill(64, 255, 0);
+                quad(380,303,380,293,373,288,372,299);
+           pushMatrix();
+translate(359,10);
+                   fill(0, 0, 0);
+        rect(12,380,18,10);  
+         rect(0,360,30,10);  
+        fill(255, 255, 255);
+          rect(2,370,28,10);  
+          rect(-28,360,28,10);  
+          rect(12,390,28,10);  
+        popMatrix();
+        if(tbonloc > 5000 && tbonloc < 5900) {
+            noStroke();
+           pushMatrix();
+translate(359,10);
+              
+  fill(0, 145, 255);
+        ellipse(11,363,39,39);
+        rect(-18,347,16,10,10);
+          rect(-18,365,16,10,10);
+           rect(-34,365,16,10,10);
+            rect(-34,347,16,10,10);
+        fill(255, 255, 255);
+        stroke(0, 0, 0);
+        strokeWeight(1);
+         rect(-16,367,10,6,10);
+          rect(-32,349,10,6,10);
+         rect(-16,349,10,6,10);
+         rect(-32,367,10,6,10);
+         noStroke();
+        ellipse(8,354,13,13);
+        ellipse(8,374,13,13);
+        fill(0, 255, 0);
+        ellipse(8,374,8,8);
+         ellipse(8,354,8,8);
+         fill(0, 0, 0);
+          ellipse(8,374,4,4);
+           ellipse(8,354,4,4);
+            ellipse(14,364,4,4);
+           fill(0, 0, 0);
+             rect(20,355,5,18);
+           fill(255, 255, 255);
+            ellipse(27,364,4,20);
+             ellipse(18,364,5,20);
+             
+                 popMatrix();
+        }
+            }
+        if(milltime < 1000) {
+            fill(0, 255, 50);
+            textSize(20);
+            text("Press CTRL for Flashlight", 80, 250);
+        }
+            fill(255, 0, 0);
+    }// office art
+    {
+        {
+                if(closehovered === true && tfredloc > 2900) {
+                    tfredinoffice = true;
+                }
+                /*
+                if(tfredloc > 3500 && scene === 'camera') {
+                    scene = 'office';
+                    tfredinoffice = true;
+                    closehovered = true;
+                    camX2 += 12;
+                    camX1 -= 9;
+                    camY += 36;
+                }
+                */
+                if(tfredinoffice === true) {
+                    for(var p = 0; p < inofficefreq; p++) {
+                        fill(0);
+                        rect(random(-150, 250), random(-25, 375), 200, 50);
+                        rect(random(0, 400), random(0, 400), 200, 50);
+                        rect(random(0, 400), random(0, 400), 200, 50);
+                        rect(random(0, 400), random(0, 400), 200, 50);
+                    }
+                    
+                    
+                    if(closehovered === true) {
+                        forcetimer += 1;
+                    }
+                }
+                if(forcetimer > 0) {
+                    forcetimer += 1;
+                if(maskY > -1 && forcetimer < 70) {
+                    forcetimer -= 1;
+                    inofficefreq += 1;
+                    forcemasktimer += 1;
+                    if(forcemasktimer > 50) {
+                        inofficefreq -= 2.5;
+                    }
+                    if(forcemasktimer > 100) {
+                        tfredinoffice = false;
+                        forcetimer += 1;
+                        forcemasktimer -= 1;
+                        forcetimer = 0;
+                        forcemasktimer = 0;
+                        tfredloc = 0;
+                    }
+                }
+                if(inofficefreq < 0) {
+                    inofficefreq = 0;
+                }
+                }
+                if(forcetimer > 50 && forcemasktimer < 1) {
+                    animhere = true;
+                    deathcause = 'toy freddy';
+                }
+                if(deathcause === 'toy freddy') {
+                        background(0);
+                        maskY -= 10;
+                        fill(150, 100, 150);
+                        ellipse(200, 200, chicadeath, chicadeath);
+                        chicadeath += 20;
+                 }
+        }// tfreddy forcing down monitor
+        {
+        if(closehovered === true && tfredloc > 2900) {
+                    wfredinoffice = true;
+                }
+                /*
+                if(wfredloc > 3500 && scene === 'camera') {
+                    scene = 'office';
+                    wfredinoffice = true;
+                    closehovered = true;
+                    camX2 += 12;
+                    camX1 -= 9;
+                    camY += 36;
+                }
+                */
+                if(wfredinoffice === true) {
+                    for(var m = 0; m < inofficefreq; m++) {
+                        fill(0);
+                        rect(random(-150, 250), random(-25, 375), 200, 50);
+                        rect(random(0, 400), random(0, 400), 200, 50);
+                        rect(random(0, 400), random(0, 400), 200, 50);
+                        rect(random(0, 400), random(0, 400), 200, 50);
+                    }
+                    textSize(15);
+                    text("Withered Freddy", 100, 100);
+                    if(closehovered === true) {
+                        forcetimer += 1;
+                    }
+                }
+                if(forcetimer > 0) {
+                    forcetimer += 1;
+                if(maskY > -1 && forcetimer < 70) {
+                    forcetimer -= 1;
+                    inofficefreq += 1;
+                    forcemasktimer += 1;
+                    if(forcemasktimer > 50) {
+                        inofficefreq -= 2.5;
+                    }
+                    if(forcemasktimer > 100) {
+                        tfredinoffice = false;
+                        forcetimer += 1;
+                        forcemasktimer -= 1;
+                        forcetimer = 0;
+                        forcemasktimer = 0;
+                        tfredloc = 0;
+                    }
+                }
+                if(inofficefreq < 0) {
+                    inofficefreq = 0;
+                }
+                }
+                if(forcetimer > 50 && forcemasktimer < 1) {
+                    animhere = true;
+                    deathcause = 'withered freddy';
+                }
+                if(deathcause === 'withered freddy') {
+                        background(0);
+                        maskY -= 10;
+                        fill(200, 200, 200);
+                        ellipse(200, 200, chicadeath, chicadeath);
+                        chicadeath += 20;
+                 }
+        }//wfreddy forcing down monitor
+    }//forcing down monitor
+    {
+    if(maskY > -1 && animaway2 === true) {
+        masktimerbon += 1;
+        if(masktimer < 100) {
+            drawTbonnie(tbonmaskx+110, 145, true);
+            tbonmaskx -= 2.5;
+        }
+        if(masktimer > 100) {
+            tbonmaskx = 310;
+        }
+    }
+    noStroke();
+    //credit to dip
+    noFill();
+    stroke(0, 0, 0);
+    strokeWeight(4);
+    rect(215, 370, 175, 25);
+    stroke(255, 255, 255);
+    strokeWeight(2);
+    rect(215, 370, 175, 25);
+    stroke(59, 36, 7);
+    fill(0, 0, 0);
+    quad(0, 400, 400, 400, camX1, camY, camX2, camY);
+    
+    fill(133, 95, 37);
+    rect(100, maskY + 180, 200, 100, 100);
+    fill(0, 0, 0);
+    ellipse(200, maskY + 180, 50, 25);
+    
+    fill(87, 45, 0);
+    rect(0, maskY, 50, 400);
+    rect(350, maskY, 50, 400);
+    rect(0, maskY + 290, 400, 150, 50);
+    rect(0, maskY, 400, 100);
+    rect(0, maskY + 205, 400, 85);
+    rect(187.5, maskY, 20, 400);
+    rect(188, maskY + 205, 20, 20, -30);
+    rect(188, maskY + 80, 20, 20, -30);
+    
+    rect(30, maskY + 205, 20, 20, -30);
+    rect(30, maskY + 80, 20, 20, -30);
+    rect(350, maskY + 205, 20, 20, -30);
+    rect(350, maskY + 80, 20, 20, -30);
+    noFill();
+    stroke(255, 0, 0);
+    strokeWeight(2);
+    rect(10, 370, 175, 25);
+    
+    if(mouseX > 10 && mouseX < 185 && mouseY > 370 && cameraopen === false && chicadeath < 0.1){
+    maskY += 60;
+    } else {
+    maskY -= 60;
+    }
+    if(mouseX > 215 && mouseX < 215 + 175 && mouseY > 370){
+    camhovered = true;
+    }
+    if(mouseY < 30 && cameraopen === false) {
+        closehovered = true;
+    }
+    if(mouseX < 215 && mouseY < 370) {
+        camhovered = false;
+    }
+    if(mouseY > 30 && camY > 380) {
+        closehovered = false;
+    }
+    if(camhovered === true && chicadeath < 0.1) {
+        camX2 -= 12;
+        camX1 += 9;
+        camY -= 36;
+    } 
+    if(closehovered === true) {
+        camX2 += 12;
+        camX1 -= 9;
+        camY += 36;
+    }
+    
+    if(camY < 0){
+    camY = 0;
+    scene = "camera";
+    } 
+    if(camY > 400){
+    camY = 400;
+    }
+    if(camX1 > 400){
+    camX1 = 400;
+    }
+    if(camX1 < 300){
+    camX1 = 300;
+    }
+    if(camX2 > 100){
+    camX2 = 100;
+    }
+    if(camX2 < 0){
+    camX2 = 0;
+    }
+    if(maskY > 0) {
+        maskY = 0;
+    }
+    if(maskY > -1 && animaway === true) {
+        masktimer += 1;
+    }
+    if(animloc > 6000) {
+        animaway = true;
+    }
+    if(tbonloc > 6000) {
+        animaway2 = true;
+    }
+    if(masktimer > 100 && animaway === true) {
+        animloc = 0;
+        masktimer = 0;
+        animaway = false;
+    }
+    if(masktimerbon > 100 && animaway2 === true) {
+        tbonloc = 0;
+        masktimerbon = 0;
+        animaway2 = false;
+    }
+    if(maskY < -450){
+    maskY = -450;
+    }
+        
+    }//mask`
+    {
+        if(milltime > 0 && milltime < 100) {
+            if(night === 1) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(0, 0);
+                bbchange = random(0, 0);
+            }
+            if(night === 2) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(0, 0);
+                bbchange = random(0, 0);
+            } 
+            if(night === 3) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(1, 1.5);
+                bbchange = random(1.5, 2);
+            } 
+            if(night === 4) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2, 2.5);
+            } 
+            if(night === 5) {
+                animchange = random(2.5, 3);
+                tbonchange = random(2.8, 3.4);
+                tfredchange = random(1.5, 2);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2.5, 3);
+            } 
+            if(night === 6) {
+                animchange = random(3, 3.5);
+                tbonchange = random(3.3, 4);
+                tfredchange = random(2.2, 2.6);
+                wfredchange = random(2.4, 3);
+                bbchange = random(3, 3.5);
+            } 
+            if(night === 7) {
+                animchange = random(3.5, 4);
+                tbonchange = random(3.6, 4.2);
+                tfredchange = random(2.5, 3);
+                wfredchange = random(2.6, 3.2);
+                bbchange = random(3.5, 4);
+            }
+        }
+        if(milltime > 2000 && milltime < 2001) {
+            if(night === 1) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(0, 0);
+                bbchange = random(0, 0);
+            } 
+            if(night === 2) {
+                animchange = random(2, 2.4);
+                tbonchange = random(2.5, 3);
+                tfredchange = random(1.2, 1.5);
+                wfredchange = random(0, 0);
+                bbchange = random(1, 1.4);
+            } 
+            if(night === 3) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(1, 1.5);
+                bbchange = random(1.5, 2);
+            } 
+            if(night === 4) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2, 2.5);
+            } 
+            if(night === 5) {
+                animchange = random(2.5, 3);
+                tbonchange = random(2.8, 3.4);
+                tfredchange = random(1.5, 2);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2.5, 3);
+            } 
+            if(night === 6) {
+                animchange = random(3, 3.5);
+                tbonchange = random(3.3, 4);
+                tfredchange = random(2.2, 2.6);
+                wfredchange = random(2.4, 3);
+                bbchange = random(3, 3.5);
+            } 
+            if(night === 7) {
+                animchange = random(3.5, 4);
+                tbonchange = random(3.6, 4.2);
+                tfredchange = random(2.5, 3);
+                wfredchange = random(2.6, 3.2);
+                bbchange = random(3.5, 4);
+            }
+        }
+        if(milltime > 4000 && milltime < 4001) {
+            if(night === 1) {
+                animchange = random(1.4, 1.8);
+                tbonchange = random(1.6, 2.2);
+                tfredchange = random(0.6, 0.8);
+                wfredchange = random(0, 0);
+                bbchange = random(0, 0);
+            } 
+            if(night === 2) {
+                animchange = random(2, 2.4);
+                tbonchange = random(2.5, 3);
+                tfredchange = random(1.2, 1.5);
+                wfredchange = random(0, 0);
+                bbchange = random(1, 1.5);
+            } 
+            if(night === 3) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(1.5, 2);
+            } 
+            if(night === 4) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2, 2.5);
+            } 
+            if(night === 5) {
+                animchange = random(2.5, 3);
+                tbonchange = random(2.8, 3.4);
+                tfredchange = random(1.5, 2);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2.5, 3);
+            } 
+            if(night === 6) {
+                animchange = random(3, 3.5);
+                tbonchange = random(3.3, 4);
+                tfredchange = random(2.2, 2.6);
+                wfredchange = random(2.5, 3);
+                bbchange = random(3, 3.5);
+            } 
+            if(night === 7) {
+                animchange = random(3.5, 4);
+                tbonchange = random(3.6, 4.2);
+                tfredchange = random(2.5, 3);
+                wfredchange = random(2.6, 3.2);
+                bbchange = random(3.5, 4);
+            }
+        }
+        if(milltime > 6000 && milltime < 6001) {
+            if(night === 1) {
+                animchange = random(1.4, 1.8);
+                tbonchange = random(1.6, 2.2);
+                tfredchange = random(0.6, 0.8);
+                wfredchange = random(0, 0);
+                bbchange = random(0, 0);
+            } 
+            if(night === 2) {
+                animchange = random(2, 2.4);
+                tbonchange = random(2.5, 3);
+                tfredchange = random(1.2, 1.5);
+                wfredchange = random(0, 0);
+                bbchange = random(1, 1.5);
+            } 
+            if(night === 3) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(1, 1.5);
+                bbchange = random(1.5, 2);
+            } 
+            if(night === 4) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2, 2.5);
+            } 
+            if(night === 5) {
+                animchange = random(2.5, 3);
+                tbonchange = random(2.8, 3.4);
+                tfredchange = random(1.5, 2);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2.5, 3);
+            } 
+            if(night === 6) {
+                animchange = random(3, 3.5);
+                tbonchange = random(3.3, 4);
+                tfredchange = random(2.2, 2.6);
+                wfredchange = random(2.4, 3);
+                bbchange = random(3, 3.5);
+            } 
+            if(night === 7) {
+                animchange = random(3.5, 4);
+                tbonchange = random(3.6, 4.2);
+                tfredchange = random(2.5, 3);
+                wfredchange = random(2.6, 3.2);
+                bbchange = random(3.5, 4);
+            }
+        }
+        if(milltime > 8000 && milltime < 8001) {
+            if(night === 1) {
+                animchange = random(1.4, 1.8);
+                tbonchange = random(1.6, 2.2);
+                tfredchange = random(0.6, 0.8);
+                wfredchange = random(0, 0);
+                bbchange = random(0, 0);
+            } 
+            if(night === 2) {
+                animchange = random(2, 2.4);
+                tbonchange = random(2.5, 3);
+                tfredchange = random(1.2, 1.5);
+                wfredchange = random(0, 0);
+                bbchange = random(1, 1.5);
+            } 
+            if(night === 3) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(1, 1.5);
+                bbchange = random(1.5, 2);
+            } 
+            if(night === 4) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2, 2.5);
+            } 
+            if(night === 5) {
+                animchange = random(2.5, 3);
+                tbonchange = random(2.8, 3.4);
+                tfredchange = random(1.5, 2);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2.5, 3);
+            } 
+            if(night === 6) {
+                animchange = random(3, 3.5);
+                tbonchange = random(3.3, 4);
+                tfredchange = random(2.2, 2.6);
+                wfredchange = random(2.4, 3);
+                bbchange = random(3, 3.5);
+            } 
+            if(night === 7) {
+                animchange = random(3.5, 4);
+                tbonchange = random(3.6, 4.2);
+                tfredchange = random(2.5, 3);
+                wfredchange = random(2.6, 3.2);
+                bbchange = random(3.5, 4);
+            }
+        }
+        if(milltime > 10000 && milltime < 10001) {
+            if(night === 1) {
+                animchange = random(1.4, 1.8);
+                tbonchange = random(1.6, 2.2);
+                tfredchange = random(0.6, 0.8);
+                wfredchange = random(0, 0);
+                bbchange = random(0, 0);
+            } 
+            if(night === 2) {
+                animchange = random(2, 2.4);
+                tbonchange = random(2.5, 3);
+                tfredchange = random(1.2, 1.5);
+                wfredchange = random(0, 0);
+                bbchange = random(1, 1.5);
+            } 
+            if(night === 3) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(1, 1.5);
+                bbchange = random(1.5, 2);
+            } 
+            if(night === 4) {
+                animchange = random(0, 0);
+                tbonchange = random(0, 0);
+                tfredchange = random(0, 0);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2, 2.5);
+            } 
+            if(night === 5) {
+                animchange = random(2.5, 3);
+                tbonchange = random(2.8, 3.4);
+                tfredchange = random(1.5, 2);
+                wfredchange = random(2, 2.5);
+                bbchange = random(2.5, 3);
+            } 
+            if(night === 6) {
+                animchange = random(3, 3.5);
+                tbonchange = random(3.3, 4);
+                tfredchange = random(2.2, 2.6);
+                wfredchange = random(2.4, 3);
+                bbchange = random(3, 3.5);
+            } 
+            if(night === 7) {
+                animchange = random(3.5, 4);
+                tbonchange = random(3.6, 4.2);
+                tfredchange = random(2.5, 3);
+                wfredchange = random(2.6, 3.2);
+                bbchange = random(3.5, 4);
+            }
+        }
+        animloc += animchange;
+        tbonloc += tbonchange;
+        tfredloc += tfredchange;
+        wfredloc += wfredchange;
+        bbloc += bbchange;
+            }//movement speed
+    {
+        {
+        noStroke();
+            fill(0);
+            textSize(15);
+            fill(255, 0, 0);
+            milltime += 1.5;
+            textSize(25);
+            fill(0);
+            textSize(30);
+            text(hourclock + "AM", 300, 30);
+            text("Night " + night, 300, 60);
+            if(milltime > 2000) {hourclock = 1;}
+            if(milltime > 4000) {hourclock = 2;}
+            if(milltime > 6000) {hourclock = 3;}
+            if(milltime > 8000) {hourclock = 4;}
+            if(milltime > 10000) {hourclock = 5;}
+            if(milltime > 12000) {hourclock = 6;}
+        }//main mechanics
+            if(scene === "camera") {
+                cameraopen = true;
+                {
+                fill(0);
+                rect(0, movecamy, 400, 400);
+                movecamy -= 20;
+                if(movecamy < 0) {
+                    movecamy += 20;
+                }
+                }// animation
+                if(movecamy < 50) {
+                    fill(161, 59, 161);
+                    textSize(35);
+                    {
+                    {
+                    if(scene === 'moving') {
+                        staticfreq = 500;
+                    }// signal interrupted
+                    if(camdisplay === 1) {
+                        if(keyIsPressed && keyCode === CONTROL) {
+                            fill(120, 120, 0);
+                            ellipse(50, 300, 300, 300);
+                        }
+                    }//party room 1 art
+                    if(camdisplay === 2) {
+                        if(keyIsPressed && keyCode === CONTROL) {
+                            fill(120, 120, 0);
+                            ellipse(300, 300, 300, 300);
+                        }
+                    }//party room 2 art
+                    if(camdisplay === 3) {
+                        if(keyIsPressed && keyCode === CONTROL) {
+                            fill(120, 120, 0);
+                            ellipse(200, 200, 300, 300);
+                        }
+                    }// party room 3 art
+                    if(camdisplay === 4) {
+                        if(keyIsPressed && keyCode === CONTROL) {
+                            fill(120, 120, 0);
+                            ellipse(250, 150, 300, 300);
+                        }
+                    }//party room 4 art
+                    if(camdisplay === 5 ) {
+                        if(keyIsPressed && keyCode === CONTROL) {
+                        background(41, 41, 41);
+resetMatrix(); 
+fill(61, 61, 61);
+stroke(0, 0, 0);
+strokeWeight(3);
+rect(0,0,40,400);
+line(40,0,185,100);
+line(40,400,185,240);
+line(400,0,325,100);
+line(400,400,325,240);
+fill(8, 8, 8);
+rect(185,100,140,140);
+                        }
+
+                    }// left vent art 
+                    if(camdisplay === 6) {
+                        if(keyIsPressed && keyCode === CONTROL) {
+                            background(41, 41, 41);
+resetMatrix();
+fill(61, 61, 61);
+stroke(0, 0, 0);
+strokeWeight(3);
+rect(0,0,40,400);
+line(40,0,185,100);
+line(40,400,185,240);
+line(400,0,325,100);
+line(400,400,325,240);
+fill(8, 8, 8);
+rect(185,100,140,140);
+            if(tbonloc > 5000 && tbonloc < 5900) {
+                strokeWeight(2);
+        resetMatrix();
+        fill(0, 70, 128);
+        stroke(0, 0, 0);
+        ellipse(265,211,142,142);
+        fill(227, 227, 227);
+        ellipse(274,231,101,75);
+        fill(0, 70, 128);
+        ellipse(224,176,56,55);
+        fill(0, 91, 148);
+        rotate(3);
+        noStroke();
+        ellipse(291,123,95,120);
+        ellipse(291,150,120,78);
+        fill(255, 255, 255);
+        ellipse(271,111,36,47);
+        ellipse(311,111,36,47);
+        ellipse(290,149,70,28);
+        fill(255, 255, 255);
+        ellipse(290,169,70,28);
+        ellipse(290,149,70,28);
+        fill(0, 0, 0);
+        ellipse(290,161,66,28);
+        fill(255, 255, 255);
+        ellipse(290,149,70,28);
+        fill(0, 0, 0);
+        ellipse(290,137,15,15);
+        fill(255, 0, 85);
+        ellipse(246,141,21,21);
+        ellipse(337,146,21,21);
+        ellipse(289,199,16,16);
+        rect(252,190,30,18,10);
+        rect(297,190,30,18,10);
+        fill(240, 240, 240);
+        ellipse(271,111,25,36);
+        ellipse(311,111,25,36);
+        fill(136, 95, 163);
+        arc(271,106,25,25,-179,0);
+        arc(311,106,25,25,-179,0);
+        fill(33, 148, 73);
+        arc(271,115,17,17,-219,40);
+        arc(311,115,17,17,-219,40);
+        fill(25, 92, 47);
+        arc(271,115,17,17,-319,-221);
+        arc(311,115,17,17,-319,-221);
+        fill(0, 0, 0);
+        ellipse(271,115,7,7);
+        ellipse(311,115,7,7);
+        fill(255, 255, 255);
+        ellipse(272,112,5,5);
+        ellipse(312,112,5,5);
+        rotate(-52);
+        stroke(0, 0, 0);
+        fill(0, 91, 148);
+        ellipse(93,236,38,52);
+        fill(224, 224, 224);
+        ellipse(90,236,24,52);
+        fill(0, 91, 148);
+        ellipse(80,222,67,38);
+        resetMatrix();
+        stroke(0, 0, 0);
+        ellipse(179,187,84,46);
+        rotate(75);
+        ellipse(269,-89,97,46);
+        resetMatrix();
+        ellipse(144,187,30,30);
+        rect(145,280,51,37,10);
+        strokeWeight(14);
+        stroke(0, 0, 0);
+        line(154,308,151,328);
+        line(183,308,185,328);
+        line(169,308,166,328);
+        line(187,292,210,301);
+        strokeWeight(10);
+        stroke(0, 91, 148);
+        line(154,308,151,328);
+        line(183,308,185,328);
+        line(169,308,166,328);
+        line(187,292,210,301);
+            }
+                        }
+                    }// right vent art
+                    if(camdisplay === 7) {
+                        //walls
+            fill(18, 18, 18);
+            rect(0,0,100,400);
+            quad(100,0,100,400,150,300,150,0);
+            rect(325,0,75,400);
+            quad(325,0,250,0,250,300,325,400);
+               if(keyIsPressed&&keyCode === CONTROL){
+                fill(194, 194, 194);
+            rect(0,0,100,400);
+            quad(100,0,100,400,150,300,150,0);
+            rect(325,0,75,400);
+            quad(325,0,250,0,250,300,325,400);
+            
+            }
+            //black borders and further (invisible) hallway
+            fill(173, 173, 173);
+            triangle(75,400,150,400,150,250);
+            triangle(250,400,250,275,375,400);
+            rect(125,350,150,56);
+            fill(4, 4, 4);
+            rect(125,0,150,354);
+            
+            //decorations along the wall
+            //small strips
+            fill(10, 10, 10);
+            rect(15,0,5,400);
+            fill(0, 0, 0);
+            rect(20,0,7,400);
+            
+            fill(75, 75, 75);
+            rect(65,0,3,400);
+            rect(100,0,3,400);
+            rect(125,0,3,400);
+            
+            fill(5, 5, 5);
+            rect(68,0,5,400);
+            rect(103,0,5,400);
+            rect(128,0,5,400);
+            
+            //posters
+         
+            //shade
+            fill(0, 0, 0,125);
+            rect(0,0,400,400);
+            
+            //light
+            fill(255, 255, 255);
+            ellipse(120,2,100,25);
+            fill(255, 255, 255, 50);
+            ellipse(120,-20,200,200);
+            fill(255, 255, 255, 25);
+            ellipse(120,-50,400,400);
+          
+
+                    }//main hall art
+                    if(camdisplay === 8) {
+    //credit to Ender Ace
+    
+    if(cameraopen === true && keyIsPressed&&keyCode===17 && flashbattery > -1){
+    flashbattery -= 0.1;
+    noStroke();
+    fill(156, 156, 156);
+    rect(0,0,400,140);
+    BlackTiles(120,160);
+    BlackTiles(40,140);
+    BlackTiles(-40,140);
+    BlackTiles(115,160);
+    BlackTiles(35,160);
+    BlackTiles(-44,160);
+    BlackTiles(200,140);
+    BlackTiles(280,140);
+    BlackTiles(360,140);
+    BlackTiles(195,160);
+    BlackTiles(275,160);
+    BlackTiles(355,160);
+    BlackTiles(-50,180);
+    BlackTiles(30,180);
+    BlackTiles(110,180);
+    BlackTiles(190,180);
+    BlackTiles(270,180);
+    BlackTiles(350,180);
+    BlackTiles(-55,200);
+    BlackTiles(25,200);
+    BlackTiles(105,200);
+    BlackTiles(185,200);
+    BlackTiles(265,200);
+    BlackTiles(345,200);
+    BlackTiles(20,220);
+    BlackTiles(100,220);
+    BlackTiles(180,220);
+    BlackTiles(260,220);
+    BlackTiles(340,220);
+    BlackTiles(-60,220);
+    BlackTiles(15,240);
+    BlackTiles(95,240);
+    BlackTiles(175,240);
+    BlackTiles(255,240);
+    BlackTiles(335,240);
+    BlackTiles(-65,240);
+    BlackTiles(10,260);
+    BlackTiles(90,260);
+    BlackTiles(170,260);
+    BlackTiles(250,260);
+    BlackTiles(330,260);
+    BlackTiles(-70,260);
+    BlackTiles(5,280);
+    BlackTiles(85,280);
+    BlackTiles(165,280);
+    BlackTiles(245,280);
+    BlackTiles(325,280);
+    BlackTiles(-75,280);
+    BlackTiles(0,300);
+    BlackTiles(80,300);
+    BlackTiles(160,300);
+    BlackTiles(240,300);
+    BlackTiles(320,300);
+    BlackTiles(-80,300);
+    BlackTiles(-5,320);
+    BlackTiles(75,320);
+    BlackTiles(155,320);
+    BlackTiles(235,320);
+    BlackTiles(315,320);
+    BlackTiles(-10,340);
+    BlackTiles(70,340);
+    BlackTiles(150,340);
+    BlackTiles(230,340);
+    BlackTiles(310,340);
+    BlackTiles(-15,360);
+    BlackTiles(65,360);
+    BlackTiles(145,360);
+    BlackTiles(225,360);
+    BlackTiles(305,360);
+    BlackTiles(385,360);
+    BlackTiles(-20,380);
+    BlackTiles(60,380);
+    BlackTiles(140,380);
+    BlackTiles(220,380);
+    BlackTiles(300,380);
+    BlackTiles(380,380);
+    
+    
+    noStroke();
+    fill(153, 153, 153);
+    ellipse(60,196,5,5);
+    ellipse(48,196,5,5);
+    ellipse(37,196,5,5);
+    ellipse(23,196,5,5);
+    ellipse(60,218,5,5);
+    ellipse(48,218,5,5);
+    ellipse(37,215,5,5);
+    ellipse(23,214,5,5);
+    
+    
+    fill(107, 107, 107);
+    ellipse(17,203,14,27);
+    
+    fill(184, 110, 0);
+    triangle(65,195,6,193,10,165);
+    triangle(65,220,6,228,10,213);
+    
+    fill(143, 131, 0);
+    ellipse(15,166,38,37);
+    fill(179, 179, 179);
+    rect(170,0,110,140);
+    triangle(280,200,170,140,280,140);
+    fill(219, 219, 219);
+    rect(280,0,20,200);
+    if(wfredloc < 900) {
+    pushMatrix();
+    translate(95,0);
+    rotate(1);
+    fill(117, 70, 28);
+    ellipse(233,259,51,47);
+    fill(207, 207, 207);
+    ellipse(223,251,10,10);
+    ellipse(223,268,10,10);
+    fill(117, 70, 28);
+    ellipse(252,260,37,39);
+    fill(0, 0, 0);
+    ellipse(252,261,27,30);
+    fill(148, 102, 38);
+    ellipse(241,251,17,19);
+    ellipse(241,268,17,19);
+    fill(117, 70, 28);
+    ellipse(208,237,15,15);
+    ellipse(208,280,15,15);
+    rotate(-13);
+    fill(0, 0, 0);
+    rect(72,275,25,22,10);
+    rect(93,270,6,29,10);
+    
+    ellipse(162,295,5,5);
+    ellipse(157,311,5,5);
+    
+    strokeWeight(0.5);
+    stroke(0, 0, 0);
+    fill(117, 70, 28);
+    arc(157,311,10,9,-254,-80);
+    arc(159,295,7,10,-254,-80);
+    popMatrix();
+    noStroke();
+    fill(184, 184, 184);
+    rect(339,253,3,5,1);
+    rect(339,274,3,5,1);
+    rect(339,268,3,5,1);
+    rect(339,260,3,5,1);
+    
+    rect(348,253,3,5,1);
+    rect(349,274,3,5,1);
+    rect(352,268,3,5,1);
+    rect(354,260,3,5,1); 
+    }
+    noStroke();
+    pushMatrix();
+    rotate(-2);
+    fill(0, 26, 194);
+    rect(123,100,48,71,1000);
+    
+    rotate(-2);
+    fill(44, 68, 201);
+    rect(124,108,39,60,1000);
+    
+    popMatrix();
+    
+    fill(0, 26, 194);
+    ellipse(153,84,40,40);
+    
+    pushMatrix();
+    rotate(-26);
+    ellipse(95,149,35,50);
+    fill(38, 38, 38);
+    ellipse(95,157,23,28);
+    rotate(2);
+    ellipse(103,141,34,29);
+    
+    fill(122, 122, 122);
+    rect(96,150,10,12,100);
+    
+    fill(38, 38, 38);
+    rect(96,140,10,12);
+    
+    popMatrix();
+    
+    pushMatrix();
+    stroke(0, 0, 0);
+    fill(0, 26, 194);
+    rotate(38);
+    rect(230,-12,18,41,1000);
+    rotate(96);
+    rect(-37,-275,18,41,1000);
+    
+    popMatrix();
+    
+    pushMatrix();
+    rotate(15);
+    rect(176,91,18,35,1000);
+    
+    rect(145,76,14,35,1000);
+    rect(147,108,12,24,1000);
+    
+    ellipse(213,131,22,18);
+    
+    stroke(94, 94, 94);
+    strokeWeight(4);
+    line(198,65,205,70);
+    line(216,84,205,70);
+    line(224,81,210,75);
+    
+    strokeWeight(1);
+    stroke(0, 0, 0);
+    rotate(-39);
+    rect(74,189,18,41,1000);
+    
+    rotate(42);
+    rect(169,-12,12,26,1000);
+    
+    rotate(-25);
+    rect(159,60,12,26,1000);
+    
+    rect(120,62,12,26,1000);
+    rotate(-4);
+    rect(113,68,12,11,1000);
+    popMatrix();
+    
+    fill(59, 59, 59);
+    ellipse(112,172,17,15);
+    
+    ellipse(213,172,22,18);
+    noStroke();
+    fill(212, 212, 212);
+    ellipse(145,105,3,4);
+    ellipse(150,109,3,4);
+    ellipse(156,110,3,4);
+    ellipse(162,108,3,4);
+    ellipse(164,102,3,4);
+    
+    fill(82, 82, 82);
+    ellipse(143,85,5,5);
+    ellipse(158,79,5,5);
+    fill(0, 0, 0);
+    rect(-15,0,30,30,-200);
+    rect(0,375,15,30,-200);
+    rect(375,15,15,15,-200);
+    rect(375,375,15,15,-200);
+    rect(0,30,15,345);
+    rect(15,0,385,30);
+    rect(15,375,385,25);
+    rect(375,30,30,350);
+    
+    }// drawStatic();
+                    if(camdisplay === 9) {}
+                    if(camdisplay === 10) {}
+                    if(camdisplay === 11) {}
+                    if(camdisplay === 12) {}
+    
+                    }// parts and service art
+                    if(camdisplay === 9) {
+                        if(keyIsPressed && keyCode === CONTROL) {
+                            fill(120, 120, 0);
+                            ellipse(200, 200, 300, 300);
+                        }
+                    }//show stage art
+                    if(camdisplay === 10) {
+                        if(keyIsPressed && keyCode === CONTROL) {
+                               background(43, 43, 43);
+        //credit to dip
+        fill(255, 255, 255);
+        for(var x = -1;x<400;x+= 62){
+            for(var y = 212;y < 400;y+= 40){
+                rect(x,y,30,20);   
+            }
+        }
+        for(var x = 30;x<400;x+= 62){
+            for(var y = 235;y < 400;y+= 40){
+                rect(x,y,30,20);   
+            }
+        }
+        fill(122, 122, 122);
+        quad(-1,294,-1,-10,87,-1,87,240);
+        fill(59, 59, 59);
+        quad(-1,310,-1,291,87,239,87,260);
+        fill(82, 82, 82);
+        quad(-1,349,-1,309,87,256,87,293); 
+        fill(133, 0, 0);
+        rect(286,97,100,20);
+        rect(286,208,100,20); 
+        fill(166, 166, 166);
+        rect(286,117,5,90);
+        rect(313,117,5,90);
+        rect(381,117,5,90);
+        rect(346,117,5,90);
+        rect(328,300,60,50);
+        rect(350,250,60,50);
+        fill(82, 0, 0);
+        rect(355,300,10,50);
+        rect(376,250,10,50);
+        fill(140, 0, 0);
+        ellipse(341,191,50,60);
+        fill(143, 143, 0);
+        ellipse(331,172,50,60);
+        fill(121, 0, 161);
+        ellipse(378,191,50,60);
+        fill(54, 99, 102);
+        
+        
+        if(bbloc < 900) {
+        fill(54, 99, 102);
+        ellipse(58,141,50,60);
+        fill(140, 0, 0);
+        ellipse(94,163,50,60);
+        fill(143, 143, 0);
+        ellipse(75,179,50,60);
+        ellipse(341,148,50,60);
+        fill(121, 0, 161);
+        ellipse(111,182,50,60);
+           stroke(0, 0, 0);
+        fill(255, 213, 0);
+        ellipse(48,239,50,50);
+        rect(77,261,10,22,10);
+        fill(9, 0, 255);
+        arc(48,229,48,34,-170,-6);
+        
+        
+        fill(153, 122, 0);
+        arc(48,246,27,19,-2,189);
+        
+        fill(255, 255, 255);
+        rect(33,244,28,4);
+        ellipse(34,236,13,13);
+        ellipse(59,236,13,13);
+        
+        fill(148, 123, 0);
+        ellipse(47,240,6,6);
+        
+        fill(9, 0, 255);
+        ellipse(34,236,5,5);
+        ellipse(59,236,5,5);
+        ellipse(47,295,63,62);
+        rect(28,319,20,10);
+        rect(46,319,20,10);
+        rect(2,275,20,8);
+        rect(68,275,20,8);
+        }
+                        }
+                    }
+                    if(camdisplay === 11) {
+                        if(keyIsPressed && keyCode === CONTROL) {
+                            background(51, 51, 51);
+strokeWeight(1);
+fill(117, 57, 17);
+rect(-2,78,167,19);
+rect(-1,169,167,19);
+pushMatrix();
+translate(259,10);
+strokeWeight(1);
+stroke(0, 0, 0);
+fill(150, 150, 150);
+rect(-261,261,115,124);
+fill(255, 0, 0,100);
+ellipse(32,211,38,59);
+ellipse(74,211,38,59);
+ellipse(115,211,38,59);
+fill(242, 0, 255);
+rect(35,305,80,81);
+fill(255, 242, 0);
+rect(57,305,34,81);
+
+pushMatrix();
+translate(59,-10);
+rotate(18);
+noFill();
+strokeWeight(2);
+stroke(255, 234, 0);
+ellipse(91,293,39,14);
+translate(-137,123);
+rotate(-42);
+noFill();
+strokeWeight(2);
+stroke(255, 234, 0);
+ellipse(91,293,39,14);
+popMatrix();
+
+popMatrix();
+                        }
+                    }
+                    if(camdisplay === 12) {
+                        if(keyIsPressed && keyCode === CONTROL) {
+background(237, 237, 237);
+
+noStroke();
+fill(153, 136, 119);
+rect(0,0,400,140);
+BlackTiles(120,160);
+BlackTiles(40,140);
+BlackTiles(-40,140);
+BlackTiles(115,160);
+BlackTiles(35,160);
+BlackTiles(-44,160);
+BlackTiles(200,140);
+BlackTiles(280,140);
+BlackTiles(360,140);
+BlackTiles(195,160);
+BlackTiles(275,160);
+BlackTiles(355,160);
+BlackTiles(-50,180);
+BlackTiles(30,180);
+BlackTiles(110,180);
+BlackTiles(190,180);
+BlackTiles(270,180);
+BlackTiles(350,180);
+BlackTiles(-55,200);
+BlackTiles(25,200);
+BlackTiles(105,200);
+BlackTiles(185,200);
+BlackTiles(265,200);
+BlackTiles(345,200);
+BlackTiles(20,220);
+BlackTiles(100,220);
+BlackTiles(180,220);
+BlackTiles(260,220);
+BlackTiles(340,220);
+BlackTiles(-60,220);
+BlackTiles(15,240);
+BlackTiles(95,240);
+BlackTiles(175,240);
+BlackTiles(255,240);
+BlackTiles(335,240);
+BlackTiles(-65,240);
+BlackTiles(10,260);
+BlackTiles(90,260);
+BlackTiles(170,260);
+BlackTiles(250,260);
+BlackTiles(330,260);
+BlackTiles(-70,260);
+BlackTiles(5,280);
+BlackTiles(85,280);
+BlackTiles(165,280);
+BlackTiles(245,280);
+BlackTiles(325,280);
+BlackTiles(-75,280);
+BlackTiles(0,300);
+BlackTiles(80,300);
+BlackTiles(160,300);
+BlackTiles(240,300);
+BlackTiles(320,300);
+BlackTiles(-80,300);
+BlackTiles(-5,320);
+BlackTiles(75,320);
+BlackTiles(155,320);
+BlackTiles(235,320);
+BlackTiles(315,320);
+BlackTiles(-10,340);
+BlackTiles(70,340);
+BlackTiles(150,340);
+BlackTiles(230,340);
+BlackTiles(310,340);
+BlackTiles(-15,360);
+BlackTiles(65,360);
+BlackTiles(145,360);
+BlackTiles(225,360);
+BlackTiles(305,360);
+BlackTiles(385,360);
+BlackTiles(-20,380);
+BlackTiles(60,380);
+BlackTiles(140,380);
+BlackTiles(220,380);
+BlackTiles(300,380);
+BlackTiles(380,380);
+
+
+stroke(0, 0, 0);
+
+
+pushMatrix();
+rotate(-18);
+fill(153, 136, 119);
+rect(-327,-24,400,193);
+popMatrix();
+//whew! im finally done with mangle! the first num is the x, the second is the y, the 3rd make mangle work. if its removed then mangle will disapper. same with the fourth. the fith is the size. REMEMBER TO CHANGE IN THE CAMS! the final num is how much she is Rotated. and finally, the false is if you want her to be asleep but she isnt right now. 
+
+fill(11, 84, 97);
+
+rect(77,57,-68,54);
+fill(16, 133, 117);
+rect(9,57,19,54);
+rect(26,57,28,54);
+textSize(10);
+fill(255, 255, 255);
+text("CELEABRATE!",8,63);
+text("Rock!",5,111);
+text("Eat!",32,111);
+text("Party!",57,111);
+drawMangle(35,35,36,204,0.3,2,false);
+
+     fill(0, 0, 0);
+     rect(-18,-15,10,10,-283);
+       rect(-18,402,10,10,-283);
+         rect(415,-15,10,10,-283);
+           rect(400,403,10,10,-283);
+                        }
+                    }
+                    noStroke();
+                    }//flashlight in camera 
+                    {
+                    if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                    if(chicaloc === 'show stage' && camdisplay === 9 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        drawTchica(160, -70, false, true, 47, true);
+
+                    }
+                    if(chicaloc === 'main hall' && camdisplay === 7 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        drawTchica(20, 50, true, true, 47, true);
+                    }
+                    if(chicaloc === 'party room 4' && camdisplay === 4 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        drawTchica(220, -80, true, true, 47, true);
+                    }
+                    if(chicaloc === 'party room 1' && camdisplay === 1 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        drawTchica(-30, 50, true, true, 47, true);
+                    }
+                    }
+                    {
+                        if(keyIsPressed && keyCode === CONTROL && flashbattery > 1) {
+                            
+                        }
+                    }
+                    }// tchica location movement
+                    {
+                    if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        if(tbonloct === 'show stage' && camdisplay === 9 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        drawTbonnie(120,176,false);
+                        }
+                    }
+                    if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        if(tbonloct === 'party room 3' && camdisplay === 3 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        drawTbonnie(274,176,false);
+                        }
+                    }
+                    if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        if(tbonloct === 'party room 4' && camdisplay === 4 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        drawTbonnie(274,176,false);
+                        }
+
+                    }
+                    if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        if(tbonloct === 'party room 2' && camdisplay === 2 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        drawTbonnie(350,276,false);
+                        }
+                    }//tbonnie location movement
+                    }// tbonnie location movement
+                    {
+                        if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        if(tfredloct === 'show stage' && camdisplay === 9 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        drawToyFreddy(100,0,1,true,false);
+                        }
+                    }
+                    if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        if(tfredloct === 'game area' && camdisplay === 10 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        drawToyFreddy(80,0,1,true,false);
+                        }
+                    }
+                    if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        if(tfredloct === 'main hall' && camdisplay === 7 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        drawToyFreddy(274,176,1,true,false);
+                        }
+
+                    }
+                    }// tfreddy location movement
+                    {
+                    if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        if(tfredloct === 'party room 4' && camdisplay === 4 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        ellipse(200, 200, 100, 100);
+                        fill(247, 10, 10);
+                        text("This is withered \n freddy", 20, 300);
+                        }
+                    }
+                    }// wfreddy location movement
+                    {
+                    if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        if(bbloct === 'party room 3' && camdisplay === 3 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        ellipse(200, 200, 100, 100);
+                        fill(247, 10, 10);
+                        text("This is Balloon Boy", 20, 300);
+                        }
+                    }
+                    if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        if(bbloct === 'party room 1' && camdisplay === 1 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        ellipse(200, 200, 100, 100);
+                        fill(247, 10, 10);
+                        text("This is Balloon Boy", 20, 300);
+                        }
+                    }
+                    if(keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        if(bbloct === 'left vent' && camdisplay === 5 && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+                        flashbattery -= 0.1;
+                        ellipse(200, 200, 100, 100);
+                        fill(247, 10, 10);
+                        text("This is Balloon Boy", 20, 300);
+                        }
+                    }
+                    }// wfreddy location movement
+                    }// camera art
+                    {
+                    fill(255, 255, 255);
+                    rect(10, 0, 180, 30);
+                    fill(0);
+                    textSize(15);
+                    text("Here to close camera", 30, 20);
+                if(mouseY < 30 && scene === "camera") {
+                        scene = "office";
+                        cameraopen = false;
+                        camX2 += 3;
+                        camX1 -= 3;
+                        camY += 12;
+                }
+                    }// closing the camera
+                    {
+    fill(255, 255, 255);
+    rect(197,288,2,70);
+    rect(241,288,2,70);
+    rect(197,288,45,2);
+    rect(197,355,45,2);
+    
+    rect(242,340,45,2);
+    rect(242,318,45,2);
+    rect(242,377,29,2);
+    rect(242,369,19,2);
+    rect(269,343,2,34);
+    rect(286,319,2,23);
+    rect(261,342,2,28);
+    
+    rect(245,358,2,28);
+    rect(192,358,2,28);
+    rect(192,358,53,2);
+    rect(192,383,53,2);
+    rect(164,377,30,2);
+    rect(174,369,20,2);
+    rect(163,344,2,35);
+    rect(173,344,2,28);
+    rect(147,342,50,2);
+    rect(147,319,50,2);
+    rect(145,320,2,24);
+    
+    rect(145,291,2,21);
+    rect(147,310,50,2);
+    rect(147,292,50,2);
+    rect(290,291,2,21);
+    rect(242,310,50,2);
+    rect(242,292,50,2);
+    rect(196,286,112,2);
+    rect(196,268,112,2);
+    rect(196,254,2,34);
+    rect(165,254,2,34);
+    rect(165,254,34,2);
+    rect(165,285,34,2);
+    rect(214,245,34,2);
+    rect(214,245,2,25);
+    rect(245,245,2,25);
+    rect(264,245,34,2);
+    rect(263,245,2,25);
+    rect(295,245,2,25);
+    rect(308,267,2,59);
+    rect(364,267,2,59);
+    rect(308,267,59,2);
+    rect(308,325,59,2);
+    rect(316,255,38,2);
+    rect(316,255,2,15);
+    rect(353,255,2,15);
+    rect(328,327,2,23);
+    rect(360,327,2,23);
+    rect(328,348,33,2);
+    
+    fill(117, 116, 116);
+    rect(175,374,20,15);
+    
+    rect(246,374,20,15);
+    
+    //2
+    
+    rect(246,333,20,15);
+    
+    //4
+    
+    rect(246,302,20,15);
+    
+    //1
+    
+    rect(179,333,20,15);
+    
+    //3
+    
+    rect(179,302,20,15);
+    
+    //8
+    
+    rect(179,273,20,15);
+    
+    //7
+    
+    rect(272,275,20,15);
+    
+    //9
+    
+    rect(339,263,20,15);
+    
+    //11
+    
+    rect(355,302,20,15);
+    
+    //10
+    
+    rect(296,308,20,15);
+    
+    //12
+    
+    rect(350,332,20,15);
+    pushMatrix();
+    translate(0, -5);
+    
+    fill(255, 255, 255);
+    textSize(7.5);
+    text("cam \n01",180,340,100,100);
+    text("cam \n02",248,339,100,100);
+    text("cam \n03",180,309,100,100);
+    text("cam \n04",248,310,100,100);
+    text("cam \n05",177,378,100,100);
+    text("cam \n06",246,380,100,100);
+    text("cam \n07",273,281,100,100);
+    text("cam \n08",179,280,100,100);
+    text("cam \n09",342,268,100,100);
+    text("cam \n10",298,314,100,100);
+    text("cam \n11",357,309,100,100);
+    text("cam \n12",351,339,100,100);
+    popMatrix();
+    
+    }//camera map
+                    {
+    if(mouseIsPressed && mouseX > 179 && mouseX < 199 && mouseY > 333 && mouseY < 348) {//Party Room 1
+        camdisplay = 1;
+    }
+    if(mouseIsPressed && mouseX > 247 && mouseX < 267 && mouseY > 333 && mouseY < 348) {//party Room 2
+        camdisplay = 2;
+    }
+    
+    if(mouseIsPressed && mouseX > 179 && mouseX < 199 && mouseY > 302 && mouseY < 317) {
+        camdisplay = 3;
+    }//party Room 3
+    
+    if(mouseIsPressed && mouseX > 246 && mouseX < 266 && mouseY > 302 && mouseY < 317) {
+        camdisplay = 4;
+    }//party Room 4
+    
+    if(mouseIsPressed && mouseX > 175 && mouseX < 195 && mouseY > 374 && mouseY < 394) {
+        camdisplay = 5;
+    }//Left Air Vent
+    
+    
+    if(mouseIsPressed && mouseX > 246 && mouseX < 266 && mouseY > 374 && mouseY < 394) {
+        camdisplay = 6;
+    }//right air vent
+    
+    
+    if(mouseIsPressed && mouseX > 272 && mouseX < 292 && mouseY > 275 && mouseY < 290) {
+        camdisplay = 7;
+    }//main hall
+    
+    if(mouseIsPressed && mouseX > 179 && mouseX < 199 && mouseY > 273 && mouseY < 288) {
+        camdisplay = 8;
+    }//Parts/service
+    
+    
+    if(mouseIsPressed && mouseX > 339 && mouseX < 359 && mouseY > 263 && mouseY < 278) {
+        camdisplay = 9;
+    }//show stage
+    
+    if(mouseIsPressed && mouseX > 296 && mouseX < 316 && mouseY > 308 && mouseY < 323) {
+        camdisplay = 10;
+    }//Game area
+    
+    if(mouseIsPressed && mouseX > 355 && mouseX < 375 && mouseY > 302 && mouseY < 317) {
+        camdisplay = 11;
+    }//Prize Corner
+    
+    
+    if(mouseIsPressed && mouseX > 350 && mouseX < 375 && mouseY > 332 && mouseY < 347) {
+        camdisplay = 12;
+    }//kids cove
+    }//camera transition
+                    {
+                    if(camdisplay === 1) {camtext = "Party Room 1";}
+                    if(camdisplay === 2) {camtext = "Party Room 2";}
+                    if(camdisplay === 3) {camtext = "Party Room 3";}
+                    if(camdisplay === 4) {camtext = "Party Room 4";}
+                    if(camdisplay === 5) {camtext = "Left Vent";}
+                    if(camdisplay === 6) {camtext = "Right Vent";}
+                    if(camdisplay === 7) {camtext = "Main Hall";}
+                    if(camdisplay === 8) {camtext = "Parts and Service";}
+                    if(camdisplay === 9) {camtext = "Show Stage";}
+                    if(camdisplay === 10) {camtext = "Game Area";}
+                    if(camdisplay === 11) {camtext = "Prize Corner";}
+                    if(camdisplay === 12) {camtext = "Kid's Cove";}
+                    }//camera display
+                    textSize(25);
+                    text(camtext, 150, 220);
+                    {
+                    {
+                    if(animloc < 900) {
+                        chicaloc = 'show stage';
+                    }
+                    if(animloc > 1000 && animloc < 1900) {
+                        chicaloc = 'main hall';
+                    }
+                    if(animloc > 900 && animloc < 1000) {
+                        chicaloc = 'moving';
+                    }
+                    if(animloc > 1900 && animloc < 2000) {
+                        chicaloc = 'moving';
+                    }
+                    if(animloc > 2000 && animloc < 2900) {
+                        chicaloc = 'party room 4';
+                    }
+                    if(animloc > 2900 && animloc < 3000) {
+                        chicaloc = 'moving';
+                    }
+                    if(animloc > 3000 && animloc < 3900) {
+                        chicaloc = 'hallway';
+                    }
+                    if(animloc > 3900) {
+                        chicaloc = 'moving';
+                    }
+                    if(animloc > 4000 && animloc < 4900) {
+                        chicaloc = 'party room 1';
+                    }
+                    if(animloc > 4900 && animloc < 5000) {
+                        chicaloc = 'moving';
+                    }
+                    if(animloc > 5000 && animloc < 5900) {
+                        chicaloc = 'left vent';
+                    }
+                    }// tchica movement
+                    {
+                        if(tbonloc < 900) {
+                            tbonloct = 'show stage';
+                        }
+                        if(tbonloc > 900 && tbonloc < 1000) {
+                            tbonloct = 'moving';
+                        }
+                        if(tbonloc > 1000 && tbonloc < 1900) {
+                            tbonloct = 'party room 3';
+                        }
+                        if(tbonloc > 1900 && tbonloc < 2000) {
+                            tbonloct = 'moving';
+                        }
+                         if(tbonloc > 2000 && tbonloc < 2900) {
+                            tbonloct = 'party room 4';
+                        }
+                         if(tbonloc > 2900 && tbonloc < 3000) {
+                            tbonloct = 'moving';
+                        }
+                         if(tbonloc > 3000 && tbonloc < 3900) {
+                            tbonloct = 'party room 2';
+                        }
+                         if(tbonloc > 3900 && tbonloc < 4000) {
+                            tbonloct = 'moving';
+                        }
+                         if(tbonloc > 4000 && tbonloc < 4900) {
+                            tbonloct = 'right vent';
+                        }
+                         if(tbonloc > 4900 && tbonloc < 5000) {
+                            tbonloct = 'moving';
+                        }
+                    }// tbonnie movement
+                    {
+                        if(tfredloc < 900) {
+                            tfredloct = 'show stage';
+                        }
+                        if(tfredloc > 900 && tfredloc < 1000) {
+                            tfredloct = 'moving';
+                        }
+                        if(tfredloc > 1000 && tfredloc < 1900) {
+                            tfredloct = 'game area';
+                        }
+                        if(tfredloc > 1900 && tfredloc < 2000) {
+                            tfredloct = 'moving';
+                        }
+                         if(tfredloc > 2000 && tfredloc < 2900) {
+                            tfredloct = 'far hall';
+                        }
+                    fill(0);
+                    textSize(15);
+                    }// tfreddy movement
+                    {
+                        if(wfredloc < 900) {
+                            wfredloct = 'parts and service';
+                        }
+                        if(wfredloc > 900 && wfredloc < 1000) {
+                            tfredloct = 'moving';
+                        }
+                        if(wfredloc > 1000 && wfredloc < 1900) {
+                            tfredloct = 'party room 4';
+                        }
+                        if(wfredloc > 1900 && wfredloc < 2000) {
+                            tfredloct = 'moving';
+                        }
+                         if(wfredloc > 2000 && wfredloc < 2900) {
+                            tfredloct = 'hallway';
+                        }
+                    }// wfreddy movement
+                    {
+                        if(bbloc < 900) {
+                            bbloct = 'game area';
+                        }
+                        if(bbloc > 900 && bbloc < 1000) {
+                            bbloct = 'moving';
+                        }
+                        if(bbloc > 1000 && bbloc < 1900) {
+                            bbloct = 'party room 3';
+                        }
+                        if(bbloc > 1900 && bbloc < 2000) {
+                            bbloct = 'moving';
+                        }
+                        if(bbloc > 2000 && bbloc < 2900) {
+                            bbloct = 'party room 1';
+                        }
+                        if(bbloc > 2900 && bbloc < 3000) {
+                            bbloct = 'moving';
+                        }
+                        if(bbloc > 3000 && bbloc < 3900) {
+                            bbloct = 'left vent';
+                        }
+                        if(bbloc > 3900 && bbloc < 4000) {
+                            bbloct = 'moving';
+                        }
+                    }// bb movement
+                    }// animatronic movement
+                    {
+                    if(animloc > 7000) {
+                        animaway = true;
+                    }
+                    if(bbloc > 4000) {
+                        bbaway = true;
+                    }
+                    }// mask mechanics
+                    {
+                    for(var l = 0; l < staticfreq; l++) {
+                        fill(200, 200, 200);
+                        ellipse(random(0, 400), random(0, 400), random(100, 150), random(3,3.5));
+                        if(chicaloc === "moving" || tbonloct === "moving" || tfredloc === "moving") {
+                        fill(200, 200, 200);
+                        ellipse(random(0, 400), random(0, 400), random(100, 150), random(3,3.5));
+                        ellipse(random(0, 400), random(0, 400), random(100, 150), random(3,3.5));
+                        ellipse(random(0, 400), random(0, 400), random(100, 150), random(3,3.5));
+                        ellipse(random(0, 400), random(0, 400), random(100, 150), random(3,3.5));
+                    }
+                    }
+                    }//static and lightflash
+                }
+                if(camdisplay === 11) {
+                    fill(255, 255, 255);
+                    arc(300, 100, 50, 50, -90, mbtime-90);
+                    mbtime -= 0.1;
+                    textSize(25);
+                    fill(255, 255, 255);
+                    text("Hover to Wind", 220, 150);
+                    text("Music Box", 220, 170);
+                    fill(255, 0, 0);
+                    if(mbtime > 360) {mbtime = 360;}
+                    if(mouseX > 275 && mouseX < 325 && mouseY > 75 && mouseY < 125) {
+                        if(night === 1) {
+                            mbtime += 2;
+                        }
+                        if(night === 2) {
+                            mbtime += 2.1;
+                        }
+                        if(night === 3) {
+                            mbtime += 2.2;
+                        }
+                        if(night === 4) {
+                            mbtime += 2.25;
+                        }
+                        if(night === 5) {
+                            mbtime += 2.3;
+                        }
+                        if(night === 6) {
+                            mbtime += 2.35;
+                        }
+                        if(night === 7) {
+                            mbtime += 2.4;
+                        }
+                    }
+                    }// music box
+            }
+            {
+            if(scene === "camera") {
+                if(mbtime < 90) {
+                        warningflash += 1;
+                        if(warningflash < 40) {
+                            fill(200, 0, 0);
+                            triangle(310, 330, 335, 290, 360, 330);
+                        }
+                        if(warningflash > 80) {
+                            warningflash = 0;
+                        }
+                }
+            }
+            if(night === 1) {
+                mbtime -= 0.1;
+            }
+            if(night === 2) {
+                mbtime -= 0.2;
+            }
+            if(night === 3) {
+                mbtime -= 0.3;
+            }
+            if(night === 4) {
+                mbtime -= 0.35;
+            }
+            if(night === 5) {
+                mbtime += 0.4;
+            }
+            if(night === 6) {
+                mbtime += 0.45;
+            }
+            if(night === 7) {
+                mbtime += 0.5;
+            }
+            if(mbtime < 0) {
+                mbtime += 0.6;
+            }
+            if(mbtime < 90) {
+                warningflash += 1;
+                if(warningflash < 40) {
+                    fill(200, 0, 0);
+                    if(mbtime < 45) {
+                        fill(150, 0, 0);
+                    }
+                    triangle(350, 390, 375, 350, 400, 390);
+                }
+                if(warningflash > 80) {
+                    warningflash = 0;
+                }
+                if(mbtime < 0) {
+                    animhere = true;
+                    deathcause = 'puppet';
+                }
+            }
+            }// global music box code
+    }// main gameplay
+    {
+        if(night === 2) {
+            foxyloc += 1;
+        }
+        if(night === 3) {
+            foxyloc += 1.5;
+        }
+        if(night === 4) {
+            foxyloc += 2;
+        }
+        if(night === 5) {
+            foxyloc += 2;
+        }
+        if(night === 6) {
+            foxyloc += 2.5;
+        }
+        if(night === 7) {
+            foxyloc += 3;
+        }
+        if(cameraopen === false && keyIsPressed && keyCode === CONTROL && flashbattery > -1) {
+            flashbattery -= 0.1;
+            if(foxyloc > 1000 && cameraopen === false) {
+                noStroke();
+                foxyreset = true;
+        fill(128, 97, 0);
+        ellipse(210,236,52,52);
+        rect(176,211,20,10,10);
+    
+           rect(194,254,34,44);
+             rect(194,286,12,44);
+                rect(216,286,12,44);
+                ellipse(200,331,19,9);
+                ellipse(222,331,19,9);
+                stroke(0, 0, 0);
+                ellipse(194,331,5,5);
+                 ellipse(200,331,5,5);
+                  ellipse(205,331,5,5);
+                   ellipse(216,331,5,5);
+                    ellipse(222,331,5,5);
+                     ellipse(227,331,5,5);
+                     
+                noStroke();
+                 ellipse(188,264,15,15);
+                  ellipse(233,264,15,15);
+                   rect(181,267,10,30);
+                   rect(230,267,10,30);
+                   ellipse(182,295,16,9);
+                     ellipse(238,295,16,9);
+                         ellipse(233,300,5,15);
+                          ellipse(239,300,5,15);
+                           ellipse(245,300,5,15);
+                   stroke(97, 97, 97);
+                   fill(97, 97, 97);
+                   arc(181,295,13,20,1,180);
+                   strokeWeight(2);
+                   fill(255, 0, 0,0);
+                    arc(175,307,13,20,-47,158);
+                   noStroke();
+        fill(120, 120, 120);
+        rect(226,211,20,10,10);
+        strokeWeight(2);
+        stroke(255, 0, 0);
+line(248,229,231,221);
+noStroke();
+pushMatrix();
+translate(41,216);
+fill(189, 116, 53);
+triangle(169,69,185,35,153,35);
+rotate(-26);
+fill(255, 255, 255);
+rect(123,102,3,6);
+rect(123,111,3,6);
+rect(123,120,3,6);
+
+rotate(-127);
+translate(-11,-30);
+fill(255, 255, 255);
+rect(-169,74,3,6);
+rect(-169,66,3,6);
+rect(-169,56,3,6);
+popMatrix();
+fill(189, 116, 53);
+
+rect(196,249,28,5);
+fill(0, 0, 0);
+ellipse(210,248,9,5);
+fill(0, 0, 0);
+ellipse(199,226,15,15);
+ellipse(223,227,15,15);
+
+
+
+            }
+        }
+        if(foxyresettimer > 100) {
+                foxyreset = false;
+                foxyresettimer = 0;
+                foxyloc = 0;
+        }
+        if(foxyloc > 1500) {
+            animhere = true;
+            deathcause = 'foxy';
+        }
+        if(foxyreset === true) {
+                foxyresettimer += 1;
+        }
+        fill(200, 200, 200);
+        rect(10, 40, 5, 20);
+        rect(15, 35, 85, 30);
+        rect(100, 40, 5, 20);
+        fill(255, 255, 255);
+        if(flashbattery > 75) {
+            rect(80, 37.5, 15, 25);
+        }
+        if(flashbattery > 50) {
+            rect(60, 37.5, 15, 25);
+        }
+        if(flashbattery > 25) {
+            rect(40, 37.5, 15, 25);
+        }
+        if(flashbattery > 0) {
+            rect(20, 37.5, 15, 25);
+        }
+    }//foxy and flashlight
+    {
+            if(hourclock === 6) {
+                fill(255, 255, 255);
+                background(0);
+                textSize(50);
+                text("5", 150, sixam);
+                text("6", 150, sixam-50);
+                text("AM", 180, 200);
+                sixam += 0.3;
+                fill(255, 255, 255);
+                rect(100, 200, 200, 200);
+                rect(100, 0, 200, 160);
+                fill(0);
+                rect(100, 200, 200, 200);
+                rect(100, 0, 200, 160);
+                if(sixam > 250) {
+                    sixam -= 0.5;
+                }
+            }
+    }//transitions (6AM)
+    {
+            if(animloc > 6500 && closehovered === true) {
+                animhere = true;
+                deathcause = 'chica';
+            }
+            if(tbonloc > 6500 && closehovered === true) {
+                animhere = true;
+                deathcause = 'tbonnie';
+            }
+            if(animhere === true) {
+                {
+                    if(deathcause === 'foxy') {
+                    scene = 'office';
+                    closehovered = true;
+                    camX2 += 12;
+                    camX1 -= 9;
+                    camY += 36;
+                    chicadeath += 15;
+                    noStroke();
+    pushMatrix();
+    translate(XSize, YSize);
+    scale(Size);
+    fill(191, 89, 34);
+    triangle(200,195,210,165,190,165);
+    rect(165,165,25,10,30);
+    rect(210,165,25,10,30);
+    rect(189,148,23,15,30);
+    triangle(195,163,195,157,178,162);
+    triangle(205,163,208,157,223,162);
+    rect(199,139,4,11,30);
+    rotate(41);
+    rect(230,-16,12,8,30);
+    rotate(33);
+    rect(189,-117,15,10,30);
+    fill(79, 79, 79);
+    rect(182,-113,7,2);
+    rect(176,-110,7,2,10);
+    rect(182,-115,2,7,10);
+    rect(176,-115,2,7,10);
+    rotate(-74);
+    fill(133, 60, 24);
+    triangle(200,189,207,167,193,167);
+    fill(207, 207, 207);
+    rect(198,167,4,2);
+    rect(196,169,8,5);
+    fill(120, 120, 120);
+    rect(197,170,6,3);
+    fill(0, 0, 0);
+    ellipse(200.5,157,5,3);
+    fill(194, 120, 93);
+    quad(203,157,198,157,195,163,206,163);
+    strokeWeight(0.7);
+    noFill();
+    stroke(92, 92, 92);
+    rect(168,167,19,6);
+    rect(213,167,19,6);
+    rect(174,167,7,6);
+    rect(219,167,7,6);
+    noStroke();
+    fill(69, 69, 69);
+    rotate(30);
+    rect(277,26,15,11,2);
+    rect(270,29,13,4,10);
+    ellipse(289,23,5,5);
+    rect(282,19,5,10,10);
+    rect(277,15,5,15,10);
+    fill(79, 79, 79);
+    rect(276,15,5,8,10);
+    rotate(330);
+    rect(193,169,2,2);
+    rect(205,169,2,2);
+    rect(194,173,2,2);
+    rect(204,173,2,2);
+    rect(195,177,2,2);
+    rect(203,177,2,2);
+    rect(197,181,2,2);
+    rect(201,181,2,2);
+    rect(199,187,2,2);
+    rect(195,163,2,2);
+    rect(199,163,2,2);
+    rect(203,163,2,2);
+    rotate(46);
+    rect(251,-59,8,12,30);
+    rotate(-45);
+    fill(255, 255, 255);
+    ellipse(197,152,7,7);
+    ellipse(209.5,152,7,7);
+    fill(255, 234, 0);
+    ellipse(197,152,4,4);
+    ellipse(209.5,152,4,4);
+    fill(0, 0, 0);
+    ellipse(197,152,2,2);
+    ellipse(209.5,152,2,2);
+    fill(0, 0, 0);
+    ellipse(197,147.5,9,2);
+    noFill();
+    stroke(189, 0, 0);
+    line(210,145,212,139);
+    line(215,150,219,152);
+    stroke(250, 250, 250);
+    line(209,145,210,140);
+    line(211,145,213,140);
+    Size+=0.1;
+    XSize-=20;
+    YSize-=16;
+    popMatrix();
+    if(Size > 7){
+     XSize = 10000;
+     //DEAD u r dead
+    }
+                    }//foxy jumpscare
+                    if(deathcause === 'chica') {
+                    scene = 'office';
+                    camX2 += 12;
+                    camX1 -= 9;
+                    camY += 36;
+                    fill(250, 150, 0);
+                    ellipse(200, 200, chicadeath, chicadeath);
+                    fill(0);
+                    quad(0, 400, 400, 400, camX1, camY, camX2, camY);
+                    chicadeath += 20;
+                    }//chica jumpscare
+                    if(deathcause === 'tbonnie') {
+                    scene = 'office';
+                    camX2 += 12;
+                    camX1 -= 9;
+                    camY += 36;
+                    fill(0, 255, 0);
+                    ellipse(200, 200, chicadeath, chicadeath);
+                    fill(0);
+                    quad(0, 400, 400, 400, camX1, camY, camX2, camY);
+                    chicadeath += 20;
+                    }//chica jumpscare
+                    if(deathcause === 'puppet') {
+                    scene = 'office';
+                    camX2 += 12;
+                    camX1 -= 9;
+                    camY += 36;
+                    fill(0);
+                    pushMatrix();
+        translate(xsize,ysize);
+        scale(Psize);
+        fill(230, 230, 230);
+        ellipse(200,200,50,50);
+        fill(0, 0, 0);
+        arc(200,207,32,20,1,179);
+        rect(81,223,100,10);
+        rect(216,223,100,10);
+        rect(179,225,40,30);
+        ellipse(188,191,10,6);
+        ellipse(209,191,10,6);
+        fill(255, 255, 255);
+        ellipse(188,191,4,4);
+        ellipse(209,191,4,4);
+        fill(157, 0, 255);
+        rect(206,194,5,12);
+        rect(185,194,5,12);
+        fill(255, 0, 0);
+        ellipse(179,205,8,8);
+        ellipse(220,205,8,8);
+        ellipse(200,206,13,3);
+        ellipse(200,217,10,3);
+        
+        Psize+=0.3;
+        xsize-=60;
+        ysize-=60;
+        popMatrix();
+        
+        if(Psize > 9) {
+            Psize = 9;
+            xsize = 1800;
+            ysize = 1800;
+            
+            dead = true;
+            //gameover();
+        } 
+                    }//puppet jumpscare
+                }// jumpscare
+            if(chicadeath > 400) {
+                dead = true;
+            }
+            
+            if(dead === true) {
+                background(200, 200, 200);
+                deathtime += 1;
+                static();
+            }
+            }
+            if(deathtime > 200) {
+                noStroke();
+    //credit to dip
+    background(255, 0, 0);
+    noFill();
+    stroke(0, 0, 0);
+    strokeWeight(4);
+    rect(215, 370, 175, 25);
+    stroke(255, 255, 255);
+    strokeWeight(2);
+    rect(215, 370, 175, 25);
+    stroke(59, 36, 7);
+    fill(0, 0, 0);
+    fill(133, 95, 37);
+    rect(100, 180, 200, 100, 100);
+    fill(0, 0, 0);
+    ellipse(200, 180, 50, 25);
+    
+    fill(87, 45, 0);
+    rect(0, 0, 50, 400);
+    rect(350, 0, 50, 400);
+    rect(0, 290, 400, 150, 50);
+    rect(0, 0, 400, 100);
+    rect(0, 205, 400, 85);
+    rect(187.5, 0, 20, 400);
+    rect(188, 205, 20, 20, -30);
+    rect(188, 80, 20, 20, -30);
+    
+    rect(30, 205, 20, 20, -30);
+    rect(30, 80, 20, 20, -30);
+    rect(350, 205, 20, 20, -30);
+    rect(350, 80, 20, 20, -30);
+    fill(145, 127, 145);
+    textSize(30);
+    text("GAME OVER", 100, 250);
+    noFill();
+    stroke(255, 0, 0);
+    strokeWeight(2);
+            }
+            }// dying
+    }
+};
