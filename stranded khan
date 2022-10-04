@@ -1,5 +1,12 @@
+/*
+see full version history at 
+
+https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
+
+*/
 //jshint asi: true
 //jshint esnext: true
+//{
 noStroke()
 let sc = "home", keys = [], seed = new Random(random(0, 10000)), bs = [], px = -500, py = -500, pd = 0, loading, islands = [], dup = false, finish = false
 let hm = [
@@ -18,15 +25,17 @@ let hm = [
     "00000003333000000"
 ]
 let c1 = color(0, 0, 150)
-
+//}
+//{
 //put your save code here:
 let savecode = ""
 //island size (increases logarithmically)
-let islandSize = 2000
+let islandSize = 1000
 //load speed (faster load speed = higher chance of crashes)
-let loadSpeed = 50
+let loadSpeed = 20
 //player speed 
 let spd = 0.5
+//}
 
 function Land(x, y) {
     this.x = x
@@ -36,17 +45,30 @@ function Land(x, y) {
         for(let i = 0; i < bs.length; i++) {
             if(
             (bs[i].x === this.x-20 && bs[i].y === this.y) ||
-            (bs[i].x === this.x+20 && bs[i].y === this.y) ||               (bs[i].x === this.x && bs[i].y === this.y-20) || 
-            (bs[i].x === this.x && bs[i].y === this.y+20)) {
+            (bs[i].x === this.x+20 && bs[i].y === this.y) ||
+            (bs[i].x === this.x && bs[i].y === this.y-20) || 
+            (bs[i].x === this.x && bs[i].y === this.y+20) ||
+            (bs[i].x === this.x-20 && bs[i].y === this.y-20) ||
+            (bs[i].x === this.x-20 && bs[i].y === this.y+20) ||
+            (bs[i].x === this.x+20 && bs[i].y === this.y-20) ||
+            (bs[i].x === this.x+20 && bs[i].y === this.y+20)
+            ) {
                 this.count++
             }
         }
-        this.col = this.count >= 4 ? color(0, 150, 0) : color(255, 255, 200)
+        switch(this.count) {
+            case 8: this.col = color(0, 220, 0); break
+            case 9: this.col = color(0, 190, 0); break
+            case 10: this.col = color(0, 170, 0); break
+            case 11: this.col = color(0, 140, 0); break
+            default: this.col = color(255, 255, 100);
+        }
     }
     this.check()
     this.draw = function() {
         stroke(this.col)
         strokeWeight(1)
+        noStroke()
         fill(this.col)
         rect(this.x, this.y, 20, 20)
     }
@@ -83,7 +105,7 @@ function Island(x, y) {
         this.finish = true
     }
 }
-for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
+for(let i = 1; i < 2; i++) {for(let j = 1; j < 2; j++) {
     islands.push(new Island(i*600, j*600))
 }}
 
@@ -111,6 +133,16 @@ function island(x, y) {
     }
     for(let i = 0; i < c.length; i++) {
         bs.push(new Land(c[i].x, c[i].y))
+    }
+}
+function back() {
+    fill(0, 0, 200)
+    rect(30, 540, 90, 40)
+    fill(255, 255, 255)
+    text("BACK", 50, 565)
+    
+    if(mouseIsPressed) {
+        if(mouseX > 30 && mouseX < 120 && mouseY > 540 && mouseY < 580) {sc = "home"}
     }
 }
 function controls() {
@@ -159,13 +191,19 @@ function game() {
         }
         if(dup) {islands[i].rd()}
     }
-    if(islands.every(function(e) {return e.finish})) {loading = false}
+    if(islands.every(function(e) {return e.finish})) {
+        loading = false
+        for(let i = 0; i < bs.length; i++) {
+            bs[i].check()
+        }
+    }
     if(loading) {
         background(c1)
         textSize(30)
         text("Loading " + round(100*(islands[0].c.length/islandSize)), 230, 300)
     }
 }
+
 function option(y, op) {
     for(let i = 0; i < 3; i++) {
         fill(0, 0, 200)
@@ -184,14 +222,15 @@ function options() {
     option(230, ["SLOW", "MEDIUM", "FAST"])
     option(290, ["SLOW", "MEDIUM", "FAST"])
     
-    fill(0, 0, 200)
-    rect(30, 540, 90, 40)
+    back()
+}
+function control() {
+    background(c1)
     fill(255, 255, 255)
-    text("BACK", 50, 565)
-    
-    if(mouseIsPressed) {
-        if(mouseX > 30 && mouseX < 120 && mouseY > 540 && mouseY < 580) {sc = "home"}
-    }
+    textSize(30)
+    text("CONTROLS", 220, 130)
+    textSize(20)
+    text("Arrow Keys to move", 80, 200)
 }
 function home() {
     background(c1)
@@ -251,6 +290,7 @@ draw = function() {
         case "home": home(); break
         case "game": game(); break
         case "options": options(); break
+        case "control": control(); break
     }
     textSize(15)
     fill(255, 255, 255)
