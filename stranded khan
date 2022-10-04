@@ -6,6 +6,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 */
 //jshint asi: true
 //jshint esnext: true
+
 //{
 noStroke()
 let sc = "home", keys = [], seed = new Random(random(0, 10000)), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0
@@ -25,18 +26,18 @@ let hm = [
     "00000003333000000"
 ]
 let c1 = color(0, 0, 150)
-//}
+//} basic vars
 //{
 //put your save code here:
 let savecode = ""
 //island size (increases logarithmically)
-let islandSize = 200
+let islandSize = 300
 //load speed (faster load speed = higher chance of crashes)
 let loadSpeed = 20
 //player speed 
-let spd = 0.5
-//}
-
+let spd = 0.7
+//} setting vars
+//{
 function Land(x, y) {
     this.x = x
     this.y = y
@@ -61,9 +62,9 @@ function Land(x, y) {
             case 8: this.col = color(0, 220, 0); break
             case 9: this.col = color(0, 190, 0); break
             case 10: this.col = color(0, 170, 0); break
-            case 11: this.col = color(0, 140, 0); break
             default: this.col = color(255, 255, 100);
         }
+        if(this.count > 10) {this.col = color(0, 100, 255)}
         }
     }
     this.check()
@@ -109,7 +110,8 @@ function Island(x, y) {
 for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
     islands.push(new Island(i*600-1080, j*600-1080))
 }}
-
+//} constructors
+//{
 function HUD() {
     fill(255, 255, 255)
     textSize(15)
@@ -124,7 +126,8 @@ function crafting() {
 function pause() {
     
 }
-
+//} displayed functions
+//{
 function island(x, y) {
     let n = seed.nextGaussian(), ch = 0, unique = [], c = [new PVector(x, y)]
     
@@ -151,19 +154,11 @@ function island(x, y) {
         bs.push(new Land(c[i].x, c[i].y))
     }
 }
-function back() {
-    fill(0, 0, 200)
-    rect(30, 540, 90, 40)
-    fill(255, 255, 255)
-    text("BACK", 50, 565)
-    
-    if(mouseIsPressed) {
-        if(mouseX > 30 && mouseX < 120 && mouseY > 540 && mouseY < 580) {sc = "home"}
-    }
-}
 function controls() {
-    px -= keys[RIGHT] ? spd : keys[LEFT] ? -spd : 0
-    py -= keys[UP] ? -spd : keys[DOWN] ? spd : 0
+    for(let i = 0; i < bs.length; i++) {
+        bs[i].x -= keys[RIGHT] ? spd : keys[LEFT] ? -spd : 0
+        bs[i].y -= keys[UP] ? -spd : keys[DOWN] ? spd : 0
+    }
 }
 function player() {
     if(keys[RIGHT] && !keys[DOWN] && !keys[UP] && 90) {pd = 90}
@@ -212,10 +207,11 @@ function init() {
         text("Loading " + ajk, 230, 300)
     }
 }
+function water() {
+}
 function game() {
     pushMatrix()    
     scale(2)
-    translate(px, py)
     background(c1)
     for(let i = 0; i < bs.length; i++) {
         bs[i].draw()
@@ -223,10 +219,22 @@ function game() {
     if(!loading) {controls()}
     popMatrix()
     player()
+    water()
     HUD()
     init()
 }
-
+//} game mechanic functions
+//{
+function back() {
+    fill(0, 0, 200)
+    rect(30, 540, 90, 40)
+    fill(255, 255, 255)
+    text("BACK", 50, 565)
+    
+    if(mouseIsPressed) {
+        if(mouseX > 30 && mouseX < 120 && mouseY > 540 && mouseY < 580) {sc = "home"}
+    }
+}
 function option(y, op, v, n) {
     for(let i = 0; i < 3; i++) {
         fill(v === n[i] ? color(50, 50, 255) : color(0, 0, 220))
@@ -241,20 +249,25 @@ function options() {
     text("OPTIONS", 250, 100)
     textSize(18)
     text("ISLAND SIZE\n\nLOAD SPEED\n\nMOVEMENT SPEED\n(LAND)", 50, 200)
-    option(170, ["SMALL", "MEDIUM", "LARGE"], islandSize, [100, 200, 350])
+    option(170, ["MEDIUM", "LARGE", "HUGE"], islandSize, [300, 600, 1000])
     option(230, ["SLOW", "MEDIUM", "FAST"], loadSpeed, [10, 20, 30])
-    //option(290, ["SLOW", "MEDIUM", "FAST"])
+    option(290, ["SLOW", "MEDIUM", "FAST"], spd, [0.4, 0.7, 1])
     
     if(mouseIsPressed) {
         if(mouseY > 170 && mouseY < 210) {
-            if(mouseX > 260 && mouseX < 350) {islandSize = 100}
-            else if(mouseX > 368 && mouseX < 458) {islandSize =  200}
-            else if(mouseX > 476 && mouseX < 566) {islandSize = 350} 
+            if(mouseX > 260 && mouseX < 350) {islandSize = 300}
+            else if(mouseX > 368 && mouseX < 458) {islandSize =  600}
+            else if(mouseX > 476 && mouseX < 566) {islandSize = 1000} 
         }
         if(mouseY > 230 && mouseY < 270) {
             if(mouseX > 260 && mouseX < 350) {loadSpeed = 10}
             else if(mouseX > 368 && mouseX < 458) {loadSpeed = 20}
             else if(mouseX > 476 && mouseX < 566) {loadSpeed = 30}
+        }
+        if(mouseY > 290 && mouseY < 330) {
+            if(mouseX > 260 && mouseX < 350) {spd = 0.4}
+            else if(mouseX > 368 && mouseX < 458) {spd = 0.7}
+            else if(mouseX > 476 && mouseX < 566) {spd = 1}
         }
 
     }
@@ -320,6 +333,7 @@ function home() {
         if(cond[3]) {sc = "options"}
     }
 }
+//} home screen functions
 draw = function() {
     keyPressed = function() {keys[keyCode] = true}
     keyReleased = function() {keys[keyCode] = false}
