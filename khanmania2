@@ -1,0 +1,540 @@
+{
+var fov = 400; //the field of view (inverted)
+var sz = 100;  //the size of each cube
+var renderDistance = 5000; //how close each cube must be in order to be rendered in
+}//SETTINGSs
+/**
+ */
+var p = new PVector(-100, 20, 400);
+var p = new PVector(0, 20, 0);
+var ghosts = [], checkpoints = [];
+var rec = [], timer = 0, checks = 0, count = 3, rtimes = [], rprint = false, crashed = false, deadtimer = 0, opening = false, laps = 0;
+var times = [4.410000000000002,5.7899999999999725,7.079999999999945,7.709999999999932,8.624999999999948,10.905000000000035,12.030000000000078,14.010000000000153,14.925000000000187,15.555000000000211,15.960000000000226,17.235000000000273,18.060000000000304,19.50000000000036,20.5800000000004,21.67500000000044,22.230000000000462,23.025000000000492,25.005000000000567,25.980000000000604,27.94500000000068,28.860000000000714,29.52000000000074,29.925000000000754,31.350000000000808,32.49000000000085,34.245000000000914,35.68500000000097,37.05000000000102,37.725000000001046,38.59500000000108,40.54500000000115,41.685000000001196
+];
+{
+var keys = [], roads = [];
+var faces = [
+    [3,2,6,7],
+    [7,5,4,6],
+    [0,4,5,1],
+    [0,2,6,4],
+    [1,3,7,5],
+    [0,1,3,2]
+];
+}//variables
+//{
+function avgSort(arr) {
+    arr.sort(function(a, b) {
+        return a.average - b.average;
+    });
+}
+function rotation(v, theta) {
+    for(var a in v.nodes) {
+        var node = v.nodes[a];
+        var x = node.x;
+        var z = node.z;
+        node.x = x*cos(theta) + z*sin(theta);
+        node.z = z*cos(theta) - x*sin(theta);
+    }
+}
+function moveGrid(x, y, z) {
+    for(var m in roads) {
+        for(var n in roads[m].nodes) {
+            var n = roads[m].nodes[n];
+            n.x += x;
+            n.y += y;
+            n.z += z;
+        }
+    }
+}
+function moveGhosts(x, y, z) {
+    for(var q in ghosts) {
+        for(var r in ghosts[q].nodes) {
+            var n = ghosts[q].nodes[r];
+            n.add(new PVector(x*4, y*4, z*4));
+        }
+    }
+}
+//} other functions
+//{
+function Car(p) {
+    {
+    this.b = new PVector(0, 80, 500);
+    this.px = this.b.x+30;
+    this.nx = this.b.x-30;
+    this.py = this.b.y+15;
+    this.ny = this.b.y-15;
+    this.pz = this.b.z+80;
+    this.nz = this.b.z-80;
+    }
+    this.turn = 0;
+    this.speed = 0;
+    this.move = true;
+    this.turned = 0;
+    this.nodes = [
+        new PVector(this.nx, this.ny, this.nz),
+        new PVector(this.nx, this.ny, this.pz),
+        new PVector(this.nx, this.py, this.nz),
+        new PVector(this.nx, this.py, this.pz),
+        new PVector(this.px, this.ny, this.nz),
+        new PVector(this.px, this.ny, this.pz),
+        new PVector(this.px, this.py, this.nz),
+        new PVector(this.px, this.py, this.pz)
+    ];
+    this.faces = faces;
+    this.deepest = function(x, y, z) {
+        var minZ = -Infinity;
+        for(var p in this.nodes) {
+            var node = this.nodes[p];
+            var Dist = dist(x,y,z,node.x,node.y,node.z);
+            minZ = max(minZ, Dist);
+        }
+        return minZ;
+    };
+    this.visible = function(face, x, y, z) {
+        for(var a in face) {
+            var node = this.nodes[face[a]];
+            var Dist = dist(x,y,z,node.x,node.y,node.z);
+            if(this.dz === Dist) {
+                return false;
+            }
+        }
+        return true;
+    };
+    this.draw = function(col) {
+        for(var a in this.faces) {
+            var n1 = this.nodes[this.faces[a][0]];
+            var n2 = this.nodes[this.faces[a][1]];
+            var n3 = this.nodes[this.faces[a][2]];
+            var n4 = this.nodes[this.faces[a][3]];
+            var N1 = [n1.x*fov/n1.z, n1.y*fov/n1.z];
+            var N2 = [n2.x*fov/n2.z, n2.y*fov/n2.z];
+            var N3 = [n3.x*fov/n3.z, n3.y*fov/n3.z];
+            var N4 = [n4.x*fov/n4.z, n4.y*fov/n4.z];
+            fill(col);
+            if(n1.z > 0 && n2.z > 0 && n3.z > 0 && n4.z > 0 && this.visible(this.faces[a], 0, 0, 0)) {
+            quad(N1[0], N1[1], N2[0], N2[1], N3[0], N3[1], N4[0], N4[1]);
+            }
+        }
+    };
+}
+var a = new Car(new PVector(0, 0, 0));
+function Player(b, turn, speed, move, turned, px, nx, py, ny, pz, nz, nodes, faces, draw) {
+    Car.call(this, b, turn, speed, move, turned, px, nx, py, ny, pz, nz, nodes, faces, draw);
+    this.p = p;
+    this.moved = new PVector(0, 0, 0);
+    this.timer = 0;
+    this.gear = 0;
+    this.shifted = false;
+    this.transmit = false;
+    this.gears = function() {
+        if(this.speed > 0 && this.speed < 1.5) {this.gear = 1;}
+        this.shift = function(spd, spd2, gear) {
+            if(this.speed > spd && this.speed < spd2) {
+                if(this.gear === gear-1) {
+                    this.transmit = true;
+                }
+                this.gear = gear;
+            }
+        };
+        for(var a = 1; a < 7; a++) {this.shift(a*1.5, a*1.5+0.5, a+1);}
+        if(this.transmit) {
+            if(this.timer > 30) {
+                this.transmit = false;
+                this.timer = 0;
+            }
+            if(this.transmit) {this.timer ++;}
+        }
+        this.speed = constrain(this.speed, -1, 12);
+    };
+    this.controls = function() {
+        if(!this.transmit) {
+            this.speed += (keys[UP] ? 0.02 : (keys[DOWN] ? -0.02 : 0) - Math.sign(this.speed)/100);
+        }
+        this.turned += (keys[LEFT] || keys[RIGHT]) && this.turn === 0.5 ? 0.5 : (this.turn === -0.5 ? -0.5 : 0);
+        moveGrid(0, 0, -this.speed);
+        this.turn = keys[RIGHT] ? 0.5 : keys[LEFT] ? -0.5 : 0;
+    };
+    this.display = function() {
+        this.gears();
+        this.dz = this.deepest(0, 0, 0);
+        pushMatrix(); translate(0, 10);
+        this.draw(color(255, 0, 0));
+        popMatrix();
+        var A = count < 0 && this.controls();
+    };
+}
+var player = new Player();
+function Ghost(deepest, visible) {
+    this.b = new PVector(0, 80, 500);
+    this.px = this.b.x+28;
+    this.nx = this.b.x-28;
+    this.py = this.b.y+15;
+    this.ny = this.b.y-15;
+    this.pz = this.b.z+65;
+    this.nz = this.b.z-65;
+    this.deepest = a.deepest;
+    this.visible = a.visible;
+    this.p = new PVector(0, 0, 0);
+    this.b = new PVector(0, 0, -150);
+    this.speed = 0;
+    this.turn = 0.1;
+    this.printed = false;
+    this.nodes = [
+        new PVector(this.nx, this.ny, this.nz),
+        new PVector(this.nx, this.ny, this.pz),
+        new PVector(this.nx, this.py, this.nz),
+        new PVector(this.nx, this.py, this.pz),
+        new PVector(this.px, this.ny, this.nz),
+        new PVector(this.px, this.ny, this.pz),
+        new PVector(this.px, this.py, this.nz),
+        new PVector(this.px, this.py, this.pz),
+    ];
+    for(var c in this.nodes) {this.nodes[c].add(this.b);}
+    this.faces = [
+        [3,2,5,4],
+        [7,5,4,6],
+        [0,4,5,1],
+        [0,2,6,4],
+        [3,1,5,7],
+        [0,1,3,2]
+    ];
+    for(var c in this.nodes) {this.nodes[c].add(this.b);}
+    this.rotateSelf = function(theta) {
+        var x = this.b.x;
+        var z = this.b.z;
+        this.b.x = x*cos(theta) + z*sin(theta);
+        this.b.z = z*cos(theta) - x*sin(theta);
+    };
+    this.draw = function() {
+        stroke(80, 80, 80);
+        for(var b in this.faces) {
+            beginShape();
+            if(this.visible(this.faces[b], 0, -10, -400)) {
+            for(var c in this.faces[b]) {
+                var n = this.nodes[this.faces[b][c]];
+                if(n.z+400 > 0) {
+                    fill(0);
+                    var pos = new PVector(n.x*fov/(n.z+400), n.y*fov/(n.z+400));
+                    vertex(pos.x, pos.y);
+                }
+            }
+            }
+            endShape();
+        }
+    };
+    this.record = function() {
+        if(keyIsPressed) {
+            var A = rec.push([timer,
+            (keys[UP] && UP) || (keys[DOWN] && DOWN) || (keys[LEFT] && LEFT) || (keys[RIGHT] && RIGHT)]
+            );
+        }
+        if(round(timer) === 15 && !this.printed) {
+            for(var a = 0; a < rec.length; a += 2) {
+                if(rec[a+1] === undefined) {rec.splice(a+1, 1);}
+                println('['+rec[a]+'],['+rec[a+1]+'],');
+            }
+            this.printed = true;
+        }
+    };
+    this.execute = function() {
+        for(var b in rec) {
+            if(rec[b][0] === timer) {
+                switch(rec[b][1]) {
+                    case UP: this.speed += 0.0125; break;
+                    case DOWN: this.speed -= 0.0125; break;
+                }
+            }
+        }
+        for(var a in this.nodes) {
+            var n = this.nodes[a];
+        }
+    };
+    rotation(this, 15);
+    this.rotateSelf(15);
+    this.turned = 15;
+    this.move = function() {
+        for(var i in this.nodes) {
+            var n = this.nodes[i];
+            n.add(this.b);
+            rotation(this, -this.turned);
+            this.rotateSelf(-this.turned);
+            n.z += 10;
+            rotation(this, this.turned);
+            this.rotateSelf(this.turned);
+            n.sub(this.b);
+        }
+    };
+    this.display = function() {
+        for(var i in this.nodes) {this.nodes[i].z -= player.speed*5;}
+        this.move();
+        count = -10;
+        this.dz = this.deepest(0, -10, -400);
+        this.draw();
+        if(keys[RIGHT] || keys[LEFT]) {
+            rotation(this, -player.turn*2);
+            this.rotateSelf(-player.turn*2);
+        }
+    };
+}
+//} player
+//{
+function Checkpoint(p, n, isLap) {
+    this.nodes = [p];
+    this.n = n;
+    this.isCheck = true;
+    this.isLap = isLap;
+    this.prox = false;
+    this.laps = 0;
+    this.checking = false;
+    this.checked = false;
+    this.ctimer = 0;
+    this.draw = function() {
+        fill(0);
+        var pos = new PVector(this.nodes[0].x*fov/(this.nodes[0].z+100), this.nodes[0].y*fov/(this.nodes[0].z+100));
+        ellipse(pos.x, pos.y, 300/(this.nodes[0].z+100), 300/(this.nodes[0].z+100));
+    };
+    this.lap = function() {
+        var Dist = dist(0, 0, 0, this.nodes[0].x, this.nodes[0].y, this.nodes[0].z);
+        text(laps, 100, 100);
+        if(Dist < 30 && checks > 11) {
+            laps ++;
+            checks = 0;
+        }
+    };
+    this.check = function() {
+        var Dist = dist(0, 0, 0, this.nodes[0].x, this.nodes[0].y, this.nodes[0].z);
+        if(Dist < 30 && !this.checked && checks === this.n-1) {
+            this.checked = true;
+            this.checktime = timer;
+            this.checking = true;
+            checks++;
+            rtimes.push(this.checktime);
+            if(rprint) {println(rtimes);}
+        }
+        if(this.checking && checks === this.n) {
+            this.ctimer ++;
+            if(this.ctimer < 100) {
+                textAlign(CENTER);
+                var checktime = round(this.checktime*100)/100;
+                var compare = round(times[(checks+laps*13)-1]*100)/100;
+                var diff = round((checktime-compare)*100)/100;
+                var pos = diff > 0;
+                fill(pos ? color(255, 0, 0) : color(0, 0, 255));
+                text(pos ? ("+" + diff+"s\n"+checktime+"s") : (diff+"s") +"\n"+checktime+"s", 0, -50);
+            }
+        }
+    };
+    this.display = function() {
+        this.draw();
+        this.check();
+        if(this.isLap) {this.lap();}
+        var A = (keys[LEFT] || keys[RIGHT]) && rotation(this, -player.turn*2);
+    };
+}
+function Curve(p, r, a) {
+    this.p = p;
+    this.nodes = [];
+    this.r = r;
+    this.a = a;
+    for(var a = 0; a < this.a+1; a++) {this.nodes.push(new PVector(sin(a*2+this.r)*140, 0, cos(a*2+this.r)*140));}
+    for(var b = this.a+1; b > -2; b--) {this.nodes.push(new PVector(sin(b*2+this.r)*70, 0, cos(b*2+this.r)*70));}
+    for(var c in this.nodes) {this.nodes[c].add(this.p);}
+    this.draw = function() {
+        stroke(80, 80, 80);
+        beginShape();
+        for(var b in this.nodes) {
+            var n = this.nodes[b];
+            if(n.z+100 > 0) {
+                fill(80, 80, 80);
+                var pos = new PVector(n.x*fov/(n.z+100), n.y*fov/(n.z+100));
+                var Dist = dist(0,30,0,n.x,n.y,n.z);
+                vertex(pos.x, pos.y);
+            }
+        }
+        endShape();
+    };
+    this.display = function() {
+        this.draw();
+        if(keys[RIGHT] || keys[LEFT]) {
+            rotation(this, -player.turn*2);
+        }
+    };
+}
+function Straight(p, r, l) {
+    this.p = p;
+    this.r = r;
+    this.l = l;
+    this.nodes = [];
+    for(var a = 0; a < this.l/15+1; a++) {this.nodes.push(new PVector(35, 0, a*10));}
+    for(var b = this.l/15; b > -1; b--) {this.nodes.push(new PVector(-35, 0, b*10));}
+    rotation(this, this.r);
+    for(var c in this.nodes) {this.nodes[c].add(this.p);}
+    this.draw = function() {
+        stroke(80, 80, 80);
+        beginShape();
+        for(var b in this.nodes) {
+            var n = this.nodes[b];
+            if(n.z+100 > 0) {
+                fill(80, 80, 80);
+                var Dist = dist(0,30,0,n.x,n.y,n.z);
+                vertex(n.x*fov/(n.z+100), n.y*fov/(n.z+100));
+            }
+        }
+        endShape();
+        stroke(0);
+    };
+    this.display = function() {
+        this.draw();
+        if(keys[LEFT] || keys[RIGHT]) {
+            rotation(this, -player.turn*2);
+        }
+    };
+}
+function Wall(p, r, l) {
+    this.p = p;
+    this.r = r;
+    this.l = l;
+    this.nodes = [];
+    for(var a = 0; a < this.l+1; a++) {this.nodes.push(new PVector(35, 0, a*10));}
+    for(var b = this.l; b > -1; b--) {this.nodes.push(new PVector(35, -10, b*10));}
+    rotation(this, this.r);
+    for(var c in this.nodes) {this.nodes[c].add(this.p);}
+    this.draw = function() {
+        stroke(80, 80, 80);
+        beginShape();
+        for(var b in this.nodes) {
+            var n = this.nodes[b];
+            if(n.z+100 > 0) {
+                fill(0, 0, 255);
+                var x = n.x*fov/(n.z+100);
+                var y = n.y*fov/(n.z+100);
+                vertex(n.x*fov/(n.z+100), n.y*fov/(n.z+100));
+                var Dist = dist(0,0,0,n.x,n.y,n.z);
+                if(Dist < 13) {crashed = true; player.speed = 0;}
+            }
+        }
+        endShape();
+        stroke(0);
+    };
+    this.findAverage = function() {
+        return this.nodes.reduce(function(a, b) {
+            return a+dist(0,0,0,b.x,b.y,b.z);
+        }, 0)/this.nodes.length;
+    };
+    this.display = function() {
+        this.draw();
+        if(keys[LEFT] || keys[RIGHT]) {
+            rotation(this, -player.turn*2);
+        }
+    };
+}
+function Build() {
+roads.push(
+new Curve(new PVector(105, 0, 800), -90, 35),
+new Straight(new PVector(0, 0, -300), 0, 1650),
+new Straight(new PVector(69, 0, 898), 67, 1200),
+new Curve(new PVector(850, 0, 1115), -25, 30),
+new Straight(new PVector(910, 0, 1200), 125, 2000),
+new Curve(new PVector(1950, 0, 344), 30, 60),
+new Straight(new PVector(1250, 0, -380), 50, 1500),
+new Curve(new PVector(1182, 0, -300), 135, 15),
+new Straight(new PVector(910, 0, -510), 70, 500),
+new Curve(new PVector(859, 0, -418), 153, 20),
+new Straight(new PVector(834, 0, -520), -79, 1150),
+new Curve(new PVector(105, 0, -272), -176, 45),
+new Wall(new PVector(10, 0, 0), 0, 82),
+new Wall(new PVector(-80, 0, 0), 0, 91),
+new Wall(new PVector(40, 0, 870), 68, 85),
+new Wall(new PVector(-60, 0, 960), 68, 85),
+new Wall(new PVector(1910, 0, 460), 120, 10),
+new Wall(new PVector(2010, 0, 395), 150, 5),
+new Wall(new PVector(1910, 0, 150), 50, 15),
+new Wall(new PVector(10, 0, -250), 0, 35),
+new Wall(new PVector(-80, 0, -285), 0, 40)
+);
+for(var a = 0; a < 10; a++) {
+    roads.push(
+        new Checkpoint(new PVector(a*10-50, 0, 700), 1),
+        new Checkpoint(new PVector(300-a*4, 0, 950+a*12), 2),
+        new Checkpoint(new PVector(800-a*4, 0, 1150+a*12), 3),
+        new Checkpoint(new PVector(1050+a*5, 0, 1050+a*9), 4),
+        new Checkpoint(new PVector(1400+a*5, 0, 800+a*9), 5),
+        new Checkpoint(new PVector(1980+a*5, 0, 400+a*9), 6),
+        new Checkpoint(new PVector(1940+a*6, 0, 240-a*6), 7),
+        new Checkpoint(new PVector(1440+a*6, 0, -170-a*6), 8),
+        new Checkpoint(new PVector(1140+a*6, 0, -380-a*8), 9),
+        new Checkpoint(new PVector(860+a*3, 0, -480-a*8), 10),
+        new Checkpoint(new PVector(660, 0, -450-a*8), 11),
+        new Checkpoint(new PVector(100, 0, -330-a*10), 12),
+        new Checkpoint(new PVector(a*10-50, 0, 0), 13, true)
+    );
+}
+}
+Build();
+//} building blocks
+function HUD() {
+    fill(0); textSize(15); textAlign(LEFT);
+    text(round(this.__frameRate), 10, 20);
+    textSize(50); textAlign(RIGHT);
+    text(round(abs(player.speed)*15), 500, 550);
+    textSize(30); textAlign(LEFT);
+    text("mph", 505, 545);
+    text("Gear ", 455, 500);
+    textAlign(CENTER); textSize(20);
+    text("Press R to respawn", 300, 50);
+    textSize(35);
+    var A = count < 0 ? timer += 0.015 : count -= 0.015;
+    text(count < 0 ? round(timer*100)/100 + "s" : ceil(count),300, 200);
+    textSize(40); textAlign(LEFT);
+    text(player.gear, 530, 500);
+}
+//{
+(function Init() {
+ghosts.push(new Ghost());
+roads.forEach(function(that) {
+    for(var q in that.nodes) {
+        that.nodes[q].add(player.p);
+    }
+});
+})(); //generates every cube
+//} map initialization
+function respawn() {
+    var A = (timer = 0, count = 3, laps = 0, checks = 0, player.speed = 0, player.gear = 0, roads = [], Build());
+    roads.forEach(function(that) {
+        for(var q in that.nodes) {
+            that.nodes[q].add(player.p);
+        }
+    });
+}
+function die() {
+    if(crashed) {
+        deadtimer += opening ? -12 : 12;
+        var A = deadtimer > 900 && (opening = true, respawn());
+        var B = deadtimer < 0 && (crashed = false, opening = false);
+    }
+    strokeWeight(deadtimer-1);stroke(0);noFill();
+    arc(300, 300, 900, 900, 0, 360);
+    strokeWeight(0);
+}
+
+draw = function() {
+    background(255, 255, 255); noStroke();
+    fill(0, 150, 0);
+    rect(0, 300, 600, 400);
+    keyPressed = function() {
+        keys[keyCode] = true;
+        var B = key.toString() === 'r' && respawn();
+    };
+    keyReleased = function() {keys[keyCode] = false;};
+    pushMatrix();
+    translate(300, 300);
+    roads.forEach(function(that) {that.display();});
+    checkpoints.forEach(function(that) {that.display();});
+    //ghosts.forEach(function(that) {that.display();});
+    player.display();
+    moveGhosts();
+    popMatrix();
+    HUD();
+    die();
+};
