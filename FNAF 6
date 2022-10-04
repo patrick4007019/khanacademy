@@ -1,0 +1,882 @@
+/**
+THERE ARE JUMPSCARES
+
+I DO NOT RECOMMEND PLAYING THIS GAME IF YOU DO NOT KNOW HOW TO PLAY THE REAL GAME!!!
+
+SALVAGE CONTROLS: 
+T to tase animatronic
+Quickly flick down (when button appears) to look at paper
+Do the same thing to stop looking at it
+Click on the checkbox to mark it
+
+OFFICE CONTROLS:
+Move mouse to the left/right to look left/right.
+Press C to toggle monitor on/off.
+Press X to toggle fan on/off.
+
+MONITOR CONTROLS:
+(Audio) click on box to put an audio lure there
+*/
+
+var p = [
+[0,10,10,0],[10,10,10,0],[10,10,0,0],[0,10,10,10],[10,0,10,10],[10,0,0,10],[0,10,0,10], [0,10,10,10],[10,10,10,0],[10,10,0,0],[0,0,10,10],[10,0,10,10],[10,0,0,10]//in order
+];
+var q = [
+[0,50,50,0],[33,33,33,0],[50,50,0,0],[0,33,33,33],[33,0,33,33],[50,0,0,50],[0,50,0,50],[0,33,33,33],[33,33,33,0],[50,50,0,0],[0,0,50,50],[33,0,33,33],[50,0,0,50]//in order
+];
+var r = [
+[20,80,0,0],[80,20,0,0],//bottom left corner, right 0, up 1
+[0,20,80,0],[0,80,20,0],//top left corner, down 2, right 3
+[0,0,20,80],[0,0,80,20],//top right corner, left 4, down 5
+[80,0,0,20],[20,0,0,80],//bottom right corner, top 6, left 7
+];
+var s = [
+[10,0,10,80],[80,0,10,10],[10,0,80,10],//tri-l, l0, u1, d2
+[10,80,10,0],[10,10,80,0],[80,10,10,0],//tri-r, r3, d4, u5
+[0,80,10,10],[0,10,80,10],[0,10,10,80],//tri-d, r6, d7, l8
+];
+var t = [
+[0,80,0,20],[0,20,0,80] //loc 7, r0, l1
+];
+var movement = [
+    [q[0],p[0],r[2],q[0],r[3],q[0],q[0],q[0],q[0],q[0],q[0],q[0],q[0],q[0]],
+    [q[1],s[5],p[1],s[4],q[1],s[3],q[1],q[1],q[1],q[1],q[1],q[1],q[1],q[1]],
+    [q[2],q[2],r[1],p[2],q[2],q[2],r[0],q[2],q[2],q[2],q[2],q[2],q[2],q[2]],
+    [q[3],s[8],q[3],q[3],p[3],s[7],q[3],s[6],q[3],q[3],q[3],q[3],q[3],q[3]],
+    [q[4],q[4],s[0],q[4],s[1],p[4],s[2],q[4],q[4],q[4],q[4],q[4],q[4],q[4]],
+    [q[5],q[5],q[5],r[7],q[5],r[6],p[5],q[5],q[5],q[5],q[5],q[5],q[5],q[5]],
+    [q[6],q[6],q[6],q[6],t[1],q[6],q[6],p[6],t[0],q[6],q[6],q[6],q[6],q[6]],
+    [q[7],q[7],q[7],q[7],q[7],q[7],q[7],s[8],p[7],s[7],q[7],q[7],q[7],q[7]],
+    [q[8],q[8],q[8],q[8],q[8],q[8],q[8],q[8],s[5],p[8],s[4],q[8],s[3],q[8]],
+    [q[9],q[9],q[9],q[9],q[9],q[9],q[9],q[9],q[9],r[1],p[9],q[9],q[0],r[0]],
+    [q[10],q[10],q[10],q[10],q[10],q[10],q[10],q[10],q[10],r[1],p[10],q[10],q[10],r[0]],
+    [q[11],q[11],q[11],q[11],q[11],q[11],q[11],q[11],q[11],s[0],q[11],s[1],p[11],s[2]],
+    [q[12],q[12],q[12],q[12],q[11],q[12],q[12],q[12],q[12],q[12],r[7],q[12],r[6],p[12]]
+];
+var moves = [
+    [1,0,4,2,0],
+    [2,1,5,3,0],
+    [3,2,6,0,0],
+    [4,0,7,5,1],
+    [5,4,0,6,2],
+    [6,5,0,0,3],
+    [7,0,8,0,4],
+    [8,0,11,9,7],
+    [9,8,12,10,0],
+    [10,9,13,0,0],
+    [11,0,0,12,8],
+    [12,11,0,13,9],
+    [13,12,0,0,10]
+];
+var di = [
+    [100,100],[100,100],[100,100],[100,100],[100,100],[100,100],[100,100],[100,100],[100,100],[100,100],[100,100],[100,100],[100,100]
+];
+var taskc = 0;
+var doingtask = false;
+var scene = 1;
+noStroke();
+
+//CONSTRUCTORS
+
+//{
+function Salv(a) {
+    this.a = a;
+    this.canMove = true;
+    this.dead = false;
+    this.scl = 1;
+    this.tast = false;
+    this.deadt = 0;
+    this.flash = 0;
+    this.ag = 1;
+    this.checked = 0;
+    this.tast = 0;
+    this.timer = 0;
+    this.count = 0;
+    this.countn = 3;
+    this.ptimer = 0;
+    this.papery = 600;
+    this.sc = 1;
+    this.dr = 1;
+    this.sav = 500;
+    this.tasti = 0;
+    this.pa = false;
+    this.mu = false;
+    this.md = false;
+    this.moving = false;
+    this.lines = [];
+}
+Salv.prototype.back = function() {
+    this.flash = random(0, 100);
+    if(round(this.flash) !== 50) {
+    for(var g = 300; g > 0; g-=2) {
+        stroke(lerpColor(color(0), color(255, 255, 0), map(300-g, 0, 300, 0, 1)));
+        noFill();
+        ellipse(300, 0, g*1.2, g*1.3);
+    }
+    }
+    fill(100, 50, 50); noStroke();
+    quad(200, 350, 180, 400, 420, 400, 400, 350);
+};
+Salv.prototype.draw = function() {
+    switch(this.a) {
+        case 1:
+            pushMatrix();
+            fill(255, 255, 255); strokeWeight(1);
+            translate(300, 235); rotate(-20+this.ag*7);
+            if(this.ag >= 3) {scale(1.2*this.scl);}
+            rect(-30, -50, 70, 100, 25);
+            fill(255, 0, 255);
+            rect(-5, -80, 20, 25);
+            rect(-10, -55, 35, 5);
+            ellipse(-40, -50, 20, 20);
+            ellipse(50, -50, 20, 20);
+            fill(0);
+            ellipse(-10, -20, 20, 20);
+            ellipse(20, -20, 20, 20);
+            stroke(255, 0, 255); strokeWeight(15); noFill();
+            arc(5, 15, 50, 20, 220, 320);
+            arc(5, 35, 50, 20, 30, 160);
+            strokeWeight(1);
+            popMatrix();
+    }
+};
+Salv.prototype.paper = function() {
+    pushMatrix();
+    translate(0, this.papery);
+    fill(150, 150, 100);
+    rect(0, 0, 600, 600);
+    fill(0); textSize(22);
+    text("Employees Only: Paragraph 4", 50, 100);
+    text("Paragraph 1: results\n\nParagraph 2: results\n\nParagraph 3: results\n\nParagraph 4: results\n\nParagraph 5: results", 70, 150);
+    for(var f = 0; f < 5; f++) {
+        text("no             yes            unsure",310,175+f*53);
+        for(var e = 0; e < 3; e++) {
+            noFill(); stroke(0);
+            rect(280+e*100, 160+f*53, 20, 20);
+        }
+    }
+    if(mouseIsPressed && this.checked < this.dr) {
+        for(var h = 0; h < 3; h++) {
+            if(mouseY > 160+(this.dr-1)*53 && mouseY < 180+(this.dr-1)*53 && mouseX > 280+h*100 && mouseX < 300+h*100 && this.checked < this.dr) {
+                this.checked ++;
+                this.lines.push([160+(this.dr-1)*53, 280+h*100, 180+(this.dr-1)*53, 300+h*100]);
+            }
+        }
+    }
+    for(var k = 0; k < this.lines.length; k++) {
+        strokeWeight(1.5); stroke(0);
+        line(this.lines[k][1], this.lines[k][0], this.lines[k][3], this.lines[k][2]);
+    }
+    popMatrix();
+    if(mouseX > 150 && mouseX < 450 && mouseY > 540) {
+        this.moving = true;
+        this.mu = !this.pa;
+    } else {
+        this.canMove = true;
+    }
+    if(this.mu && this.moving && this.canMove) {
+        this.canMove = false;
+        this.papery -= 30;
+        if(this.papery <= 0) {
+            this.ba = round(random(0.2, 1.5));
+            if(this.ba === 1) {this.ag ++;}
+            this.mu = false;
+            this.pa = true;
+            this.moving = false;
+        }
+    }
+    if(!this.mu && this.moving && this.canMove) {
+        this.canMove = false;
+        this.papery += 30;
+        if(this.papery >= 600)   {
+            this.mu = true;
+            this.pa = false;
+            this.moving = false;
+        }
+    }
+    {
+    stroke(255, 255, 255); fill(50, 50, 100); strokeWeight(1);
+    rect(150, 574, 300, 24, 2);
+    beginShape();
+    strokeWeight(2);
+    vertex(200, 581); vertex(210, 581);
+    vertex(300, 589); vertex(390, 581);
+    endShape(); beginShape();
+    vertex(200, 589); vertex(210, 589);
+    vertex(300, 595); vertex(390, 589);
+    endShape();}
+
+};
+Salv.prototype.cas = function() {
+    this.ti = function() {
+        this.ptimer++;
+        if(this.ptimer > 110) {
+            this.sc += 0.2;
+            this.ptimer = 0;
+        }
+    };
+    this.doc = function() {
+        text("Document Results", 240, 470);
+    };
+    this.begin = function() {
+        this.count ++;
+        text("Begin audio prompt in " + this.countn, 220, 470);
+    };
+    if(this.checked === this.dr && this.sc%1 === 0.7000000000000002) {
+        fill(255, 255, 255); textSize(18);
+        text("(Press SPACE to continue)", 200, 530);
+    }
+    this.timer ++;
+    fill(255, 255, 255);
+    textSize(16);
+    if(this.count > 60) {
+        this.countn -= 1;
+        this.count = 0;
+    }
+    if(this.countn < 1) {
+        this.sc += 0.5;
+        this.countn = 3;
+        this.count = 0;
+        switch(this.sc) {
+            case 3.5: this.sd = getSound("rpg/battle-spell"); break;
+            case 4.5: this.sd = getSound("retro/whistle1"); break;
+            case 5.5: this.sd = getSound("retro/rumble");break;
+            case 6.5: this.sd = getSound("retro/thruster-long"); break;
+            case 7.5: this.sd = getSound("retro/boom2");
+        }
+        playSound(this.sd);
+    }
+    if(this.sc === 1 || this.sc === 2 || this.sc === 8) {text("(Press SPACE to continue)", 200, 530);}
+    if(this.sc%1 === 0.7000000000000002) {
+    if(this.checked === this.dr) {
+        this.dr = this.sc-2.7000000000000002;
+    } else {
+        text("(Flick downward to open checklist)", 180, 530);
+    }
+    }
+    switch(this.sc) {
+        case 1: text("Before you is an animatronic we found in the back alley. We are unsure of \nits origins. It is your job to complete the maintenance checklist before \nclaiming it as salvage. Or, if you choose to, you can throw it back into the \nalley where you found it, and forfeit payment. Please make your choice now.", 40, 430); break;
+        case 2: text("You have chosen to proceed with the Maintenance Checklist. Remember, \nuse your company issued taser to return the animatronic to a neutral state \nif you feel it is becoming unstable or aggressive. You can only use it three \ntimes before it begins to damage the animatronic, and decrease its value.", 40, 430); break;
+        case 3: this.begin(); break;
+        case 3.5: this.ti(); break;
+        case 3.7: this.doc(); break;
+        case 4: this.begin(); break;
+        case 4.5: this.ti(); break;
+        case 4.7: this.doc(); break;
+        case 5: this.begin(); break;
+        case 5.5: this.ti(); break;
+        case 5.7: this.doc(); break;
+        case 6: this.begin(); break;
+        case 6.5: this.ti(); break;
+        case 6.7: this.doc(); break;
+        case 7: this.begin(); break;
+        case 7.5: this.ti(); break;
+        case 7.7: this.doc(); break;
+        case 8: textAlign(CENTER); text("You have completed the maintenance checklist and may proceed with \nthe salvage. Well done.", 300, 460);textAlign(LEFT);
+    }
+};
+Salv.prototype.taser = function() {
+    textSize(20); fill(200, 200, 200);
+    text("Salvage Value", 460, 540);
+    textSize(34);
+    if(this.tasti < 3) {
+        text(this.sav, 490, 575);
+    } else {
+        text(this.sav-100*(this.tasti-3), 490, 575);
+    }
+    stroke(255, 255, 255); fill(0);
+    rect(10, 550, 40, 40, 10);
+    fill(255, 255, 0);
+    beginShape();
+    vertex(35, 555);
+    vertex(25, 575);
+    vertex(35, 565);
+    vertex(25, 585);
+    endShape(); textSize(12);
+    text("Press T for taser", 10,540);
+    if(this.tasing) {
+        this.tast ++;
+        background(0);
+        if(this.tast > 40) {
+            this.tasing = false;
+        }
+    }
+};
+Salv.prototype.die = function() {
+    if(this.ag > 3) {
+        this.dead = true;
+    }
+    if(this.dead) {
+        this.papery += 40;
+        this.scl *= 1.1;
+        if(this.scl > 6) {
+            background(255, 0, 0);
+            this.deadt ++;
+            if(this.deadt > 60) {
+                scene = 2;
+            }
+        }
+    }
+};
+Salv.prototype.display = function() {
+    this.back();
+    this.draw();
+    this.cas();
+    if(this.sc%1 === 0.7000000000000002) {this.paper();}
+    this.taser();
+    textSize(25);
+    this.die();
+};
+var salv = new Salv(1);
+//} salvaging
+//{
+function Task(p, txt, panel, v) {
+    this.p = p;
+    this.txt = txt;
+    this.panel = panel;
+    this.v = v;
+    this.doing = false;
+    this.done = false;
+    this.timer = 0;
+}
+Task.prototype.draw = function() {
+    noFill(); stroke(255, 255, 255); strokeWeight(2);
+    if(this.v.taskp === this.panel) {
+        if(!this.done) {
+        rect(this.p.x, this.p.y, 150, 25);
+        text(this.txt, this.p.x+5, this.p.y+20);
+        if(mouseIsPressed && !this.done && !this.doing && mouseX > this.p.x+160 && mouseX < this.p.x+310 && mouseY > this.p.y+230 && mouseY < this.p.y+255 && !doingtask) {
+            this.doing = true;
+            doingtask = true;
+        }
+        if(this.doing) {
+            this.timer ++;
+            noFill(); strokeWeight(5);
+            pushMatrix();
+            translate(this.p.x+164, this.p.y+12);
+            rotate(this.timer*5);
+            if(this.timer > 350) {
+                taskc ++;
+                this.done = true;
+                this.timer = 0;
+                this.doing = false;
+                doingtask = false;
+            } else {
+                arc(0, 0, 15, 15, 0, 180);
+            }
+            popMatrix();
+        }
+        }
+    }
+};
+//} tasks
+//{
+function Computer() {
+    this.p = new PVector(160, 200);
+    this.v = new PVector(0, 0);
+    this.open = true;
+    this.panel = 1;
+    this.off = false;
+    this.logoff = false;
+    this.taskp = 0;
+    this.taska = [
+        new Task(new PVector(20, 55), "Order Cups", 1, this),
+        new Task(new PVector(20, 90), "Order Plates", 1, this), 
+        new Task(new PVector(20, 125), "Order Napkins", 1, this),
+        new Task(new PVector(20, 160), "Order Utensils", 1, this),
+        new Task(new PVector(20, 195), "Order Pizza Kits",1,this),
+        new Task(new PVector(20, 55), "Print Flyers", 2, this),
+        new Task(new PVector(20, 90), "Print Posters", 2, this),
+        new Task(new PVector(20, 125), "Print Menus", 2, this),
+        new Task(new PVector(20, 55), "Unclog Toilets", 3, this),
+        new Task(new PVector(20, 90), "Clean Ovens", 3, this),
+        new Task(new PVector(20, 125), "Replace Bulbs", 3, this)
+    ];
+    this.doing = false;
+    this.md = false;
+    this.mdtimer = 0;
+    this.displayAnims = false;
+    this.audioLoc = undefined;
+    this.c = 1;
+    this.light = 130;
+}
+Computer.prototype.draw = function() {
+    pushMatrix();
+    translate(this.p.x, this.p.y);
+    fill(100, 100, 100);
+    fill(170, 170, 170);
+    rect(-20, 0, 320, 280, 6);
+    fill(0);
+    if(!this.open) {
+        rect(0, 20, 280, 240);
+    }
+    popMatrix();
+    this.p.add(this.v);
+};
+Computer.prototype.office = function() {
+    noStroke();
+    fill(50, 50, 50);
+    quad(-200, 400, -50, 240, 320, 240, 400, 400);
+    fill(50, 50, 255);
+    quad(-80, 240, -75, 320, -45, 320, -40, 240);
+    fill(255, 255, 255); stroke(0);
+    ellipse(-60, 240, 40, 7);
+    fill(255, 0, 0);
+    noStroke();
+    rect(-63, 190, 5, 50);
+    pushMatrix();
+    translate(-64, 192);
+    rotate(-50);
+    rect(0, 0, 5, 30);
+    popMatrix();
+    noStroke();
+};
+Computer.prototype.map = function() {
+    fill(100, 100, 100);
+    stroke(255, 255, 255);
+    for(var d = 0; d < 2; d++) {
+        for(var b = 0; b < 2; b++){
+            for(var c = 0; c < 3; c++) {
+                rect(b*40+50+d*120, c*40+60, 30, 30);
+            }
+        }
+    }
+    rect(130, 60, 30, 30);
+    rect(135, 145, 20, 20);
+};
+Computer.prototype.audio = function() {
+    this.map();
+    for(var d = 0; d < 2; d++) {
+        for(var b = 0; b < 2; b++){
+            for(var c = 1; c < 4; c++) {
+                if(mouseIsPressed && mouseX > this.p.x+b*40+50+d*120 && mouseX < this.p.x+b*40+50+d*120+30 && mouseY > this.p.y+c*40+60 && mouseY < this.p.y+c*40+60+30) {
+                    this.audioLoc = d*7+b*3+c;
+                }
+                if(this.audioLoc === d*7+b*3+c) {
+                    stroke(0); noFill();
+                    ellipse(b*40+50+d*120+15,c*40+35,100, 100);
+                }
+            }
+        }
+    }
+    if(mouseIsPressed && mouseX > this.p.x+130 && mouseX < this.p.x+160 && mouseY > this.p.y+90 && mouseY < this.p.y+120) {
+        this.audioLoc = 7;
+    }
+    if(this.audioLoc === 7) {
+        stroke(0); noFill();
+        ellipse(145, 75, 100, 100);
+    }
+};
+Computer.prototype.bar = function() {
+    noStroke(); fill(100, 100, 100);
+    rect(0, 20, 280, 240);
+    stroke(255, 255, 255); strokeWeight(2);
+    if(this.panel === 1) {fill(150, 150, 150);}else{fill(100, 100, 100);}
+    rect(10, 35, 80, 25);
+    if(this.panel === 2) {fill(150, 150, 150);}else{fill(100, 100, 100);}
+    rect(100, 35, 80, 25);
+    if(this.panel === 3) {fill(150, 150, 150);}else{fill(100, 100, 100);}
+    rect(190, 35, 80, 25);
+    translate(0, 30);
+    fill(255, 255, 255);
+    textSize(20);
+    text("Tasks       Audio", 25, 25);
+    textSize(18);
+    text("Motion D.", 192, 23);
+    if(mouseIsPressed && mouseY > this.p.y+35 && mouseY < this.p.y+65) {
+        if(mouseX > this.p.x+15 && mouseX < this.p.x+95) {
+            this.panel = 1;
+        } 
+        if(mouseX > this.p.x+100 && mouseX < this.p.x+180) {
+            this.panel = 2;
+        }
+        if(mouseX > this.p.x+190 && mouseX < this.p.x+270) {
+            this.panel = 3;
+        }
+    }
+};
+Computer.prototype.motionD = function() {
+    this.map();
+    stroke(255, 255, 255);
+    rect(80, 190, 130, 30);
+    fill(255, 255, 255);
+    text("Run Motion D.", 90, 210);
+    if(mouseIsPressed && !this.md && mouseX > this.p.x+80 && mouseX < this.p.x+210 && mouseY > this.p.y+210 && mouseY < this.p.y+250) {
+        this.md = true;
+    }
+    if(this.md) {
+        this.mdtimer ++;
+        noFill(); strokeWeight(5);
+        pushMatrix();
+        translate(225, 205);
+        rotate(this.mdtimer*5);
+        arc(0, 0, 15, 15, 0, 180);
+        if(this.mdtimer > 200) {
+            this.displayAnims = false;
+            this.mdtimer = 0;
+            this.md = false;
+        } else if(this.mdtimer > 160) {
+            this.displayAnims = true;
+        } else {
+            arc(0, 0, 15, 15, 0, 180);
+        }
+        popMatrix();
+    }
+};
+Computer.prototype.back = function() {
+    for(var d = 0; d < 1000; d += 1) {
+        stroke(lerpColor(color(0), color(100, 100, 100), map(this.light-d, 0, 340, 0, 1)));
+ noFill(); strokeWeight(1);
+        ellipse(127, 70, d, d);
+    }
+};
+Computer.prototype.tasks = function() {
+    if(this.taskp !== 0) {
+        rect(200, 190, 70, 30);
+        fill(255, 255, 255);
+        text("Back", 215, 210);
+    }
+    if(mouseIsPressed && mouseX > this.p.x+190 && mouseX < this.p.x+260 && mouseY > this.p.y+220 && mouseY < this.p.y+250) {
+        this.taskp = 0;
+    }
+    for(var j = 0; j < this.taska.length; j++) {
+        this.taska[j].draw();
+    }
+    if(taskc >= this.taska.length) {
+        this.logoff = true;
+    }
+    switch(this.taskp) {
+        case 0:
+            for(var a = 0; a < 3; a++) {
+                rect(50, a*35+70, 150, 25);          
+            }
+            fill(255, 255, 255);
+            textSize(18);
+            text("Order Supplies", 60, 88);
+            text("Advertising", 60, 123);
+            text("Maintenance", 60, 158);
+            if(this.logoff) {
+                noFill(); rect(50, 175, 150, 25);
+                text("Log Off", 60, 193);
+                if(mouseIsPressed && mouseX > this.p.x+50 && mouseX < this.p.x+200 && mouseY > this.p.y+205 && mouseY < this.p.y+230) {
+                    this.off = true;
+                }
+            }
+            if(mouseIsPressed && mouseX > this.p.x+50 && mouseX < this.p.x+200) {
+            for(var r = 0; r < 3; r++) {
+            if(mouseY > this.p.y+100+r*35 && mouseY < this.p.y+125+r*35) {
+                this.taskp = r+1;
+            }
+            }
+            }
+    }
+};
+Computer.prototype.display = function() {
+    if(this.open) {
+        pushMatrix();
+        pushMatrix();
+        translate(this.p.x, this.p.y);
+        this.back();
+        this.office(); 
+        popMatrix();
+        this.draw();
+        translate(this.p.x, this.p.y);
+        this.bar();
+        fill(100, 100, 100);
+        switch(this.panel) {
+        case 1: 
+            this.tasks();
+        break;
+        case 2:
+            this.audio();
+        break;
+        case 3: 
+            this.motionD();
+        }
+        popMatrix();
+    }
+};
+var computer = new Computer();
+//} computer
+//{
+function Control() { 
+    this.temp = 60;
+    this.moving = false;
+    this.loc = 3;
+    this.moved = undefined;
+    this.fanOn = true;
+    this.fantimer = 0;
+    this.AIspd = 420;
+    this.dead = false;
+    this.cause = 0;
+    this.timer = 0;
+    this.timer2 = 0;
+}
+Control.prototype.move = function() {
+    if(mouseX < 100 && !this.moving && this.loc !== 1) {
+        if(this.loc === 5) {this.loc = 4;}
+        if(this.loc === 3) {this.loc = 2;}
+        this.moving = true;
+        this.moved = 'l';
+    }
+    if(mouseX > 500 && !this.moving && this.loc !== 5) {
+        if(this.loc === 1) {this.loc = 2;}
+        if(this.loc === 3) {this.loc = 4;}
+        this.moving = true;
+        this.moved = 'r';
+    }
+    if(this.moving) {
+        if(this.loc === 4 || this.loc === 2) {
+            if(this.moved === 'l') {computer.v.x = 30;}
+            if(this.moved === 'r') {computer.v.x = -30;}
+        }
+    }
+    if(computer.p.x < 180 && this.loc === 2 && this.moved === 'r') {
+        this.moving = false;
+        this.loc = 3;
+        computer.v.x = 0;
+    }
+    if(computer.p.x > 700 && this.loc === 2 && this.moved === 'l') {
+        this.moving = false;
+        this.loc = 1;
+        computer.v.x = 0;
+    }
+    if(computer.p.x < -300 && this.loc === 4 && this.moved === 'r') {
+        this.moving = false;
+        this.loc = 5;
+        computer.v.x = 0;
+    }
+    if(computer.p.x > 130 && this.loc === 4 && this.moved === 'l') {
+        this.moving = false;
+        this.loc = 3;
+        computer.v.x = 0;
+    }
+};
+Control.prototype.light = function() {
+    fill(255, 255, 255);
+    if(this.loc === 1) {
+        ellipse(160, 300, 400, 400);
+    }
+    if(this.loc === 5) {
+        ellipse(460, 300, 400, 400);
+    }
+};
+Control.prototype.fan = function() {
+    this.temp = constrain(this.temp, 60, 120);
+    if(!this.fanOn) {
+        this.temp += 0.01;
+    } else {
+        this.temp -= 0.008;
+    }
+    fill(255, 255, 255);
+    textSize(30); text(round(this.temp)+"F", 530, 590);
+    if(this.fanOn) {
+        text("Fan On", 50, 590);
+    } 
+    if(this.fanOn && computer.open) {
+        this.AIspd = 300;
+    } else if(this.fanOn && !computer.open) {
+        this.AIspd = 340;
+    } else if(!this.fanOn && computer.open) {
+        this.AIspd = 380;
+    } else {
+        this.AIspd = 420;
+    }
+    if(this.temp >= 120) {
+        this.dead = true;
+        this.cause = 1;
+    }
+};
+Control.prototype.die = function() {
+    if(this.dead) {
+        this.timer2 += 2;
+        if(this.timer2 < 40) {
+            this.timer += 2;
+        }
+        pushMatrix();
+        translate(180, -this.timer*13+800);
+        scale(1+this.timer*this.timer/1000);
+        fill(255, 0, 0);
+        rect(-50, -100, 200, 200, 50);
+        fill(0);
+        ellipse(100, 0, 60, 60);
+        ellipse(0, 0, 60, 60);
+        popMatrix();
+        if(this.timer2 > 120) {
+            background(255, 0, 0);
+            fill(255, 255, 255);
+            text("GAME OVER", 200, 300);
+        }
+        switch(this.cause) { 
+            case 1: 
+            fill(255, 255, 255); textSize(40);
+            text("PASSED OUT", 190, 280); break;
+        }
+    }
+    
+};
+Control.prototype.display = function() {
+    this.fan();
+    this.move();
+    this.die();
+};
+Control.prototype.logoff = function() {
+    if(computer.off) {
+        background(0);
+        fill(255, 255, 255);
+        text("Congratulations for winning this insanely\ndifficult game! More updates coming soon.", 100, 200);
+    }
+};
+var control = new Control();
+//} main constructor
+//{
+function Vent(p) {
+    this.p = p;
+    this.v = new PVector(0, 0);
+}
+Vent.prototype.draw = function() {
+    noStroke();
+    pushMatrix();
+    translate(computer.p.x, 0);
+    fill(0);
+    rect(this.p.x-780, this.p.y+150, 300, 300);
+    popMatrix();
+};
+var ventL = new Vent(new PVector(70, 0));
+var ventR = new Vent(new PVector(1380, 0));
+//} vent
+//{
+function sign(x, y) {
+    stroke(255, 0, 0);
+    strokeWeight(3);
+    noFill();
+    triangle(x+2, y-2, x+14, y-30, x+26, y-2);
+    textSize(25);
+    text("!", x+10, y-5);
+}
+function move(c1, c2, c3, c4) {
+    var num = random(0, 100);
+    if(num < c1) {return 1;}
+    else if(num < c2) {return 2;}
+    else if(num < c3) {return 3;}
+    else if(num < c4) {return 4;}
+    else {return 0;}
+}
+//} other functions
+//{
+function Anim() {
+    this.timer = 0;
+    this.loc = 7;
+    this.atimer = 0;
+}
+Anim.prototype.AI = function() {
+    this.timer ++;
+    if(this.timer > 180 && computer.audioLoc !== undefined) {
+        var c;
+        if(this.loc !== 0) {
+            c = movement[this.loc-1][computer.audioLoc];
+        }
+        var wheremove = move(c[0], c[0]+c[1], c[0]+c[1]+c[2], c[0]+c[1]+c[2]+c[3]);
+        if(moves[this.loc-1][wheremove] !== 0) {
+            this.loc = moves[this.loc-1][wheremove];
+        }
+        this.timer = 0;
+    } else if(this.timer > control.AIspd) {
+        var c = movement[this.loc-1][0];
+        var wheremove = move(c[0], c[0]+c[1], c[0]+c[1]+c[2], c[0]+c[1]+c[2]+c[3]);
+        this.loc = moves[this.loc-1][wheremove];
+        this.timer = 0;
+    }
+};
+Anim.prototype.sign = function() {
+    switch(this.loc) {
+        case 1: sign(computer.p.x+50, computer.p.y+120); break;
+        case 2: sign(computer.p.x+50, computer.p.y+160); break;
+        case 3: sign(computer.p.x+50, computer.p.y+200); break;
+        case 4: sign(computer.p.x+90, computer.p.y+120); break;
+        case 5: sign(computer.p.x+90, computer.p.y+160); break;
+        case 6: sign(computer.p.x+90, computer.p.y+200); break;
+        case 7: sign(computer.p.x+130, computer.p.y+120); break;
+        case 8: sign(computer.p.x+170, computer.p.y+120); break;
+        case 9: sign(computer.p.x+170, computer.p.y+160); break;
+        case 10: sign(computer.p.x+170, computer.p.y+200); break;
+        case 11: sign(computer.p.x+210, computer.p.y+120); break;
+        case 12: sign(computer.p.x+210, computer.p.y+160); break;
+        case 13: sign(computer.p.x+210, computer.p.y+200); break;
+    }
+};
+Anim.prototype.attack = function() {
+    this.randa = constrain(this.randa, 0, Infinity);
+    this.randa ++;
+    if((this.loc === 6 && control.loc === 1) || (this.loc === 10 && control.loc === 5)) {
+        this.randa -= 10;
+    } else {
+        this.randa ++;
+    }
+    if(this.randa > control.AIspd-5 && this.loc === 6 && control.loc !== 1) {
+        control.dead = true;
+        control.cause = 2;
+    }
+};
+Anim.prototype.display = function() {
+    this.AI();
+    if(this.loc === 6 || this.loc === 10) {
+        this.attack();
+    } else {
+        this.randa = 0;
+    }
+    if(computer.displayAnims && computer.open && computer.panel === 3) {
+        this.sign();
+    }
+};
+var afton = new Anim();
+var lefty = new Anim();
+var baby = new Anim();
+var fred = new Anim();
+//} animatronic
+
+draw = function() {
+    switch(scene) {
+    case 1: {
+    background(0);
+    keyPressed = function() {
+        if(key.toString() === ' ') {
+        if(salv.sc < 3) {salv.sc ++;}
+        else if(salv.sc%1 === 0.7000000000000002 && salv.checked === salv.dr) {salv.sc += 0.3;}
+        else if(salv.sc === 8) {scene = 2;}
+        } 
+        if(key.toString() === 't') {
+            salv.ag = 1;
+            salv.tast = 0;
+            salv.tasti ++;
+            salv.tasing = true;
+        }
+    };
+    salv.display();}//salvage
+    break;
+    case 2: {
+    noStroke();
+    background(0);
+    computer.display();
+    control.light();
+    keyPressed = function() {
+        if(key.toString() === 'c') {
+            computer.open = !computer.open;
+        }
+        if(key.toString() === 'x') {
+            control.fanOn = !control.fanOn;
+        }
+    };
+    ventL.draw();
+    ventR.draw();
+    afton.display();
+    lefty.display(); 
+    baby.display(); 
+    fred.display();
+    control.display();
+    control.logoff();}//office
+    break;
+    }
+    fill(255, 0, 0);
+    text(round(this.__frameRate), 20, 20);
+};
