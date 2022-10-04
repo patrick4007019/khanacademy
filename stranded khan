@@ -24,7 +24,7 @@ let savecode = ""
 //island size (increases logarithmically)
 let islandSize = 2000
 //load speed (faster load speed = higher chance of crashes)
-let loadSpeed = 100
+let loadSpeed = 50
 //player speed 
 let spd = 0.5
 
@@ -148,7 +148,7 @@ function game() {
     for(let i = 0; i < bs.length; i++) {
         bs[i].draw()
     }
-    controls()
+    if(!loading) {controls()}
     popMatrix()
     player()
     for(let i = 0; i < islands.length; i++) {
@@ -158,6 +158,39 @@ function game() {
             dup = true
         }
         if(dup) {islands[i].rd()}
+    }
+    if(islands.every(function(e) {return e.finish})) {loading = false}
+    if(loading) {
+        background(c1)
+        textSize(30)
+        text("Loading " + round(100*(islands[0].c.length/islandSize)), 230, 300)
+    }
+}
+function option(y, op) {
+    for(let i = 0; i < 3; i++) {
+        fill(0, 0, 200)
+        rect(260+i*108, y, 90, 40)
+        fill(255, 255, 255)
+        text(op[i], 272+i*109, y+25)
+    }
+}
+function options() {
+    background(c1)
+    textSize(30)
+    text("OPTIONS", 250, 100)
+    textSize(18)
+    text("ISLAND SIZE\n\nLOAD SPEED\n\nMOVEMENT SPEED\n(LAND)", 50, 200)
+    option(170, ["SMALL", "MEDIUM", "LARGE"])
+    option(230, ["SLOW", "MEDIUM", "FAST"])
+    option(290, ["SLOW", "MEDIUM", "FAST"])
+    
+    fill(0, 0, 200)
+    rect(30, 540, 90, 40)
+    fill(255, 255, 255)
+    text("BACK", 50, 565)
+    
+    if(mouseIsPressed) {
+        if(mouseX > 30 && mouseX < 120 && mouseY > 540 && mouseY < 580) {sc = "home"}
     }
 }
 function home() {
@@ -217,6 +250,7 @@ draw = function() {
     switch(sc) {
         case "home": home(); break
         case "game": game(); break
+        case "options": options(); break
     }
     textSize(15)
     fill(255, 255, 255)
