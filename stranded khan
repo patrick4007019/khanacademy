@@ -8,7 +8,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //jshint esnext: true
 //{
 noStroke()
-let sc = "home", keys = [], seed = new Random(random(0, 10000)), bs = [], px = -500, py = -500, pd = 0, loading, islands = [], dup = false, finish = false
+let sc = "home", keys = [], seed = new Random(random(0, 10000)), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0
 let hm = [
     "00000000330000000",
     "00000333133000000",
@@ -30,7 +30,7 @@ let c1 = color(0, 0, 150)
 //put your save code here:
 let savecode = ""
 //island size (increases logarithmically)
-let islandSize = 1000
+let islandSize = 200
 //load speed (faster load speed = higher chance of crashes)
 let loadSpeed = 20
 //player speed 
@@ -41,6 +41,7 @@ function Land(x, y) {
     this.x = x
     this.y = y
     this.check = function() {
+        if(check === 0) {
         this.count = 0
         for(let i = 0; i < bs.length; i++) {
             if(
@@ -63,12 +64,12 @@ function Land(x, y) {
             case 11: this.col = color(0, 140, 0); break
             default: this.col = color(255, 255, 100);
         }
+        }
     }
     this.check()
     this.draw = function() {
         stroke(this.col)
         strokeWeight(1)
-        noStroke()
         fill(this.col)
         rect(this.x, this.y, 20, 20)
     }
@@ -105,9 +106,24 @@ function Island(x, y) {
         this.finish = true
     }
 }
-for(let i = 1; i < 2; i++) {for(let j = 1; j < 2; j++) {
-    islands.push(new Island(i*600, j*600))
+for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
+    islands.push(new Island(i*600-1080, j*600-1080))
 }}
+
+function HUD() {
+    fill(255, 255, 255)
+    textSize(15)
+    text(abs(round(-px/10)) + (px < 0 ? "E" : "W") +  ", " + abs(round(-py/10)) + (py < 0 ? "S" : "N"), 500, 550)
+}
+function inventory() {
+    
+}
+function crafting() {
+    
+}
+function pause() {
+    
+}
 
 function island(x, y) {
     let n = seed.nextGaussian(), ch = 0, unique = [], c = [new PVector(x, y)]
@@ -172,8 +188,32 @@ function player() {
     rect(-15, -15, 30, 30)
     popMatrix()
 }
+function init() {
+        for(let i = 0; i < islands.length; i++) {
+        if(islands[i].c.length < islandSize && !islands[i].finish) {
+            for(let j = 0; j < loadSpeed; j++) {islands[i].lb()}
+        } else if(!islands[i].finish) {
+            dup = true
+        }
+        if(dup) {islands[i].rd()}
+    }    
+    if(islands.every(function(e) {return e.finish})) {
+        loading = false
+        for(let i = 0; i < bs.length; i++) {
+            bs[i].check()
+        }
+        check++
+    }
+    if(loading) {
+        let ajk = round(100*(islands[0].c.length/islandSize))
+        background(c1)
+        textSize(30)
+        ajk = constrain(ajk, 0, 100)
+        text("Loading " + ajk, 230, 300)
+    }
+}
 function game() {
-    pushMatrix()
+    pushMatrix()    
     scale(2)
     translate(px, py)
     background(c1)
@@ -183,30 +223,13 @@ function game() {
     if(!loading) {controls()}
     popMatrix()
     player()
-    for(let i = 0; i < islands.length; i++) {
-        if(islands[i].c.length < islandSize && !islands[i].finish) {
-            for(let j = 0; j < loadSpeed; j++) {islands[i].lb()}
-        } else if(!islands[i].finish) {
-            dup = true
-        }
-        if(dup) {islands[i].rd()}
-    }
-    if(islands.every(function(e) {return e.finish})) {
-        loading = false
-        for(let i = 0; i < bs.length; i++) {
-            bs[i].check()
-        }
-    }
-    if(loading) {
-        background(c1)
-        textSize(30)
-        text("Loading " + round(100*(islands[0].c.length/islandSize)), 230, 300)
-    }
+    HUD()
+    init()
 }
 
-function option(y, op) {
+function option(y, op, v, n) {
     for(let i = 0; i < 3; i++) {
-        fill(0, 0, 200)
+        fill(v === n[i] ? color(50, 50, 255) : color(0, 0, 220))
         rect(260+i*108, y, 90, 40)
         fill(255, 255, 255)
         text(op[i], 272+i*109, y+25)
@@ -218,10 +241,23 @@ function options() {
     text("OPTIONS", 250, 100)
     textSize(18)
     text("ISLAND SIZE\n\nLOAD SPEED\n\nMOVEMENT SPEED\n(LAND)", 50, 200)
-    option(170, ["SMALL", "MEDIUM", "LARGE"])
-    option(230, ["SLOW", "MEDIUM", "FAST"])
-    option(290, ["SLOW", "MEDIUM", "FAST"])
+    option(170, ["SMALL", "MEDIUM", "LARGE"], islandSize, [100, 200, 350])
+    option(230, ["SLOW", "MEDIUM", "FAST"], loadSpeed, [10, 20, 30])
+    //option(290, ["SLOW", "MEDIUM", "FAST"])
     
+    if(mouseIsPressed) {
+        if(mouseY > 170 && mouseY < 210) {
+            if(mouseX > 260 && mouseX < 350) {islandSize = 100}
+            else if(mouseX > 368 && mouseX < 458) {islandSize =  200}
+            else if(mouseX > 476 && mouseX < 566) {islandSize = 350} 
+        }
+        if(mouseY > 230 && mouseY < 270) {
+            if(mouseX > 260 && mouseX < 350) {loadSpeed = 10}
+            else if(mouseX > 368 && mouseX < 458) {loadSpeed = 20}
+            else if(mouseX > 476 && mouseX < 566) {loadSpeed = 30}
+        }
+
+    }
     back()
 }
 function control() {
@@ -230,7 +266,8 @@ function control() {
     textSize(30)
     text("CONTROLS", 220, 130)
     textSize(20)
-    text("Arrow Keys to move", 80, 200)
+    text("Arrow Keys to move\nC to open crafting menu\nE to open inventory", 80, 200)
+    back()
 }
 function home() {
     background(c1)
@@ -290,7 +327,7 @@ draw = function() {
         case "home": home(); break
         case "game": game(); break
         case "options": options(); break
-        case "control": control(); break
+        case "controls": control(); break
     }
     textSize(15)
     fill(255, 255, 255)
