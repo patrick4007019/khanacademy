@@ -1,0 +1,189 @@
+/**
+
+Controls:
+Mouse to aim
+LMB to swing racket
+Arrow keys to move left/right
+*/
+//jshint asi: true
+//jshint esnext: true
+
+const noSpin = false //toggle to false if you want topspin
+const fov = 500
+const keys = []
+const Y = 5
+let mx = 0, bounced = false, poss = false
+let pl = 0, ai = 0, plG = 0, aiG = 0
+function Court() {
+    this.nodes = [
+        [
+            new PVector(10, Y, 15),
+            new PVector(-10, Y, 15),
+            new PVector(-10, Y, 95),
+            new PVector(10, Y, 95)
+        ]
+    ]
+    for(let i = Y-5; i < Y-2; i += 0.5) {
+        this.nodes.push([new PVector(-10, 2.5+i, 55), new PVector(10, 2.5+i, 55)])
+    }
+    for(let i = 0; i < 20.5; i += 0.5) {
+        this.nodes.push([new PVector(i-10, Y-2.5, 55), new PVector(i-10, Y, 55)])
+    }
+    this.draw = function() {
+        fill(100, 180, 100)
+        strokeWeight(0.2)
+        for(let s in this.nodes) {
+        stroke(0)
+        if(s === "0") {noStroke()}
+        beginShape()
+        for(let i in this.nodes[s]) {
+            let n = this.nodes[s][i]
+            vertex(n.x*fov/n.z, n.y*fov/n.z)
+        }
+        endShape(CLOSE)
+        }
+    }
+}
+function Paint(x, z, w, l) {
+    this.nodes = [
+        new PVector(x, Y, z),
+        new PVector(x, Y, z+l),
+        new PVector(x+w, Y, z+l),
+        new PVector(x+w, Y, z),
+    ]
+    this.draw = function() {
+        fill(255, 255, 255)
+        noStroke()
+        beginShape()
+        for(let i in this.nodes) {
+            let n = this.nodes[i]
+            vertex(n.x*fov/n.z, n.y*fov/n.z)
+        }
+        endShape(CLOSE)
+    }
+}
+function Ball() {
+    this.timer = 0
+    this.error = false
+    this.reset = function() {
+        this.error = false
+        this.timer = 0
+        this.pause = true
+        this.p = new PVector(-2+mx, -3, 90)
+        this.v = new PVector(
+            random(0.03,  noSpin ? 0.25 : 0.33),
+            0.08, 
+            noSpin ? -1.4 : -1.6
+        )
+        
+        poss = false
+        bounced = false
+    }
+    this.reset()
+    this.checkIn = function(x, y, z) {
+        return !(z > 95 || x-mx < -10 || x-mx > 10 || z < 15)
+    }
+    this.checkNet = function() {
+        if(this.p.z > 52 && this.p.z < 58) {
+            if(this.p.y > 2.5) {
+                bounced = false
+                this.reset()
+                ai++
+            }
+            bounced = false
+        }
+    }
+    this.onBounce = function() {
+        if(this.p.y > 5) {
+            println(this.p.z)
+            this.v.y = -this.v.y*0.8
+            if(bounced) {
+                this.reset()
+                ai++
+            }
+            if(!this.checkIn(this.p.x, this.p.y, this.p.z) && !bounced) {
+                this.reset()
+                pl += !poss ? 1 : 0
+                ai += poss ? 1 : 0
+            }
+            bounced = true
+        }
+    }
+    this.AI = function() {
+        if(this.p.z > 95 && bounced && !this.error) {
+            this.v.set(random(-0.1, 0.1), noSpin ? random(-0.12, -0.18) : random(-0.15, -0.2), -1.4)
+            poss = !poss
+        }
+    }
+    this.hit = function() {
+        if(mouseIsPressed && this.p.x < 5 && this.p.x > -5 && this.p.z < 15 && this.p.z > 0 && this.v.z < 0 && !poss) {
+            this.v.z = 1.6
+            this.v.x = (mouseX-300)/1000
+            this.v.y = (mouseY-300)/1000
+            poss = !poss
+        }
+    }
+    this.draw = function() {
+        if(this.pause) {
+            this.timer ++
+            if(this.timer > 60) {this.pause = false}
+        } else {
+        this.v.y += noSpin ? 0.005 : 0.009
+        this.p.add(this.v.x, this.v.y, this.v.z)
+        this.onBounce()
+        this.AI()
+        this.hit()
+        this.v.z *= 0.99
+        fill(0);
+        ellipse(this.p.x*fov/this.p.z, this.p.y*fov/this.p.z, 150/this.p.z, 150/this.p.z)
+        this.checkNet()
+        }
+    };
+}
+const court = new Court()
+const ball = new Ball()
+const paints = [
+    new Paint(-10, 15, 0.3, 80),
+    new Paint(10, 15, 0.3, 80),
+    new Paint(0, 35, 0.3, 20),
+    new Paint(-10, 35, 20, 1),
+    new Paint(0, 35, 0.3, 40),
+    new Paint(-10, 75, 30, 0.8),
+    new Paint(-10, 15, 20, 0.3),
+    new Paint(-10, 95, 20, 4)
+]
+function display() {
+    court.draw()
+    for(let j in paints) {
+        paints[j].draw()
+        for(let i in paints[j].nodes) {paints[j].nodes[i].x -= keys[RIGHT] ? 0.2 : keys[LEFT] ? -0.2 : 0}
+    }
+    for(let i in court.nodes) {for(let j in court.nodes[i]) {
+        court.nodes[i][j].x -= keys[RIGHT] ? 0.2 : keys[LEFT] ? -0.2 : 0
+    }}
+    ball.p.x -= keys[RIGHT] ? 0.2 : keys[LEFT] ? -0.2 : 0
+    ball.draw()
+}
+function scoreboard() {
+    if(pl > 3) {
+        void(plG ++, pl = 0, ai = 0)
+    }
+    if(ai > 3) {
+        void(aiG ++, pl = 0, ai = 0)
+    }
+    textSize(20)
+    text("Player    " + plG + "   " + (pl === 1 ? 15 : pl === 2 ? 30 : pl === 3 ? 40 : 0) + "\nAI           " + aiG + "   " + (ai === 1 ? 15 : ai === 2 ? 30 : ai === 3 ? 40 : 0), 420, 50)
+}
+draw = function() {
+    keyPressed = function() {keys[keyCode] = true}
+    keyReleased = function() {keys[keyCode] = false}
+    pushMatrix()
+    background(0, 255, 255);
+    translate(300, 300)
+    display()
+    popMatrix()
+    scoreboard()
+    textSize(15)
+    text(round(this.__frameRate), 10, 20)
+    mx -= keys[RIGHT] ? 0.2 : keys[LEFT] ? -0.2 : 0
+}
