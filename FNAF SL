@@ -1,0 +1,1232 @@
+//jshint asi: true
+//jshint esnext: true
+/*
+
+CONTROLS:
+SPACE to begin game
+UP & DOWN Arrow keys to switch between "New Game" and "Continue
+All other controls are included as text.
+
+I only have nights 1 & 2 completed. Unfortunately, I believe I won't update this game for a while, so don't expect night 3 or 4 anytime soon (unless I change my mind).
+
+All voicelines are captioned.
+Turn on your volume for night 2 unless you want to suffer.
+
+Gameplay is very similar to the real game, except for many features/aesthetics that were removed because I simply don't have the artistic skill/patience to add them in, so a lot of the artwork is simplified.
+
+Things that are different from the real game, excluding aesthetic differences:
+
+-HandUnit does not show you his input pad 
+-The voice automatically changes to an Angsty Teen
+-The elevator ride is very short
+-HandUnit does not speak in the entryway vent
+-Dialogue gets cut off when you switch scenes/rooms
+-Circus Baby only needs to be shocked once on night 1
+-Funtime Foxy only needs to be shocked once on night 1 & 2
+-Ballora does not have any RNG
+-There is no danger level meter in the breaker room (you have to listen!)
+-You CAN get jumpscared if you don't close the metal sheet in time when you're under the desk
+*/
+
+//{
+let sc = "home", night = 1, op = false
+const keys = []
+//}
+let vent, vent2, vent3, vent4, home, elevator, main, circus, end, desk, breaker, savedNight = 1
+
+function fade(v, dest) {
+    if(v.fading) {
+        v.f -= 0.01;
+        if(v.f <= 0) {
+            sc = dest;
+        }
+    } else {
+        v.f += 0.01;
+    }
+}
+function Speech(char, x, y) {
+    this.x = x;
+    this.y = y;
+    this.char = char;
+    this.sm = 0;
+    this.s = [];
+    this.add = function() {
+        if(this.char[this.sm]) {
+            this.s += this.char[this.sm];
+        }
+        this.sm += 0.5;
+        fill(255, 255, 255);
+    };
+}
+//{
+function Static(y, h, f) {
+    this.y = y;
+    this.h = h;
+    this.f = f;
+    this.draw = function() {
+        this.f = constrain(this.f, 0, 1);
+        fill(random(15*this.f, 25*this.f), random(15*this.f, 25*this.f), random(60*this.f, 80*this.f));
+        rect(0, this.y, 600, this.h);
+    };
+}
+function selec(v) {
+    keyPressed = function() {
+        if(v.sel < 2 && keyCode === DOWN) {v.sel ++;}
+        if(v.sel > 1 && keyCode === UP) {v.sel --;}
+        if(key.toString() === ' ') {v.fading = true;}
+    };
+}
+function Home() {
+    this.dest = "v"
+    this.re = 0;
+    this.y = 0;
+    this.f = 1;
+    this.sl = 1;
+    this.fading = false;
+    this.ran = random(0, 100);
+    this.sx = 100;
+    this.sel = 1;
+    this.s = [];
+    for(let a = 0; a < 4; a++) {
+        this.s.push(new Static(random(0, 570), random(5, 40)));
+    }
+    this.title = function() {
+        this.ran = round(random(0, 100));
+        this.f = constrain(this.f, 0, 1);
+        fill(this.f*255, this.f*255, this.f*255);
+        pushMatrix();
+        translate(0, 550);
+        scale(this.sl, 1);
+        textSize(20);
+        switch(this.sl) {
+            case 1: this.sx = 120; break;
+            case 2: this.sx = 0; break;
+            case 3: this.sx = random(-20, 20);
+        }
+        if(this.ran > 50 && this.ran < 55) {
+            this.sl = 2;
+        } else if(this.ran > 65 && this.ran < 70) {
+            this.sl = 3;
+        } else if(this.ran < 20){
+            this.sl = 1;
+        }
+        text(
+        "S  I  S  T  E  R         L  O  C  A  T  I  O  N",
+        this.sx, 0);
+        popMatrix();
+    };
+    this.static = function() {
+        this.re++;
+        if(this.re > 8) {
+            for(let b in this.s) {
+                this.s[b] = new Static(random(0, 570), random(5, 40), this.f);
+            }
+            this.re = 0;
+        }
+        background(0);
+        for(let c in this.s) {
+            this.s[c].draw();
+        }
+        this.y += random(0, 1.5);
+        if(this.y > 600) {
+            this.y = 0;
+        }
+        rect(0, this.y, 600, 8);
+    };
+    this.select = function() {
+        stroke(255*this.f, 255*this.f, 255*this.f);
+        strokeWeight(2); textSize(14);
+        text("N E W    G A M E", 350, 250);
+        text("C O N T I N U E", 350, 280);
+        textSize(12)
+        text(savedNight, 455, 270)
+        line(0, 215+this.sel*30, 335, 215+this.sel*30);
+        line(470, 215+this.sel*30, 600, 215+this.sel*30);
+        noStroke();
+    };
+    this.continue = function() {
+        night = savedNight
+    };
+    this.display = function() {
+        this.continue();
+        this.static();
+        this.title();
+        this.select();
+        fade(this, this.dest);
+        selec(this);
+    };
+}
+function Voice(x, nsc, str) {
+    this.lead = 0;
+    this.fading = false;
+    this.nsc = nsc;
+    this.f = 1;
+    this.x = x;
+    this.str = str;
+    this.char = "";
+    this.speech = new Speech(str, this.x, 100);
+    this.timer = 0;
+    this.draw = function() {
+        background(0);
+        fill(this.f*255, this.f*255, this.f*255);
+        this.speech.add();
+        if(this.speech.char.length >= this.str.length) {
+            this.timer++;
+            if(this.timer > 100) {
+                this.fading = true;
+            }
+        }
+        fade(this, "elevator");
+        this.lead += 0.5;
+        textSize(16);
+        fill(this.f*255, this.f*255, this.f*255);
+        text(this.speech.s, this.x, 100);
+    };
+}
+const voices = [
+    new Voice(150, "elevator", "Daddy, why won't you let me play with her?"),
+    new Voice(100, "elevator", "Daddy, let me once just go play with her. She's so pretty\n and shiny! Didn't you make her just for me?")
+]
+//}
+function Elevator() {
+    this.reset = function() {
+    this.f = 0;
+    this.fading = false;
+    this.timer = 0;
+    this.open = false;
+    this.opened = 0;
+    this.speech1 = [
+        new Speech("Welcome to the first day of your exciting new career! Whether you were approached at a job fair, read our ad at Screws, Bolts, and Hairpins, or if this is the result of a dare, we welcome you. I will be your personal guide to help you get started. I’m a model 5 of the Handyman’s Robotics and Unit-Repair System, but you can call me Hand-Unit. Your new career promises challenge, intrigue and endless janitorial opportunities."),
+        new Speech("You can now open the elevator using that bright, red and obvious button. Let’s get to work!")
+    ];
+    this.speech2 = [
+        new Speech("Welcome back for another night of intellectual stimulation, pivotal career choices and self-reflection on past mistakes. We're committed to creating a unique and fulfilling work experience. One part of that committment is that you get to hear a voice of an angsty teen (You don't even get to choose LOL)."),
+        new Speech("The elevator stopped; you know the routine.... you can get out... or whatever, stay here if you want.")
+    ]
+    }
+    this.reset()
+    this.draw = function() {
+        background(this.f*150, this.f*150, this.f*150);
+        this.f = constrain(this.f, 0, 1);
+        fill(70*this.f, 70*this.f, 70*this.f);
+        rect(140, 50, 340, 500);
+        fill(0);
+        rect(260, 400, 100, 80);
+        fill(this.f*120, this.f*120, this.f*120);
+        rect(140, 50, 170-this.opened, 500);
+        rect(480, 50, -170+this.opened, 500);
+        fill(this.f*100, this.f*100, this.f*100);
+        ellipse(300, -50, 700, 300);
+        ellipse(300, 650, 700, 300);
+        fill(this.f*120, this.f*120, this.f*120);
+        switch(night) {
+        case 1:
+            this.speech1[0].add();
+            if(this.timer > 1000) {
+                this.speech1[1].add();
+                text(this.speech1[1].s, 130, 100, 400, 500);
+            }
+            if(this.timer < 1000) {
+                text(this.speech1[0].s, 130, 100-this.speech1[0].s.length/2, 400, 500);
+            }
+        break;
+        case 2:
+            if(this.timer < 700) {
+            this.speech2[0].add();
+            text(this.speech2[0].s, 130, 100-this.speech2[0].s.length/2, 400, 500);
+            }
+            if(this.timer > 700) {
+                this.speech2[1].add();
+                text(this.speech2[1].s, 130, 100-this.speech2[1].s.length/2, 400, 500);
+            }
+        break;
+        }
+        this.timer ++;
+        textSize(20);
+    };
+    this.door = function() {
+        fill(this.f*255, 0, 0);
+        ellipse(120, 300, 20, 20);
+        if(mouseIsPressed && mouseX > 110 && mouseX < 130 && mouseY > 290 && mouseY < 310 && ((this.timer > 1000 && night === 1) || (this.timer > 700 && night === 2))) {
+            this.open = true;
+        }
+        if(this.open) {
+            this.opened += 5;
+            this.opened = constrain(this.opened, 0, 170);
+        }
+    };
+    this.vent = function() {
+        if(mouseX > 260 && mouseX < 360 && mouseY > 400 && mouseY < 480) {
+            cursor("grab");
+            if(mouseIsPressed) {
+                this.fading = true;
+            }
+        } else {
+            cursor('default');
+        }
+        fade(this, "vent");
+    };
+    this.display = function() {
+        this.draw();
+        this.door();
+        this.vent();
+    };
+}
+function Vent(len, n, loc) {
+    this.reset = function() {
+    this.len = len;
+    this.m = 0;
+    this.f = 0;
+    this.loc = loc;
+    this.n = n;
+    this.fading = false;
+    this.speech = [
+        new Speech("Allow me to fill this somewhat frightening silence with some light-hearted banter. Due to the massive sucess and even more - the unfortunate closing of Freddy Fazbear's Pizza, it was the clear that the stage was set - no pun intended - for another contender in children's entertainment. Unlike most entertainment venues, our robotic entertainers are rented out for private parties during the day, and it's your job to get the robots back in proper working order before the following morning."),
+        new Speech("So.. funny story, a dead body was found in this vent once. Okay...so not that funny. But it's a story.")
+    ];
+    }
+    this.reset()
+    this.draw = function() {
+        this.f = constrain(this.f, 0, 1);
+        fade(this, this.loc);
+        background(0);
+        for(let c = 0; c < this.len*2; c++) {
+            let pos = 300-600/(c+this.m);
+            let siz = 1200/(c+this.m);
+            let col = abs(this.f*(50-(pos)/6));
+            if(300-600/(c+this.m) < 240) {
+                fill(col, col, col);
+                rect(pos, pos, siz, siz);
+            }
+        }
+        if(this.m > -8) {
+            fill(255, 255, 255); textSize(20);
+            text("UP Arrow to crawl\nSHIFT + UP to crawl faster.", 50, 560);
+        }
+        if(this.m < -this.len+8) {
+            this.fading = true;
+        }
+        fill(255, 255, 255);
+        if(n === 1) {
+            this.speech[night-1].add();
+            text(this.speech[night-1].s, 100, 100-this.speech[night-1].s.length/2, 400, 500);
+
+        }
+    };
+    this.control = function() {
+        if(keys[UP]) {
+            this.m -= 0.02;
+            if(keys[SHIFT]) {
+                this.m -= 0.01;
+            }
+        }
+    };
+    this.display = function() {
+        this.draw();
+        this.control();
+    };
+}
+function Shock(x, y, v, n) {
+    this.x = x;
+    this.y = y;
+    this.n = n;
+    this.lighted = false;
+    this.draw = draw;
+    this.display = function() {
+        fill(0, 0, v.f*255);
+        rect(this.x, this.y, 40, 20);
+    };
+    this.press = function() {
+        if(mouseIsPressed && mouseX > this.x && mouseX < this.x+40 && mouseY > this.y && mouseY < this.y+20) {
+            this.lighted = true;
+            switch(night) {
+                case 1:
+                    if(this.n !== 3) {v.o[1] = true;}
+                    if(this.n === 2) {v.o[4] = true;}
+                    if(this.n === 3) {v.o[1] = true;}
+                break;
+                case 2:
+                    if(v.o[3] && sc === "circus") {v.o[4] = true}
+                    if(this.n === 1) {v.o[1] = true;}
+                    if(this.n === 2 && v.o[3]) {v.o[4] = true;}
+            }
+        } else {
+            this.lighted = false;
+        }
+    };
+}
+function Light(x, y, draw, draw2, v, n) {
+    this.x = x;
+    this.y = y;
+    this.showing = false;
+    this.draw = draw;
+    this.draw2 = draw2;
+    this.n = n;
+    this.display = function() {
+        fill(v.f*255, 0, 0);
+        rect(this.x, this.y, 40, 20);
+    };
+    this.show = function() {
+        if(mouseIsPressed && mouseX > this.x && mouseX < this.x+40 && mouseY > this.y && mouseY < this.y+20) {
+            this.showing = true;
+            switch(night) {
+            case 1:
+                if(this.n !== 3) {
+                    if(v.o[1] && this.n === 1) {v.o[2] = true;}
+                    if(v.o[2] && this.n === 2) {v.o[3] = true;}
+                    if(v.o[4] && this.n === 2) {v.o[5] = true;}
+                }
+                if(this.n === 3) {v.o[0] = true;}
+                if(this.n === 3 && v.o[1]) {v.o[2] = true;}
+            break;
+            case 2:
+                if(this.n === 1) {
+                    v.o[0] = true;
+                    if(v.o[1]) {v.o[2] = true;}
+                } else {
+                    v.o[3] = true;
+                }
+            }
+        } else {
+            this.showing = false;
+        }
+        if(this.showing) {
+            if(this.n === 1) {
+                v.o[0] = true;
+                if(v.o[1]) {this.draw2();}
+            } else if(this.n === 2) {
+                if(v.o[4]) {this.draw2();}
+            }
+            this.draw();
+        }
+    };
+}
+function Main() {
+    this.reset = function() {
+    this.dir = 0;
+    this.fading = false;
+    this.timer = 1000;
+    this.t2 = 0;
+    this.st = 1;
+    this.o = Array(6).fill(false);
+    this.f = 1;
+    this.gallery = false
+    {
+    this.speech = [
+        new Speech("You are now in the Primary Control Module. It is actually a crawlspace between the two front showrooms. Now let's get started with your daily tasks. View the window to your left. This is the Ballora Gallery Party Room and Dance Studio, encouraging kids to get fit and enjoy pizza. Let’s turn on the light, and see if Ballora is on stage. Press and hold the red button on the elevated keypad to your left."),
+    new Speech("Uh-oh! It looks like Ballora doesn’t feel like dancing. Let’s give her some motivation. Press and hold the blue button now to administer a controlled shock. Maybe that will put the spring back in her step."),
+    new Speech("Let’s check the light again."),
+    new Speech("Excellent! Ballora is feeling like her old self again and will be ready to perform again tomorrow. Now, view the window to your right. This is the Funtime Auditorium, where Funtime Foxy encourages kids to play and share. Try the red button! Let’s see what Funtime Foxy is up to."),
+    new Speech("Looks like Funtime Foxy is taking the day off. Let’s motivate Funtime Foxy with a controlled shock by pressing the blue button."),
+    new Speech("Looks like Funtime Foxy is in perfect working order. Great job! In front of you is another vent shaft. Crawl through it to reach the Circus Gallery Control Module."),
+    ];
+    this.speech2 = [
+        new Speech("Ok, let's start with your nightly chores. You should check on Ballora and make sure she's on her stage.. but.... whatever."),
+        new Speech("Huh, I guess Ballora has better things to do. Let's zap her!"),
+        new Speech("You can check the light if you want to."),
+        new Speech("Let's check on Funtime Foxy, make sure he's ready for show time tomorrow."),
+        new Speech("Lol, let's zap her."),
+        new Speech("GREAT.        GREAT.        GREAT.      Default settings have been restored. Please proceed through the vent ahead of you to Circus Control."),
+        new Speech("You will now be required to crawl through the Ballora Gallery using the vent to your left to reach the Breaker Room. It is recommended that you stay low to the ground, and reach the other side as fast as possible as to not disturb Ballora. I will deactivate myself momentarily, as to not create an auditory disturbance. Deactivating.")
+    ];
+    this.shock1 = new Shock(153, 360, this, 1);
+    this.shock2 = new Shock(412, 360, this, 2);
+    this.light1 = new Light(153, 380, function() {
+        fill(0);
+        noFill(); strokeWeight(5); stroke(200, 200, 200);
+        arc(130, 260, 100, 100, 140, 400);
+        noStroke();
+    }, 
+    function() {
+        fill(0, 0, this.f*255);
+        ellipse(130, 250, 50, 50);
+    }, this, 1);
+    this.light2 = new Light(412, 380, function() {
+        fill(0);
+        noFill(); strokeWeight(5); stroke(200, 200, 200);
+        arc(470, 260, 100, 100, 140, 400);
+        noStroke();
+    }, 
+    function() {
+        fill(0, 0, this.f*255);
+        ellipse(470, 250, 50, 50);
+    }, this, 2);
+    }
+    }
+    this.reset()
+    this.module = function() {
+        this.f = constrain(this.f, 0, 1);
+        background(this.f*150, this.f*150, this.f*150);
+        fill(this.f*80);
+        quad(10, 600, 200, 440, 400, 440, 590, 600);
+        fill(0);
+        pushMatrix();
+        translate(70, 440);
+        scale(1.3);
+        quad(5, 5, 60, -20, 60, 38, 5, 80);
+        popMatrix();
+        rect(250, 360, 110, 80);
+        pushMatrix();
+        translate(535, 440);
+        scale(-1.3, 1.3);
+        quad(5, 5, 60, -20, 60, 40, 5, 85);
+        popMatrix();
+        pushMatrix();
+        if(!this.shock1.lighted) {fill(0, this.f*40, this.f*50);} 
+        else {fill(0, 0, random(150, 250));}
+        translate(0, 150);
+        scale(0.8);
+        quad(0, 0, 270, 80, 220, 200, 0, 230);
+        popMatrix();
+        pushMatrix();
+        if(!this.shock2.lighted) {fill(0, this.f*40, this.f*50);} 
+        else {fill(0, 0, random(150, 250));}
+        translate(600, 150);
+        scale(-0.8, 0.8);
+        quad(0, 0, 270, 80, 220, 200, 0, 230);
+        popMatrix();
+};
+    this.control = function() {
+        this.timer ++;
+        switch(night) {
+        case 1:
+            if(this.timer > 800) {this.light1.show();}
+            if(this.o[2]) {this.light2.show();}
+            if(this.o[3]) {this.shock2.press();}
+        break;
+        case 2:
+            if(this.timer < 10) {this.o = Array(6).fill(false);}
+            this.light1.show();
+            if(this.o[0]) {this.shock1.press();}
+            if(this.o[2]) {this.light2.show();}
+            if(this.o[3]) {this.shock2.press();}
+        }
+        fill(0);
+        rect(170, 400, 6, 200);
+        rect(430, 400, 6, 200);
+        textSize(20);
+    };
+    this.speak = function() {
+        switch(night) {
+        case 1: {
+        if(!this.o[0]) {this.speaking = this.speech[0];}
+        else {this.shock1.press();}
+        if(this.o[0] && !this.o[1]) {this.speaking = this.speech[1];}
+        if(this.o[1] && !this.o[2]) {this.speaking = this.speech[2];}
+        if(this.o[2] && !this.o[3]) {this.speaking = this.speech[3];}
+        if(this.o[3] && !this.o[4]) {this.speaking = this.speech[4];}
+        if(this.o[4] && this.o[5]) {this.speaking = this.speech[5];}
+        }
+        break;
+        case 2: {
+            if(!this.gallery) {
+            if(!this.o[0]) {this.speaking = this.speech2[0];}
+            if(this.o[0] && !this.o[1]) {this.speaking = this.speech2[1];}
+            if(this.o[1] && !this.o[2]) {this.speaking = this.speech2[2];}
+            if(this.o[2] && !this.o[3]) {this.speaking = this.speech2[3];}
+            if(this.o[3] && !this.o[4]) {this.speaking = this.speech2[4];}
+            if(this.o[4] && !this.o[5]) {this.speaking = this.speech2[5];}
+            } else {
+                this.speaking = this.speech2[6]
+            }
+        }
+        break;
+        }
+        this.shock1.display();
+        this.shock2.display();
+        this.light1.display();
+        this.light2.display();    
+    };
+    this.enter = function() {
+        if(mouseX > 255 && mouseX < 350 && mouseY > 350 && mouseY < 430) {
+            cursor("grab");
+            this.dir = 1; 
+            if(mouseIsPressed && this.o[5] && night === 1) {
+                this.fading = true;
+            }
+            if(mouseIsPressed && this.o[4] && night === 2) {
+                this.fading = true;
+            }
+        } else if(mouseX > 70 && mouseX < 150 && mouseY > 410 && mouseY < 540) {
+            cursor("grab");
+            if(night === 2 && mouseIsPressed && this.gallery) {
+                this.fading = true
+            }
+            this.dir = 2;
+        } else if(mouseX > 460 && mouseX < 540 && mouseY > 410 && mouseY < 540) {
+            cursor("grab");
+            this.dir = 3;
+        } else {
+            cursor("default");
+        }
+    };
+    this.display = function() {
+        this.module();
+        this.control();
+        this.enter();
+        this.speak();
+        this.speaking.add();
+        text(this.speaking.s, 80, 100-this.speaking.s.length/2, 500, 400);
+        fade(this, !this.gallery ? "vent2" : "gallery");
+    };
+}
+function Circus() {
+    this.reset = function() {
+    this.off = 0
+    this.f = 0;
+    this.fading = false;
+    this.o = [false, false, false];
+    this.shock = new Shock(400, 320, this, 3);
+    this.light = new Light(400, 340, function() {
+        
+    }, undefined, this, 3);
+    this.speech = [
+        [
+        new Speech("One the other side of the glass is Circus Baby's Auditorium. Let's check the light and see what Baby is up to."),
+        new Speech("Looks like a few of the lights are out, but we can fix that later. Let's encourage Baby to cheer up with a controlled shock."),
+        new Speech("Let's try the light again"),
+        new Speech("Great job, Circus Baby, we knew we could count on you! That concludes your duties for the first night on the job. We don't want you to leave overwhelmed, otherwise you might not come back. Please leave using the vent behind you, and we'll see you tomorrow.")
+        ],
+        [
+        new Speech("Circus baby had a busy day today! Let’s check the light, and make sure she’s in proper working order."),
+        new Speech("Oh Circus Baby, we aren’t here to play hide and seek. Let’s encourage baby to come out of hiding with a controlled shock."),
+        new Speech("There seems to be a power malfunction that is affecting our ability to properly motivate Baby. Please stand by, while I reboot the system. I will be offline momentarily during this process. Various other systems may be offline as well, such as security doors, vent locks and oxygen. Commencing system restart."),
+        new Speech("[Circus Baby] I don't recognize you. You are new.  I remember this... scenario, however. It’s a strange thing to want to do, to come here.                    \nI’m curious what events would lead a person to want to spend their nights in a place like this... willingly. Maybe curiosity, maybe ignorance...                 \nThere is a space under the desk. Someone before you crafted it into a hiding place... and it worked for him. I recommend that you hurry though. You will be safe there, just try not to make eye contact... it will be over soon. They will lose interest."),
+        ]
+    ];
+    }
+    this.reset()
+    this.press = function() {
+        this.light.show();
+        if(this.o[0]) {
+            this.shock.press()
+        }
+        if(this.o[3] && night === 2) {
+            this.shock.press()
+        }
+    };
+    this.speak = function() {
+        fill(255, 255, 255);
+        textSize(20);
+        switch(night) {
+        
+        case 1: 
+        if(!this.o[0]) {this.speaking = this.speech[0][0];}
+        if(this.o[0] && !this.o[1]) {this.speaking = this.speech[0][1]}
+        if(this.o[1] && !this.o[2]) {this.speaking = this.speech[0][2]}
+        if(this.o[2] && !this.o[3]) {this.speaking = this.speech[0][3]}
+        if(this.o[2]) {
+            textSize(25)
+            text("Press X to leave", 200, 200)
+            if(keyIsPressed && key.toString() === 'x') {
+                this.fading = true;
+            }
+        }
+        break
+        case 2:
+            if(!this.o[0]) {this.speaking = this.speech[1][0]}
+            if(this.o[3]) {
+            this.speaking = this.speech[0][1]
+            if(this.o[4]) {
+                this.speaking = this.speech[1][2]
+                this.off++
+            }
+            }
+        
+        break
+        }
+    };
+    this.enter = function() {
+        if(this.o[4] && night === 2 && this.off > 800) {//800
+            this.speaking = this.speech[1][3]
+            if(this.off > 2000 && mouseX > 250 && mouseX < 350 && mouseY > 400 && mouseY < 470) {//2000
+                cursor("grab")
+                if(mouseIsPressed) {this.fading = true}
+            }
+        }
+    }
+    this.draw = function() {
+         if(night === 2 && this.o[4] && this.off > 0) {
+            this.shock.lighted = false
+            this.light.showing = false
+        }
+        if(!this.fading) {this.f += 0.01}
+        else {this.f -= 0.01}
+        this.f = constrain(this.f, 0, 1)
+        background(this.f*50, this.f*50, this.f*50)
+        fill(0, 0, this.f*random(100, 255))
+        if(this.shock.lighted) {
+            fill(0, 0, this.f*random(100, 255))
+        } else {
+            fill(0)
+        }
+        fill(0);
+        rect(250, 400, 100, 70)
+        strokeWeight(5); stroke(this.f*255, this.f*255, this.f*255)        
+        pushMatrix()
+        translate(0, 100)
+        quad(0, 0, 180, 50, 180, 230, 0, 250)
+        popMatrix()
+        pushMatrix();
+        translate(600, 100);
+        scale(-1, 1);
+        quad(0, 0, 180, 50, 180, 230, 0, 250);
+        popMatrix();
+        if(this.shock.lighted) {
+            fill(0, 0, random(100, 255));
+        } else if(this.light.showing) {
+            fill(0, 100, 100);
+        } else {
+            fill(0);
+        }
+        rect(180, 150, 240, 180);
+        noStroke();
+        this.shock.display();
+        this.light.display();
+        fill(this.f*150, this.f*150, this.f*150, this.f*150);
+        rect(417, 360, 6, 300);
+    };
+    this.display = function() {
+        this.press()
+        this.draw()
+        this.speak()
+        this.enter()
+        this.speaking.add()
+        textSize(20)
+        text(this.speaking.s, 100, 100-this.speaking.s.length/2, 400, 500)
+        fade(this, night !== 2 ? "vent3" : "desk")
+    };
+}
+function End(n) {
+    this.fading = false
+    this.f = 0
+    this.n = n
+    this.display = function() {
+        fill(this.f*255, this.f*255, this.f*255);
+        background(0); textSize(35);
+        text("GREAT JOB", 200, 280);
+        textSize(20);
+        text("You finished the night!!", 200, 320);
+        if(this.f >= 1) {
+            this.fading = true;
+        }
+        fade(this, "elevator");
+        night = n
+        elevator.reset()
+        vent.reset()
+        vent2.reset()
+        vent3.reset()
+        vent4.reset()
+        main.reset()
+        circus.reset()
+    };
+}
+function Hole(x, y, w, h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.draw = function() {
+        fill(0);
+        ellipse(this.x, this.y, 20, 20);
+    };
+}
+function Desk() {
+    this.f = 1;
+    this.x = 0;
+    this.tf = 1;
+    this.timer = 0;
+    this.fading = false;
+    this.jump = false;
+    this.j = 1;
+    this.holes = [];
+    this.speech = [
+        new Speech("Hello in there..."),
+        new Speech("Someone is inside..."),
+        new Speech("Knock, knock..."),
+        new Speech("She's watching us! We have to leave now."),
+        new Speech("When your guide comes online, he's going to tell you he was unsuccessful. That you must restart the system manually. He will then tell you to crawl through Ballora Gallery as fast as you can to reach the breaker room. If you follow his instructions, you will die. Ballora will not return to her stage anymore. She will catch you. The power will be restored shortly. When you crawl through Ballora Gallery, go slowly. She cannot see you. She can only listen for your movement. When you hear her music become louder, she is growing near, listening for you. Wait...and be still."),
+        new Speech("Thank you for your patience. It seems that the power system cannot be restarted automatically. You will need to restart the power system manually. Please return to the primary control module.")
+    ];
+    for(let c = 0; c < 10; c++) {
+        this.holes.push(new Hole(random(0, 600), random(0, 600)));
+    }
+    this.draw = function() {
+        main.gallery = true
+        this.f = constrain(this.f, 0, 1);
+        if(this.timer > 3800) {
+            this.speaking = this.speech[5]
+        }
+        if(this.timer > 3800 && keyIsPressed && key.toString() === 'x') {
+            this.fading = true;
+        }
+        background(0);
+        this.tf -= 0.003;
+        pushMatrix();
+        fill(this.f*150, this.f*150, this.f*150);
+        rect(0, 0, this.x, 600);
+            text("Grab and\ndrag right", this.x, 300);
+        if(mouseIsPressed && mouseX > this.x) {
+            this.x += 1.5;
+        }
+        translate(this.x-600, 0);
+        for(let d in this.holes) {
+            this.holes[d].draw();
+        }
+        popMatrix();
+        noFill();
+        strokeWeight(600);
+        stroke(0);
+        arc(mouseX, mouseY, 1000, 1000, 0, 360);
+    };
+    this.speak = function() {
+        this.timer ++;
+        if(this.timer > 500 && this.timer < 700) {
+            this.speaking = this.speech[0];
+        }
+        if(this.timer > 700 && this.timer < 900) {
+            this.speaking = this.speech[1];
+        }
+        if(this.timer > 900 && this.timer < 1100) {
+            this.speaking = this.speech[2];
+        }
+        if(this.timer > 2300 && this.timer < 2500) {
+            this.speaking = this.speech[3];
+        }
+        if(this.timer > 2500) {
+            this.speaking = this.speech[4];
+        }
+        if(this.timer > 3800) {
+            fill(this.f*255, this.f*255, this.f*255); textSize(25);
+            text("Press X to leave", 200, 300);
+            textSize(20);
+        }
+    };
+    this.pull = function() {
+        if(this.timer > 1000 && this.timer < 1500) {
+            this.x -= 1.7;
+        }
+        if(this.timer > 1600 && this.timer < 2300) {
+            this.x -= 1.7;
+        }
+    };
+    this.die = function() {
+        if(this.x < 350 && this.timer > 1000) {
+            this.jump = true;
+        }
+        if(this.jump) {
+            background(0);
+            this.x = 0;
+            this.j *= 1.2;
+            this.j = constrain(this.j, 1, 8);
+            noStroke();
+            pushMatrix();
+            translate(300, 300);
+            scale(this.j);
+            fill(255, 255, 255);
+            ellipse(-13, 0, 20, 20);
+            ellipse(13, 0, 20, 20);
+            fill(0, 0, 255);
+            ellipse(-13, 0, 8, 8);
+            ellipse(13, 0, 8, 8);
+            fill(0);
+            ellipse(-13, 0, 4, 4);
+            ellipse(13, 0, 4, 4);
+            fill(200, 200, 200);
+            rect(-1, -5, 2, 18);
+            rect(-17, 12, 35, 2);
+            for(let f = 0; f < 2; f++) {
+            for(let e = 0; e < 4; e ++) {
+                fill(255, 255, 255);
+                rect(e*3-5.5, 13+f*10, 1.5, 2);
+            }
+            }
+            fill(150, 150, 150);
+            rect(-6, 10, 12, 3);
+            rect(-5, 25, 11, 1);
+            popMatrix();
+        }
+    };
+    this.display = function() {
+        main.gallery = true
+        this.draw();
+        if(this.timer > 500) {
+            this.speaking.add();
+            text(this.speaking.s, 100, 100-this.speaking.s.length/2, 400, 500);
+        }
+        this.pull();
+        this.die();
+        this.speak();
+        if(this.timer < 200) {
+        fill(this.tf*255, this.tf*255, this.tf*255);
+        textSize(20);
+        text("UNDER THE DESK", 220, 200);
+        }
+        fade(this, night !== 2 ? "vent3" : "vent4");
+    };
+}
+function Gallery() {
+    this.noise = 0
+    this.z = 1
+    this.theta = 0
+    this.jump = false
+    this.f = 1
+    this.chime = getSound("rpg/metal-chime")
+    this.fading = false
+    this.play = 0
+    this.rand = 0
+    this.j = 0
+    this.dj = 0
+    this.drawFred = function(x, y, sc, rot, col) {
+        let c = col || this.f
+        pushMatrix()
+        rotate(rot)
+        scale(sc)
+        translate(x, y)
+        fill(255*c, 255*c, 255*c);
+        stroke(255*c, 255*c, 255*c); strokeWeight(5)
+        rect(405, 130, 80, 110, 100)
+        fill(255*c, 255*c, 255*c);
+        ellipse(425, 180, 18, 20)
+        ellipse(465, 180, 18, 20)
+        fill(0);
+        ellipse(425, 180, 18, 15)
+        ellipse(465, 180, 18, 15)
+        fill(0); strokeWeight(3)
+        stroke(0); strokeWeight(10)
+        fill(255*c, 255*c, 255*c); strokeWeight(10)
+        line(0, 230, 600, 230)
+        strokeWeight(2)
+        line(445, 120, 445, 600)
+        line(0, 200, 600, 200)
+        noStroke(); fill(255*c, 0, 255*c)
+        arc(445, 155, 82, 60, 180, 360)
+        popMatrix()
+    }
+    this.draw = function() {
+        this.f = constrain(this.f, 0, 1);
+        background(0);
+        pushMatrix();
+        fill(this.f*255, this.f*255, this.f*255);
+        translate(300, 300);
+        scale(0.8);
+        scale(1+this.z/100);
+        rotate(cos(this.theta*5)*3);
+        rect(-20, -32, 40, 65);
+        popMatrix();
+        fill(255, 255, 255); textSize(20);
+        text("UP to crawl\nSHIFT+UP to crawl faster", 20, 550);
+    };
+    this.crawl = function() {
+        this.noise = constrain(this.noise, 0, 15);
+        if(keys[UP]) {
+            this.z *= 1.004;
+            this.theta ++;
+            this.noise += 0.01;
+            if(keys[SHIFT]) {
+                this.z *= 1.004;
+                this.theta += 0.6;
+                this.noise += 0.02;
+            }
+        } else {
+            this.noise -= 0.01;
+        }
+        if(this.z > 1000) {
+            this.fading = true;
+        }
+    };
+    this.speak = function() {
+        this.rand++
+        this.sp = this.rand > 500 && 
+        new Speech(
+        (this.rand < 1200 && "I can hear someone creeping through my room.") ||
+        (this.rand < 2300 && "I wonder who it is.") || 
+        (this.rand < 3500 && "I wish I could find out."))
+        if(this.sp) {
+            fill(this.f*255, this.f*255, this.f*255);
+            textSize(20)
+            text(this.sp.char || "", 50, 100, 500, 600)
+            this.sp.add()
+        }
+    }
+    this.ballora = function() {
+        if(this.noise > 8) {
+            this.chime.audio.volume =(this.noise-8)/7.1;
+            this.play ++;
+            if(this.play > 40) {
+                playSound(this.chime);
+                this.play = 0;
+            }
+        }
+    };
+    this.die = function() {
+        if(this.noise >= 15) {
+            this.jump = true;
+        }
+        if(this.jump) {
+            this.j += 20
+            this.j = constrain(this.j, 0, 100)
+            if(this.j > 90) {
+                this.dj ++
+                if(this.dj > 100) {
+                    sc = "home"
+                    this.z = 1
+                }
+            }
+            this.drawFred(-550, -this.j, 3, -100, 0)
+        }
+    };
+    this.display = function() {
+        this.draw();
+        if(breaker.finished) {this.speak()}
+        else {
+            this.ballora();
+            this.die();
+        }
+        this.crawl();
+        fade(this, breaker.finished ? "end" : "breaker");
+    };
+}
+function Button(txt, y) {
+    this.txt = txt
+    this.y = y
+    this.p = 0
+    this.draw = function() {
+        fill(0)
+        stroke(200, 200, 200)
+        strokeWeight(2) 
+        rect(50, this.y+10, 100, 30)
+        fill(200, 200, 200)
+        textSize(17)
+        text(this.txt, 50, this.y)
+        text(this.comp ? "ONLINE" : this.p === 0 ? "RESTART" : round(this.p)+"%", 60, this.y+30)
+    };
+    this.prog = function() {
+        this.p += mouseX > 50 && mouseX < 150 && mouseY > y+10 && mouseY < y+40 && breaker.open ? 0.3 : -0.1
+        if(!breaker.open) {this.p -= 0.1}
+        if(this.comp) {
+            this.p = 100
+        }
+        this.p = constrain(this.p, 0, Infinity)
+        if(this.p > 100) {
+            this.comp = true
+        }
+    }
+}
+function Breaker() {
+    this.open = false
+    this.stage = 1
+    this.f= 0
+    this.rand = 0
+    this.ptimer = 0
+    this.prog = 0
+    this.finished = false
+    this.dtimer = 0
+    this.dead = false
+    this.time = 0.4
+    this.started = false
+    this.rooms = ["Circus Control", "Circus Gallery", "Funtime A.", "Ballora G.", "Parts & S.", "Elevators", "Obsv. 1", "Obsv.2"]
+    this.buttons = []
+    this.speaking = {}
+    this.speech = [new Speech("You may now interface with the breaker control box. Using the interface may disrupt nearby electronics. If you feel you are in danger, feel free to disconnect the interface temporarily, until it is safe to reconnect."), new Speech("Great job. This completes your tasks for the night. Please proceed back through the Ballora Gallery with care, and we’ll see you back here tomorrow.")]
+    this.n = [
+        new PVector(60, 600),
+        new PVector(540, 600)
+    ]
+    for(let i in this.rooms) {
+        this.buttons.push(new Button(this.rooms[i], i*70+30))
+    }
+    this.panel = function() {
+        stroke(150, 150, 150); strokeWeight(10)
+        fill(0)
+        beginShape()
+        vertex(0, 600)
+        vertex(600, 600)
+        vertex(this.n[1].x, this.n[1].y)
+        vertex(this.n[0].x, this.n[0].y)
+        endShape(CLOSE)
+    }
+    this.change = function() {
+        if(this.action && !this.dead) {
+            this.n[1].add(this.open ? -2 : 2, this.open ? 25 : -25)
+            this.n[0].add(this.open ? 2 : -2, this.open ? 25 : -25)
+            if(this.n[0].x < 0) {
+                this.open = true
+                this.action = false
+            }
+            if(this.n[0].x > 60) {
+                this.open = false
+                this.action = false
+            }
+        }
+    }
+    this.drawFred = function(x, y, sc, rot, col) {
+        let c = col || this.f
+        pushMatrix()
+        rotate(rot)
+        scale(sc)
+        translate(x, y)
+        fill(255*c, 0, 255*c);
+        stroke(255*c, 255*c, 255*c); strokeWeight(5)
+        rect(400, 150, 90, 80, 30)
+        ellipse(400, 150, 30, 30)
+        ellipse(490, 150, 30, 30)
+        fill(255*c, 255*c, 255*c);
+        ellipse(425, 180, 18, 20)
+        ellipse(465, 180, 18, 20)
+        fill(0);
+        ellipse(425, 180, 18, 15)
+        ellipse(465, 180, 18, 15)
+        fill(0); strokeWeight(3)
+        rect(430, 115, 30, 30)
+        rect(420, 140, 50, 10)
+        stroke(0); strokeWeight(10)
+        fill(255*c, 255*c, 255*c); strokeWeight(10)
+        arc(445, 240, 90, 40, 0, 180)
+        line(0, 230, 600, 230)
+        strokeWeight(2)
+        line(445, 150, 445, 600)
+        line(0, 200, 600, 200)
+        stroke(0); strokeWeight(3); fill(255*c, 255*c, 255*c);
+        for(let i = 0; i < 8; i++) {
+            rect(i*8+410, 225, 10, 5)
+            rect(i*8+410, 235, 10, 5)
+        }
+        popMatrix()
+    }
+    this.freddy = function() {
+        this.rand ++
+        if(this.rand > random(1, 500)) {
+            this.rand = 0
+            this.f= random(0.1, 0.5)
+        }
+        fill(255*this.c, 0, 255*this.c); noStroke()
+        if(this.dark) {
+            this.dtimer ++
+            if(this.dtimer > 100) {
+                this.dark = false
+                this.dtimer = 0
+            }
+        }
+        if(!this.dark) {
+        switch(this.stage) {
+            case 1: {
+                this.drawFred(50, 200, 0.8, -10)
+            } break
+            case 2: {
+                this.drawFred(0, 0, 1, 5)
+            } break
+            case 3: {
+                this.drawFred(-300, 100, 1.2, -20)
+            }
+        }
+        }
+    }
+    this.AI = function() {
+        this.prog += this.open ? random(-3, 4) : keys[" "] ? -0.5 : 0
+        if(this.prog > 100) {
+            this.stage ++
+            playSound(getSound("rpg/battle-swing"))
+            this.prog = 1
+        }
+        this.prog = constrain(this.prog, 0, Infinity)
+        if(keys[" "] && !this.open && this.prog === 0 && this.stage > 1) {
+            this.dark = true
+            this.stage --
+            this.prog = 90
+        }
+    }
+    this.jump = function() {
+        if(this.stage > 3) {
+            this.time += 0.3
+            if(this.open) {this.action = true}
+            this.drawFred(-350, -this.time*70+140, 3, -20+this.time*5, 0.8)
+            this.time = constrain(this.time, 0, 3)
+        }
+    }
+    this.HUD = function() {
+        if(!this.dead) {
+            fill(255, 0, 0); textSize(15)
+            text("LMB to toggle\nmonitor open and close.\n\nPress and hold SPACE\n to play audio.", 400, 50)
+            this.AI()
+        }
+    }
+    this.speak = function() {
+        if(this.buttons.every(function(b) {return b.p >= 100})) {
+            if(this.open) {this.action = true}
+            this.speaking = this.speech[1]
+            fill(255, 255, 255); textSize(20)
+            text("Press X to leave", 100, 100)
+            if(keyIsPressed && key.toString() === "x") {
+                this.fading = true
+                this.finished = true
+            }
+        } else {
+            this.speaking = !this.started ? this.speech[0] : new Speech("")
+        }
+        if(!this.started) {
+            this.speaking = this.speech[0]
+        }
+        if(!this.open) {
+        this.speaking.add()
+        textSize(20)
+        text(this.speaking.s, 50, 400, 500, 500)
+        }
+    }
+    this.display = function() {
+        if(this.dead) {
+            this.ptimer ++
+            if(this.ptimer > 100) {
+                sc = "home"
+            }
+        }
+        if(this.stage > 3) {this.dead = true}
+        op = this.open
+        if(mouseIsPressed) {this.started = true}
+        fade(this, null)
+        background(0)
+        this.change()
+        if(!this.dead) {this.freddy()}
+        this.panel()
+        this.jump()
+        this.HUD()
+        this.speak()
+        for(let i in this.buttons) {
+            if(this.open && !this.action) {this.buttons[i].draw()}
+            this.buttons[i].prog()
+        }
+        fade(this, "gallery")
+    }
+}
+
+const vent = new Vent(25, 0, "main"), vent2 = new Vent(25, 0, "circus"), vent3 = new Vent(25, 0, "end"), vent4 = new Vent(25, 0, "main")
+const home = new Home(), elevator = new Elevator(), main = new Main(), circus = new Circus(), end1 = new End(2), desk = new Desk(), gallery = new Gallery(), breaker = new Breaker(), end2 = new End(3)
+
+draw = function() {
+    if(sc !== "home") {savedNight = night}
+    keyPressed = function() {
+        keys[keyCode] = true
+        keys[key.toString()] = true
+    }
+    keyReleased = function() {keys[keyCode] = false}
+    mousePressed = function() {breaker.action = true}
+    noStroke();
+    if(keys[ENTER]) {sc = "home"}
+    if(sc === "vent4") {main.gallery = true}
+    switch(sc) {
+        case "home": home.display(); break
+        case "v": voices[night-1].draw(); break
+        case "elevator": elevator.display(); break
+        case "vent": vent.display(); break
+        case "main": main.display(); break
+        case "vent2": vent2.display(); break
+        case "circus": circus.display(); break
+        case "vent3": vent3.display(); break
+        case "end": end1.display(); break
+        case "vent4": vent4.display(); break
+        case "desk": desk.display(); break
+        case "gallery": gallery.display(); break
+        case "breaker": breaker.display(); break
+        case "end2" : end2.display(); break
+    }
+};
