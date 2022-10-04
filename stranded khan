@@ -1,0 +1,224 @@
+//jshint asi: true
+//jshint esnext: true
+noStroke()
+let sc = "home", keys = [], seed = new Random(random(0, 10000)), bs = [], px = -500, py = -500, pd = 0, loading, islands = [], dup = false, finish = false
+let hm = [
+    "00000000330000000",
+    "00000333133000000",
+    "00033311113300000",
+    "00331111213330000",
+    "03331112211130000",
+    "00311222221130000",
+    "0333112222113000",
+    "00331122211330",
+    "000331122211330",
+    "00331112211133000",
+    "00033311111133000",
+    "00000333113300000",
+    "00000003333000000"
+]
+let c1 = color(0, 0, 150)
+
+//put your save code here:
+let savecode = ""
+//island size (increases logarithmically)
+let islandSize = 2000
+//load speed (faster load speed = higher chance of crashes)
+let loadSpeed = 100
+//player speed 
+let spd = 0.5
+
+function Land(x, y) {
+    this.x = x
+    this.y = y
+    this.check = function() {
+        this.count = 0
+        for(let i = 0; i < bs.length; i++) {
+            if(
+            (bs[i].x === this.x-20 && bs[i].y === this.y) ||
+            (bs[i].x === this.x+20 && bs[i].y === this.y) ||               (bs[i].x === this.x && bs[i].y === this.y-20) || 
+            (bs[i].x === this.x && bs[i].y === this.y+20)) {
+                this.count++
+            }
+        }
+        this.col = this.count >= 4 ? color(0, 150, 0) : color(255, 255, 200)
+    }
+    this.check()
+    this.draw = function() {
+        stroke(this.col)
+        strokeWeight(1)
+        fill(this.col)
+        rect(this.x, this.y, 20, 20)
+    }
+}
+function Island(x, y) {
+    this.x = x
+    this.y = y
+    this.n = seed.nextGaussian()
+    this.ch = 0
+    this.unique = []
+    this.c = [new PVector(x, y)]
+    this.dir = (this.n < -1 && new PVector(0, -20)) || (this.n > -1 && this.n < 0 && new PVector(20, 0)) || (this.n > 0 && this.n < 1 && new PVector(0, 20)) || (this.n > 1 && new PVector(-20, 0))
+    this.finish = false
+    this.lb = function() {
+        this.n = seed.nextGaussian()
+        this.dir = (this.n < -1 && new PVector(0, -20)) || (this.n > -1 && this.n < 0 && new PVector(20, 0)) || (this.n > 0 && this.n < 1 && new PVector(0, 20)) || (this.n > 1 && new PVector(-20, 0))
+        this.c.push(new PVector(this.c[this.ch].x+this.dir.x, this.c[this.ch].y+this.dir.y))
+        
+        this.ch = abs(round(this.c.length*seed.nextGaussian()))
+        this.ch = constrain(this.ch, 0, this.c.length-1)
+    }
+    this.rd = function() {
+        for(let i = 0; i < this.c.length; i++) {
+            for(let j = 0; j < this.c.length; j++) {
+                if(this.c[i] && this.c[j] && this.c[i].x === this.c[j].x && this.c[i].y === this.c[j].y && i !== j) {
+                    this.c.splice(j, 1) 
+                }
+            }
+        }
+        for(let i = 0; i < this.c.length; i++) {
+            bs.push(new Land(this.c[i].x, this.c[i].y))
+        }
+        dup = false
+        this.finish = true
+    }
+}
+for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
+    islands.push(new Island(i*600, j*600))
+}}
+
+function island(x, y) {
+    let n = seed.nextGaussian(), ch = 0, unique = [], c = [new PVector(x, y)]
+    
+    let dir = (n < -1 && new PVector(0, -20)) || (n > -1 && n < 0 && new PVector(20, 0)) || (n > 0 && n < 1 && new PVector(0, 20)) || (n > 1 && new PVector(-20, 0))
+    for(let i = 0; i < islandSize; i++) {
+        
+        n = seed.nextGaussian()
+        dir = (n < -1 && new PVector(0, -20)) || (n > -1 && n < 0 && new PVector(20, 0)) || (n > 0 && n < 1 && new PVector(0, 20)) || (n > 1 && new PVector(-20, 0))
+        
+        let rand = c.length*seed.nextGaussian()
+        c.push(new PVector(c[ch].x+dir.x, c[ch].y+dir.y))
+        
+        ch = abs(round(c.length*seed.nextGaussian()))
+        ch = constrain(ch, 0, c.length-1)
+    }
+    for(let i = 0; i < c.length; i++) {
+        for(let j = 0; j < c.length; j++) {
+            if(c[i] && c[j] && c[i].x === c[j].x && c[i].y === c[j].y && i !== j) {
+                c.splice(j, 1) 
+            }
+        }
+    }
+    for(let i = 0; i < c.length; i++) {
+        bs.push(new Land(c[i].x, c[i].y))
+    }
+}
+function controls() {
+    px -= keys[RIGHT] ? spd : keys[LEFT] ? -spd : 0
+    py -= keys[UP] ? -spd : keys[DOWN] ? spd : 0
+}
+function player() {
+    if(keys[RIGHT] && !keys[DOWN] && !keys[UP] && 90) {pd = 90}
+    else if (keys[RIGHT] && keys[UP] && !keys[DOWN] && 50) {pd = 45} 
+    else if (keys[UP] && !keys[RIGHT] && !keys[LEFT]) {pd = 0}
+    else if (keys[UP] && keys[LEFT] && !keys[RIGHT]) {pd = -45}
+    else if (keys[LEFT] && !keys[UP] && !keys[RIGHT] && !keys[DOWN]) {pd = -90}
+    else if (keys[LEFT] && keys[DOWN] && !keys[UP]) {pd = -135}
+    else if (keys[RIGHT] && keys[DOWN] && !keys[UP]) {pd = 135}
+    else if (keys[DOWN] && !keys[UP] && !keys[RIGHT] && !keys[LEFT]) {pd = 180}
+    pushMatrix()
+    translate(300, 300)
+    scale(0.5)
+    rotate(pd)
+    noStroke()
+    fill(150, 150, 150)
+    rect(12, 10, 10, -35)
+    rect(-20, 10, 10, -35)
+    stroke(150, 100, 0)
+    strokeWeight(5)
+    fill(150, 150, 0)
+    rect(-15, -15, 30, 30)
+    popMatrix()
+}
+function game() {
+    pushMatrix()
+    scale(2)
+    translate(px, py)
+    background(c1)
+    for(let i = 0; i < bs.length; i++) {
+        bs[i].draw()
+    }
+    controls()
+    popMatrix()
+    player()
+    for(let i = 0; i < islands.length; i++) {
+        if(islands[i].c.length < islandSize && !islands[i].finish) {
+            for(let j = 0; j < loadSpeed; j++) {islands[i].lb()}
+        } else if(!islands[i].finish) {
+            dup = true
+        }
+        if(dup) {islands[i].rd()}
+    }
+}
+function home() {
+    background(c1)
+    let cond = [
+        mouseX > 400 && mouseY > 180 && mouseY < 240,
+        mouseX > 400 && mouseY > 240 && mouseY < 280, 
+        mouseX > 400 && mouseY > 280 && mouseY < 320, 
+        mouseX > 400 && mouseY > 320 && mouseY < 380, 
+    ]
+    let t = ["NEW GAME", "LOAD GAME", "CONTROLS", "OPTIONS"]
+    
+    if(loading) {
+    }
+    for(let i = 0; i < hm.length; i++) {
+        for(let j = 0; j < hm[i].length; j++) {
+            switch(hm[i][j]) {
+                case "1": 
+                    fill(240, 240, 175)
+                    rect(j*15+220, i*15+200, 15, 15); 
+                break;
+                case "2":
+                    fill(0, 150, 0)
+                    rect(j*15+220, i*15+200, 15, 15)
+                break;
+                case "3":
+                    fill(10, 117, 166);
+                    rect(j*15+220, i*15+200, 15, 15)
+            }
+        }
+    }
+    
+    textFont(createFont("sans-serif"))
+    fill(255, 255, 255)
+    textSize(30)
+    text("STRANDED", 50, 270)
+    textSize(60)
+    text("KHAN", 50, 320)
+    
+    textFont(createFont("monospace"))
+    textSize(20)
+    for(let i = 0; i < t.length; i++) {
+        fill(cond[i] ? color(200, 200, 200) : color(255, 255, 255))
+        text(t[i], 440, 230+i*40)
+    }
+    
+    if(mouseIsPressed) {
+        if(cond[0]) {sc = "game"; loading = true}
+        if(cond[1]) {sc = "load"}
+        if(cond[2]) {sc = "controls"}
+        if(cond[3]) {sc = "options"}
+    }
+}
+draw = function() {
+    keyPressed = function() {keys[keyCode] = true}
+    keyReleased = function() {keys[keyCode] = false}
+    switch(sc) {
+        case "home": home(); break
+        case "game": game(); break
+    }
+    textSize(15)
+    fill(255, 255, 255)
+    text(round(this.__frameRate), 10, 20)
+}
