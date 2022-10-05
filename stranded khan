@@ -10,7 +10,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 17, plants = []
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, plants = [], on = 0, ox = 100
 let tcontrol = "Arrow Keys to move\nC to open crafting menu\nE to open inventory\nZ to toggle pause menu"
 let hm = [
     "00000000330000000",
@@ -146,6 +146,10 @@ function HUD() {
     textSize(15)
     text(abs(round(-px/10*2)) + (px < 0 ? "E" : "W") +  ", " + abs(round(-py/10)) + (py < 0 ? "S" : "N"), 500, 550)
     text(floor(hr) + ":" + (round(60*(hr%1)) < 10 ? "0" : "") + (round(60*(hr%1))), 500, 570)
+    if(ox < 100) {
+        fill(0, 255, 255)
+        rect(150, 50, ox*3, 5)
+    }
     
 }
 function inventory() {
@@ -202,6 +206,15 @@ function pause() {
 //} displayed functions
 //{
 function water() {
+    on = bs.filter(function(e) {
+        return e.x >= 130 && e.x <= 150 && e.y >= 130 && e.y <= 150
+    }).length >= 1
+    if(!on) {
+        ox -= 0.03
+    } else {
+        ox += 0.08
+    }
+    ox = constrain(ox, 0, 100)
 }
 function time() {
     hr += 0.0005
@@ -217,7 +230,6 @@ function time() {
         f -= 0.00024
         f = constrain(f, 0, 1)
     }
-    println(f)
 }
 //} other game mechanic functions
 //{
@@ -248,8 +260,8 @@ function island(x, y) {
     }
 }
 function controls() {
-    let x = keys[RIGHT] ? spd : keys[LEFT] ? -spd : 0
-    let y = keys[UP] ? -spd : keys[DOWN] ? spd : 0
+    let x = keys[RIGHT] ? (on ? spd : spd/3) : keys[LEFT] ? -(on ? spd : spd/3) : 0
+    let y = keys[UP] ? -(on ? spd : spd/3) : keys[DOWN] ? (on ? spd : spd/3) : 0
     for(let i = 0; i < bs.length; i++) {
         bs[i].x -= x
         bs[i].y -= y
@@ -306,6 +318,7 @@ function init() {
         textSize(30)
         ajk = constrain(ajk, 0, 100)
         text("Loading " + ajk, 230, 300)
+        ox = 100
     }
 }
 function game() {
@@ -323,6 +336,7 @@ function game() {
     if(!loading && !ps) {controls()}
     water()
     HUD()
+    water()
     pause()
     time()
     inventory()
