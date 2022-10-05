@@ -9,7 +9,9 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 
 //{
 noStroke()
-let sc = "home", keys = [], seed = new Random(random(0, 10000)), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0
+let ran = round(random(0, 10000))
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false
+let tcontrol = "Arrow Keys to move\nC to open crafting menu\nE to open inventory\nZ to open pause menu"
 let hm = [
     "00000000330000000",
     "00000333133000000",
@@ -124,7 +126,49 @@ function crafting() {
     
 }
 function pause() {
-    
+    let sav = ran + " " + round(px) + " " + round(py)
+    if(ps) {
+        if(!con2) {
+        fill(0, 0, 100)
+        rect(150, 100, 300, 400)
+        textSize(30)
+        fill(255, 255, 255)
+        text("Paused", 245, 170)
+        textSize(20)
+        fill(mouseX > 180 && mouseX < 400 && mouseY > 210 && mouseY < 255 ? color(200, 200, 200) : color(255, 255, 255))
+        text("QUIT", 190, 240)
+        fill(mouseX > 180 && mouseX < 400 && mouseY > 255 && mouseY < 320 ? color(200, 200, 200) : color(255, 255, 255))
+        text("GET SAVE CODE", 190, 290)
+        fill(mouseX > 180 && mouseX < 400 && mouseY > 320 && mouseY < 355 ? color(200, 200, 200) : color(255, 255, 255))
+        text("CONTROLS", 190, 340)
+        mousePressed = function() {if(ps) {
+            if(mouseX > 180 && mouseX < 400) {
+            if(mouseY > 190 && mouseY < 235 && ps) {Program.restart()} 
+            else if(mouseY > 235 && mouseY < 290 && ps) {
+                println(sav)
+                
+            } else if(mouseY > 290 && mouseY < 335 && ps) {
+                con2 = true
+            }
+        }}}
+        }
+        if(con2) {
+            fill(0, 0, 100)
+            rect(150, 100, 300, 400)
+            textSize(30)
+            fill(255, 255, 255)
+            text("CONTROLS", 230, 150)
+            textSize(18)
+            text(tcontrol, 180, 250)
+            fill(0, 0, 200)
+            rect(170, 440, 90, 40)
+            fill(255, 255, 255)
+            text("BACK", 190, 465)
+            if(mouseIsPressed && mouseX > 170 && mouseX < 260 && mouseY > 440 && mouseY < 480) {
+                con2 = false
+            }
+        }
+    }
 }
 //} displayed functions
 //{
@@ -155,10 +199,14 @@ function island(x, y) {
     }
 }
 function controls() {
+    let x = keys[RIGHT] ? spd : keys[LEFT] ? -spd : 0
+    let y = keys[UP] ? -spd : keys[DOWN] ? spd : 0
     for(let i = 0; i < bs.length; i++) {
-        bs[i].x -= keys[RIGHT] ? spd : keys[LEFT] ? -spd : 0
-        bs[i].y -= keys[UP] ? -spd : keys[DOWN] ? spd : 0
+        bs[i].x -= x
+        bs[i].y -= y
     }
+    px -= x
+    py -= y
 }
 function player() {
     if(keys[RIGHT] && !keys[DOWN] && !keys[UP] && 90) {pd = 90}
@@ -216,11 +264,12 @@ function game() {
     for(let i = 0; i < bs.length; i++) {
         bs[i].draw()
     }
-    if(!loading) {controls()}
+    if(!loading && !ps) {controls()}
     popMatrix()
     player()
     water()
     HUD()
+    pause()
     init()
 }
 //} game mechanic functions
@@ -279,7 +328,7 @@ function control() {
     textSize(30)
     text("CONTROLS", 220, 130)
     textSize(20)
-    text("Arrow Keys to move\nC to open crafting menu\nE to open inventory", 80, 200)
+    text(tcontrol, 80, 200)
     back()
 }
 function home() {
@@ -335,7 +384,10 @@ function home() {
 }
 //} home screen functions
 draw = function() {
-    keyPressed = function() {keys[keyCode] = true}
+    keyPressed = function() {
+        keys[keyCode] = true
+        if(key.toString() === "z") {ps = !ps}
+    }
     keyReleased = function() {keys[keyCode] = false}
     switch(sc) {
         case "home": home(); break
