@@ -10,7 +10,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 5
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 17, plants = []
 let tcontrol = "Arrow Keys to move\nC to open crafting menu\nE to open inventory\nZ to toggle pause menu"
 let hm = [
     "00000000330000000",
@@ -28,7 +28,7 @@ let hm = [
     "00000003333000000"
 ]
 let c1 = color(0, 0, 150)
-let f = 0.05
+let f = 1
 //} basic vars
 //{
 //put your save code here:
@@ -39,11 +39,27 @@ let islandSize = 300
 let loadSpeed = 20
 //player speed 
 let spd = 0.7
+//land stroke
 //} setting vars
+//{
+function Palm(x, y) {
+    this.x = x
+    this.y = y
+    this.draw = function() {
+        stroke(0, f*150, 0)
+        strokeWeight(2)
+        fill(0, f*255, f*98)
+        rect(this.x+2, this.y+2, 16, 16, 3)
+        fill(0, f*255, f*150);
+        rect(this.x+5, this.y+5, 10, 10, 2)
+    }
+}
+//} plant/tree constructors
 //{
 function Land(x, y) {
     this.x = x
     this.y = y
+    this.rand = seed.nextGaussian()
     this.check = function() {
         if(check === 0) {
         this.count = 0
@@ -68,6 +84,9 @@ function Land(x, y) {
             default: this.col = color(f*255, f*255, f*150);
         }
         if(this.count > 10) {this.col = color(0, f*100, f*255)}
+        
+        if(this.count > 7 && this.count < 11) {this.grow = true}
+        if(this.rand < -0.85 && this.grow) {plants.push(new Palm(this.x, this.y))}
         }
     }
     this.check()
@@ -120,7 +139,7 @@ function Island(x, y) {
 for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
     islands.push(new Island(i*600-1080, j*600-1080))
 }}
-//} constructors
+//} land constructors
 //{
 function HUD() {
     fill(255, 255, 255)
@@ -185,19 +204,20 @@ function pause() {
 function water() {
 }
 function time() {
-    hr += 0.005
+    hr += 0.0005
     if(hr > 19 || hr < 5) {f = 0.05}
     if(hr > 5 && hr < 8) {
-        f += 0.00131
+        f += 0.00024
         f = constrain(f, 0, 1)
     }
     if(hr > 8 && hr < 17) {
         f = 1
     }
     if(hr > 17 && hr < 20) {
-        f -= 0.00015
+        f -= 0.00024
         f = constrain(f, 0, 1)
     }
+    println(f)
 }
 //} other game mechanic functions
 //{
@@ -233,6 +253,10 @@ function controls() {
     for(let i = 0; i < bs.length; i++) {
         bs[i].x -= x
         bs[i].y -= y
+    }
+    for(let i = 0; i < plants.length; i++) {
+        plants[i].x -= x
+        plants[i].y -= y
     }
     px -= x
     py -= y
@@ -289,16 +313,20 @@ function game() {
     pushMatrix()    
     scale(2)
     background(c1)
-    for(let i = 0; i < bs.length; i++) {
-        bs[i].draw()
-    }
-    if(!loading && !ps) {controls()}
+    for(let i = 0; i < bs.length; i++) {bs[i].draw()}
     popMatrix()
     player()
+    pushMatrix()    
+    scale(2)
+    for(let i = 0; i < plants.length; i++) {plants[i].draw()}
+    popMatrix()
+    if(!loading && !ps) {controls()}
     water()
     HUD()
     pause()
     time()
+    inventory()
+    crafting()
     init()
 }
 //} main game mechanic functions 
@@ -314,7 +342,7 @@ function back() {
     }
 }
 function option(y, op, v, n) {
-    for(let i = 0; i < 3; i++) {
+    for(let i = 0; i < op.length; i++) {
         fill(v === n[i] ? color(50, 50, 255) : color(0, 0, 220))
         rect(260+i*108, y, 90, 40)
         fill(255, 255, 255)
@@ -330,7 +358,6 @@ function options() {
     option(170, ["MEDIUM", "LARGE", "HUGE"], islandSize, [300, 600, 1000])
     option(230, ["SLOW", "MEDIUM", "FAST"], loadSpeed, [10, 20, 30])
     option(290, ["SLOW", "MEDIUM", "FAST"], spd, [0.4, 0.7, 1])
-    
     if(mouseIsPressed) {
         if(mouseY > 170 && mouseY < 210) {
             if(mouseX > 260 && mouseX < 350) {islandSize = 300}
@@ -347,7 +374,6 @@ function options() {
             else if(mouseX > 368 && mouseX < 458) {spd = 0.7}
             else if(mouseX > 476 && mouseX < 566) {spd = 1}
         }
-
     }
     back()
 }
