@@ -10,7 +10,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, plants = [], on = 0, ox = 100, he = 100
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = []
 let tcontrol = "Arrow Keys to move\nC to open crafting menu\nE to open inventory\nZ to toggle pause menu"
 let hm = [
     "00000000330000000",
@@ -34,9 +34,9 @@ let f = 1
 //put your save code here:
 let savecode = ""
 //island size (increases logarithmically)
-let islandSize = 300
+let islandSize = 700
 //load speed (faster load speed = higher chance of crashes)
-let loadSpeed = 20
+let loadSpeed = 10
 //player speed 
 let spd = 0.7
 //land stroke
@@ -57,15 +57,14 @@ function Palm(x, y) {
 function Rock(x, y) {
     this.x = x
     this.y = y
-    this.rand = new PVector(random(-1, 1), random(-1, 1))
     this.draw = function() {
         fill(f*100, f*100, f*100)
         stroke(f*50, f*50, f*50)
         strokeWeight(1)
-        rect(this.x+this.rand.x, this.y+10+this.rand.y, 3, 3)
+        rect(this.x+8, this.y+8, 4, 4)
     }
 }
-//} plant/tree constructors
+//} plant/resource constructors
 //{
 function Land(x, y) {
     this.x = x
@@ -94,15 +93,14 @@ function Land(x, y) {
             case 10: this.col = color(0, f*170, 0); break
             default: this.col = color(f*255, f*255, f*150);
         }
-        let construct = this.rand < -0.85 ? Palm : this.rand > -0.85 && this.rand < -0.6 ? Rock : Rock
         if(this.count > 10) {this.col = color(0, f*100, f*255)}
         
         if(this.count > 7 && this.count < 11) {this.grow = true}
         if(this.grow && this.rand < -0.85) {
-            plants.push(new Palm(this.x, this.y))
+            trees.push(new Palm(this.x, this.y))
         }
         if(this.rand > -0.85 && this.rand < -0.5) {
-            plants.push(new Rock(this.x, this.y))
+            others.push(new Rock(this.x, this.y))
         }
         }
     }
@@ -293,9 +291,13 @@ function controls() {
         bs[i].x -= x
         bs[i].y -= y
     }
-    for(let i = 0; i < plants.length; i++) {
-        plants[i].x -= x
-        plants[i].y -= y
+    for(let i = 0; i < trees.length; i++) {
+        trees[i].x -= x
+        trees[i].y -= y
+    }
+    for(let i = 0; i < others.length; i++) {
+        others[i].x -= x
+        others[i].y -= y
     }
     px -= x
     py -= y
@@ -355,11 +357,12 @@ function game() {
     scale(2)
     background(c1)
     for(let i = 0; i < bs.length; i++) {bs[i].draw()}
+    for(let i = 0; i < others.length; i++) {others[i].draw()}
     popMatrix()
     player()
     pushMatrix()    
     scale(2)
-    for(let i = 0; i < plants.length; i++) {plants[i].draw()}
+    for(let i = 0; i < trees.length; i++) {trees[i].draw()}
     popMatrix()
     if(!loading && !ps) {controls()}
     water()
@@ -396,23 +399,19 @@ function options() {
     background(c1)
     textSize(30)
     text("OPTIONS", 250, 100)
+    textSize(15)
+    text("Larger maps may crash more when loading.", 120, 510)
     textSize(18)
-    text("ISLAND SIZE\n\nLOAD SPEED\n\nMOVEMENT SPEED\n(LAND)", 50, 200)
-    option(170, ["MEDIUM", "LARGE", "HUGE"], islandSize, [300, 600, 1000])
-    option(230, ["SLOW", "MEDIUM", "FAST"], loadSpeed, [10, 20, 30])
-    option(290, ["SLOW", "MEDIUM", "FAST"], spd, [0.4, 0.7, 1])
-    if(mouseIsPressed) {
+    text("ISLAND SIZE\n\nMOVEMENT SPEED\n(LAND)", 50, 200)
+    option(170, ["MEDIUM", "LARGE", "HUGE"], islandSize, [400, 700, 1000])
+    option(230, ["SLOW", "MEDIUM", "FAST"], spd, [0.4, 0.7, 1])
+    if(mouseIsPressed && sc === "options") {
         if(mouseY > 170 && mouseY < 210) {
-            if(mouseX > 260 && mouseX < 350) {islandSize = 300}
-            else if(mouseX > 368 && mouseX < 458) {islandSize =  600}
+            if(mouseX > 260 && mouseX < 350) {islandSize = 400}
+            else if(mouseX > 368 && mouseX < 458) {islandSize =  700}
             else if(mouseX > 476 && mouseX < 566) {islandSize = 1000} 
         }
         if(mouseY > 230 && mouseY < 270) {
-            if(mouseX > 260 && mouseX < 350) {loadSpeed = 10}
-            else if(mouseX > 368 && mouseX < 458) {loadSpeed = 20}
-            else if(mouseX > 476 && mouseX < 566) {loadSpeed = 30}
-        }
-        if(mouseY > 290 && mouseY < 330) {
             if(mouseX > 260 && mouseX < 350) {spd = 0.4}
             else if(mouseX > 368 && mouseX < 458) {spd = 0.7}
             else if(mouseX > 476 && mouseX < 566) {spd = 1}
