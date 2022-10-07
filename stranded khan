@@ -10,7 +10,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0
 let tcontrol = "Arrow Keys to move\nC to open crafting menu\nE to open inventory\nZ to toggle pause menu"
 let hm = [
     "00000000330000000",
@@ -39,7 +39,8 @@ let islandSize = 200
 let loadSpeed = 2
 //player speed 
 let spd = 0.7
-//land stroke
+//
+let islandCount = 4
 //} setting vars
 //{
 function Palm(x, y) {
@@ -69,6 +70,7 @@ function Rock(x, y) {
 function Land(x, y) {
     this.x = x
     this.y = y
+    this.checked = 0
     this.rand = seed.nextGaussian()
     this.check = function() {
         if(check === 0) {
@@ -108,15 +110,19 @@ function Land(x, y) {
     }
 }
 function Island(x, y) {
+    {
     this.x = x
     this.y = y
     this.n = seed.nextGaussian()
     this.ch = 0
     this.unique = []
     this.ri = 0
+    this.sb = 0
     this.c = [new PVector(x, y)]
     this.dir = (this.n < -1 && new PVector(0, -20)) || (this.n > -1 && this.n < 0 && new PVector(20, 0)) || (this.n > 0 && this.n < 1 && new PVector(0, 20)) || (this.n > 1 && new PVector(-20, 0))
     this.finish = false
+    this.final = false
+    }
     this.lb = function() {
         this.n = seed.nextGaussian()
         this.dir = (this.n < -1 && new PVector(0, -20)) || (this.n > -1 && this.n < 0 && new PVector(20, 0)) || (this.n > 0 && this.n < 1 && new PVector(0, 20)) || (this.n > 1 && new PVector(-20, 0))
@@ -124,8 +130,7 @@ function Island(x, y) {
         this.ch = abs(round(this.c.length*seed.nextGaussian()))
         this.ch = constrain(this.ch, 0, this.c.length-1)
     }
-    this.rd = function() {
-        if(this.removing) {
+    this.rd = function() {if(this.removing) {
         for(let i = 0; i < 1; i++) {
         for(let j = 0; j < this.c.length; j++) {
             if(this.c[this.ri] && this.c[j] && this.c[this.ri].x === this.c[j].x && this.c[this.ri].y === this.c[j].y && this.ri !== j) {
@@ -135,19 +140,29 @@ function Island(x, y) {
             this.ri++
         }
         if(this.ri >= this.c.length-2) {
+            this.pushing = true
             for(let i = 0; i < this.c.length; i++) {
-                bs.push(new Land(this.c[i].x, this.c[i].y))
+                //bs.push(new Land(this.c[i].x, this.c[i].y))
             }
 
             dup = false
             this.finish = true
             this.removing = false
         }
+        
+    }}
+    this.push = function() {
+        bs.push(new Land(this.c[this.sb].x, this.c[this.sb].y))
+        this.sb++
+        
+        if(this.sb >= this.c.length-1) {
+            this.pushing = false
+            this.final = true
         }
     }
 }
-for(let i = 1; i < 2; i++) {for(let j = 1; j < 2; j++) {
-    islands.push(new Island(2*700-1300, 2*700-1300))
+for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
+    islands.push(new Island(i*700-1300, j*700-1300))
 }}
 //} land constructors
 //{
@@ -157,6 +172,7 @@ function HUD() {
     text(abs(round(-px/10*2)) + (px < 0 ? "E" : "W") +  ", " + abs(round(-py/10)) + (py < 0 ? "S" : "N"), 500, 550)
     text(floor(hr) + ":" + (round(60*(hr%1)) < 10 ? "0" : "") + (round(60*(hr%1))), 500, 570)
     stroke(50, 50, 50);
+    strokeWeight(2)
     if(ox < 100) {
         fill(200, 200, 200)
         rect(150, 40, 300, 5)
@@ -175,7 +191,7 @@ function crafting() {
     
 }
 function pause() {
-    let sav = ran + " " + round(px) + " " + round(py)
+    let sav = ran + " " + islandSize + " " + round(px) + " " + round(py)
     if(ps) {
         if(!con2) {
         fill(0, 0, 100)
@@ -303,28 +319,37 @@ function init() {
         }
         if(dup) {islands[i].removing = true}
     }    
-    if(islands.every(function(e) {return e.finish})) {
+    if(islands.some(function(e) {return e.finish})) {
+        removed = true
+    } 
+    if(islands.every(function(e) {return e.final})) {
         loading = false
         for(let i = 0; i < bs.length; i++) {
             bs[i].check()
         }
         check++
+    } 
+    for(let i = 0; i < islands.length; i++) {
+        if(islands[i].pushing) {
+            islands[i].push()
+        }
     }
     if(loading) {
         let total = islands.reduce(function(a, b) {
             return a+b.ri
         }, 0)
-        
+        let total2 = bs.length/islands.reduce(function(a,b) {
+            return a+b.c.length
+        }, 0)
         let ajk2 = round(100*(islands[0].c.length/islandSize))
-        let ajk = round((total/islandSize)*280)
         background(c1)
         textSize(30)
-        ajk = constrain(ajk, 0, 100)
         ajk2 = constrain(ajk2, 0, 100)
         fill(255, 255, 255)
         if(ajk2 > 95) {dl = true}
         if(!dl) {text("Loading Map " + ajk2, 180, 290)}
-        else {text("Removing Duplicates " + ajk, 110, 290)}
+        else if(!removed) {text("Removing Duplicates", 140, 290)}
+        else {text("Creating Map " + round(total2*100), 160, 290)}
         ox = 100
     }
 }
@@ -384,13 +409,13 @@ function options() {
     textSize(15)
     textSize(18)
     text("ISLAND SIZE\n\nMOVEMENT SPEED\n(LAND)", 50, 200)
-    option(170, ["MEDIUM", "LARGE", "HUGE"], islandSize, [200, 300, 400])
+    option(170, ["MEDIUM", "LARGE", "HUGE"], islandSize, [200, 400, 800])
     option(230, ["SLOW", "MEDIUM", "FAST"], spd, [0.4, 0.7, 1])
     if(mouseIsPressed && sc === "options") {
         if(mouseY > 170 && mouseY < 210) {
             if(mouseX > 260 && mouseX < 350) {islandSize = 200}
-            else if(mouseX > 368 && mouseX < 458) {islandSize =  300}
-            else if(mouseX > 476 && mouseX < 566) {islandSize = 400} 
+            else if(mouseX > 368 && mouseX < 458) {islandSize =  400}
+            else if(mouseX > 476 && mouseX < 566) {islandSize = 800} 
         }
         if(mouseY > 230 && mouseY < 270) {
             if(mouseX > 260 && mouseX < 350) {spd = 0.4}
