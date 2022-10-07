@@ -10,7 +10,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = []
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false
 let res = [0]
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
@@ -41,7 +41,6 @@ let loadSpeed = 2
 //player speed 
 let spd = 0.7
 //
-let islandCount = 4
 //} setting vars
 //{
 function Palm(x, y) {
@@ -370,11 +369,7 @@ function init() {
         removed = true
     } 
     if(islands.every(function(e) {return e.final})) {
-        loading = false
-        for(let i = 0; i < bs.length; i++) {
-            bs[i].check()
-        }
-        check++
+        doing3 = true
     } 
     for(let i = 0; i < islands.length; i++) {
         if(islands[i].pushing) {
@@ -396,8 +391,19 @@ function init() {
         if(ajk2 > 95) {dl = true}
         if(!dl) {text("Loading Map " + ajk2, 180, 290)}
         else if(!removed) {text("Removing Duplicates", 140, 290)}
-        else {text("Creating Map " + round(total2*100), 160, 290)}
+        else if(!doing3) {text("Creating Map " + round(total2*100), 160, 290)}
+        else {text("Coloring Map " + round(che/bs.length*100), 160, 290)}
         ox = 100
+    }
+    if(doing3 && loading) {
+        for(let i = 0; i < 10; i++) {
+            bs[che+i].check()
+        }
+        che += 10
+        if(che >= bs.length-15) {
+            check++
+            loading = false
+        }
     }
 }
 function game() {
