@@ -10,7 +10,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = []
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false
 let tcontrol = "Arrow Keys to move\nC to open crafting menu\nE to open inventory\nZ to toggle pause menu"
 let hm = [
     "00000000330000000",
@@ -33,10 +33,10 @@ let f = 1
 //{
 //put your save code here:
 let savecode = ""
-//island size (increases logarithmically)
-let islandSize = 700
-//load speed (faster load speed = higher chance of crashes)
-let loadSpeed = 10
+//island size
+let islandSize = 200
+//load speed
+let loadSpeed = 2
 //player speed 
 let spd = 0.7
 //land stroke
@@ -87,17 +87,10 @@ function Land(x, y) {
                 this.count++
             }
         }
-        switch(this.count) {
-            case 8: this.col = color(0, f*220, 0); break
-            case 9: this.col = color(0, f*190, 0); break
-            case 10: this.col = color(0, f*170, 0); break
-            default: this.col = color(f*255, f*255, f*150);
-        }
-        if(this.count > 10) {this.col = color(0, f*100, f*255)}
-        
-        if(this.count > 7 && this.count < 11) {this.grow = true}
-        if(this.grow && this.rand < -0.85) {
-            trees.push(new Palm(this.x, this.y))
+        if(this.count > 9) {
+            if(this.rand < -0.85) {
+                trees.push(new Palm(this.x, this.y))
+            }
         }
         if(this.rand > -0.85 && this.rand < -0.5) {
             others.push(new Rock(this.x, this.y))
@@ -106,13 +99,8 @@ function Land(x, y) {
     }
     this.check()
     this.draw = function() {
-        switch(this.count) {
-            case 8: this.col = color(0, f*220, 0); break
-            case 9: this.col = color(0, f*190, 0); break
-            case 10: this.col = color(0, f*170, 0); break
-            default: this.col = color(f*255, f*255, f*150);
-        }
-        if(this.count > 10) {this.col = color(0, f*100, f*255)}
+        this.col = color(0, f*(230-(this.count-8)*7), 0);
+        if(this.count <= 9) {this.col = color(f*255, f*255, f*150)}
         stroke(this.col)
         strokeWeight(1)
         fill(this.col)
@@ -125,34 +113,41 @@ function Island(x, y) {
     this.n = seed.nextGaussian()
     this.ch = 0
     this.unique = []
+    this.ri = 0
     this.c = [new PVector(x, y)]
     this.dir = (this.n < -1 && new PVector(0, -20)) || (this.n > -1 && this.n < 0 && new PVector(20, 0)) || (this.n > 0 && this.n < 1 && new PVector(0, 20)) || (this.n > 1 && new PVector(-20, 0))
     this.finish = false
     this.lb = function() {
         this.n = seed.nextGaussian()
         this.dir = (this.n < -1 && new PVector(0, -20)) || (this.n > -1 && this.n < 0 && new PVector(20, 0)) || (this.n > 0 && this.n < 1 && new PVector(0, 20)) || (this.n > 1 && new PVector(-20, 0))
-        this.c.push(new PVector(this.c[this.ch].x+this.dir.x, this.c[this.ch].y+this.dir.y))
-        
+        if(this.c[this.ch]) {this.c.push(new PVector(this.c[this.ch].x+this.dir.x, this.c[this.ch].y+this.dir.y))}
         this.ch = abs(round(this.c.length*seed.nextGaussian()))
         this.ch = constrain(this.ch, 0, this.c.length-1)
     }
     this.rd = function() {
-        for(let i = 0; i < this.c.length; i++) {
-            for(let j = 0; j < this.c.length; j++) {
-                if(this.c[i] && this.c[j] && this.c[i].x === this.c[j].x && this.c[i].y === this.c[j].y && i !== j) {
-                    this.c.splice(j, 1) 
-                }
+        if(this.removing) {
+        for(let i = 0; i < 1; i++) {
+        for(let j = 0; j < this.c.length; j++) {
+            if(this.c[this.ri] && this.c[j] && this.c[this.ri].x === this.c[j].x && this.c[this.ri].y === this.c[j].y && this.ri !== j) {
+                this.c.splice(j, 1) 
             }
         }
-        for(let i = 0; i < this.c.length; i++) {
-            bs.push(new Land(this.c[i].x, this.c[i].y))
+            this.ri++
         }
-        dup = false
-        this.finish = true
+        if(this.ri >= this.c.length-2) {
+            for(let i = 0; i < this.c.length; i++) {
+                bs.push(new Land(this.c[i].x, this.c[i].y))
+            }
+
+            dup = false
+            this.finish = true
+            this.removing = false
+        }
+        }
     }
 }
-for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
-    islands.push(new Island(i*600-1080, j*600-1080))
+for(let i = 1; i < 2; i++) {for(let j = 1; j < 2; j++) {
+    islands.push(new Island(2*700-1300, 2*700-1300))
 }}
 //} land constructors
 //{
@@ -258,32 +253,6 @@ function time() {
 }
 //} other game mechanic functions
 //{
-function island(x, y) {
-    let n = seed.nextGaussian(), ch = 0, unique = [], c = [new PVector(x, y)]
-    
-    let dir = (n < -1 && new PVector(0, -20)) || (n > -1 && n < 0 && new PVector(20, 0)) || (n > 0 && n < 1 && new PVector(0, 20)) || (n > 1 && new PVector(-20, 0))
-    for(let i = 0; i < islandSize; i++) {
-        
-        n = seed.nextGaussian()
-        dir = (n < -1 && new PVector(0, -20)) || (n > -1 && n < 0 && new PVector(20, 0)) || (n > 0 && n < 1 && new PVector(0, 20)) || (n > 1 && new PVector(-20, 0))
-        
-        let rand = c.length*seed.nextGaussian()
-        c.push(new PVector(c[ch].x+dir.x, c[ch].y+dir.y))
-        
-        ch = abs(round(c.length*seed.nextGaussian()))
-        ch = constrain(ch, 0, c.length-1)
-    }
-    for(let i = 0; i < c.length; i++) {
-        for(let j = 0; j < c.length; j++) {
-            if(c[i] && c[j] && c[i].x === c[j].x && c[i].y === c[j].y && i !== j) {
-                c.splice(j, 1) 
-            }
-        }
-    }
-    for(let i = 0; i < c.length; i++) {
-        bs.push(new Land(c[i].x, c[i].y))
-    }
-}
 function controls() {
     let x = keys[RIGHT] ? (on ? spd : spd/3) : keys[LEFT] ? -(on ? spd : spd/3) : 0
     let y = keys[UP] ? -(on ? spd : spd/3) : keys[DOWN] ? (on ? spd : spd/3) : 0
@@ -326,13 +295,13 @@ function player() {
     popMatrix()
 }
 function init() {
-        for(let i = 0; i < islands.length; i++) {
+    for(let i = 0; i < islands.length; i++) {
         if(islands[i].c.length < islandSize && !islands[i].finish) {
             for(let j = 0; j < loadSpeed; j++) {islands[i].lb()}
         } else if(!islands[i].finish) {
             dup = true
         }
-        if(dup) {islands[i].rd()}
+        if(dup) {islands[i].removing = true}
     }    
     if(islands.every(function(e) {return e.finish})) {
         loading = false
@@ -342,12 +311,20 @@ function init() {
         check++
     }
     if(loading) {
-        let ajk = round(100*(islands[0].c.length/islandSize))
+        let total = islands.reduce(function(a, b) {
+            return a+b.ri
+        }, 0)
+        
+        let ajk2 = round(100*(islands[0].c.length/islandSize))
+        let ajk = round((total/islandSize)*280)
         background(c1)
         textSize(30)
         ajk = constrain(ajk, 0, 100)
+        ajk2 = constrain(ajk2, 0, 100)
         fill(255, 255, 255)
-        text("Loading " + ajk, 220, 300)
+        if(ajk2 > 95) {dl = true}
+        if(!dl) {text("Loading Map " + ajk2, 180, 290)}
+        else {text("Removing Duplicates " + ajk, 110, 290)}
         ox = 100
     }
 }
@@ -356,6 +333,11 @@ function game() {
     pushMatrix()    
     scale(2)
     background(c1)
+    for(let i = 0; i < islands.length; i++) {
+        if(islands[i].removing) {
+        islands[i].rd()
+        }
+    }
     for(let i = 0; i < bs.length; i++) {bs[i].draw()}
     for(let i = 0; i < others.length; i++) {others[i].draw()}
     popMatrix()
@@ -400,16 +382,15 @@ function options() {
     textSize(30)
     text("OPTIONS", 250, 100)
     textSize(15)
-    text("Larger maps may crash more when loading.", 120, 510)
     textSize(18)
     text("ISLAND SIZE\n\nMOVEMENT SPEED\n(LAND)", 50, 200)
-    option(170, ["MEDIUM", "LARGE", "HUGE"], islandSize, [400, 700, 1000])
+    option(170, ["MEDIUM", "LARGE", "HUGE"], islandSize, [200, 300, 400])
     option(230, ["SLOW", "MEDIUM", "FAST"], spd, [0.4, 0.7, 1])
     if(mouseIsPressed && sc === "options") {
         if(mouseY > 170 && mouseY < 210) {
-            if(mouseX > 260 && mouseX < 350) {islandSize = 400}
-            else if(mouseX > 368 && mouseX < 458) {islandSize =  700}
-            else if(mouseX > 476 && mouseX < 566) {islandSize = 1000} 
+            if(mouseX > 260 && mouseX < 350) {islandSize = 200}
+            else if(mouseX > 368 && mouseX < 458) {islandSize =  300}
+            else if(mouseX > 476 && mouseX < 566) {islandSize = 400} 
         }
         if(mouseY > 230 && mouseY < 270) {
             if(mouseX > 260 && mouseX < 350) {spd = 0.4}
