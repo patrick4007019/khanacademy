@@ -10,8 +10,9 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0
-let tcontrol = "Arrow Keys to move\nC to open crafting menu\nE to open inventory\nZ to toggle pause menu"
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = []
+let res = [0]
+let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
     "00000000330000000",
     "00000333133000000",
@@ -34,7 +35,7 @@ let f = 1
 //put your save code here:
 let savecode = ""
 //island size
-let islandSize = 200
+let islandSize = 400
 //load speed
 let loadSpeed = 2
 //player speed 
@@ -166,9 +167,54 @@ for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
 }}
 //} land constructors
 //{
+function df(e) {
+    return round(dist(e.x, e.y, 140, 140))
+}
+function pickup() {
+    let rocks = others.filter(function(e) {
+        return e.constructor === Rock
+    })
+    rocks.sort(function(a,b) {
+        return round(dist(a.x, a.y, 140, 140))-round(dist(b.x, b.y, 140, 140))
+    })
+    if(rocks.some(function(e) {return df(e) < 15})) {
+        fill(255, 255, 255)
+        text("E to pick up", 50, 560)
+        if(keyIsPressed && key.toString() === "e") {
+            others.splice(others.indexOf(rocks[0]), 1)
+            res[0]++
+        }
+    }
+}
+function capac(name, resource, weight) {
+    if(resource > 0) {
+        if(!invm.includes(name)) {
+            invm.push(name)
+        }
+        fill(255, 255, 255)
+        text(name + "         " + resource + "         " + weight, 170+invm.indexOf(name)*30, 220)
+    } else {invm.splice(invm.indexOf(name), 1)}
+}
+function inventory() {
+    fill(100, 100, 155)
+    rect(120, 100, 360, 400)
+    fill(255, 255, 255)
+    textSize(20)
+    text("Name           weight", 170, 170)
+    textSize(15)
+    capac("Rocks", res[0]/2, 1)
+}
+//} inventory
+//{
+function crafting() {
+    
+}
+//}
+//{
 function HUD() {
     fill(255, 255, 255)
     textSize(15)
+    text("Press Z to pause game", 210, 15)
     text(abs(round(-px/10*2)) + (px < 0 ? "E" : "W") +  ", " + abs(round(-py/10)) + (py < 0 ? "S" : "N"), 500, 550)
     text(floor(hr) + ":" + (round(60*(hr%1)) < 10 ? "0" : "") + (round(60*(hr%1))), 500, 570)
     stroke(50, 50, 50);
@@ -184,8 +230,9 @@ function HUD() {
     fill(255, 0, 0)
     rect(150, 25, he*3, 5)
 }
-function inventory() {
-    
+function mc(me) {
+    if(me === menu) {menu = 0}
+    else {menu = me}
 }
 function crafting() {
     
@@ -212,7 +259,7 @@ function pause() {
             else if(mouseY > 235 && mouseY < 290 && ps) {
                 println(sav)
                 
-            } else if(mouseY > 290 && mouseY < 335 && ps) {
+            } else if(mouseY > 290 && mouseY < 355 && ps) {
                 con2 = true
             }
         }}}
@@ -223,7 +270,7 @@ function pause() {
             textSize(30)
             fill(255, 255, 255)
             text("CONTROLS", 230, 150)
-            textSize(18)
+            textSize(15)
             text(tcontrol, 180, 250)
             fill(0, 0, 200)
             rect(170, 440, 90, 40)
@@ -377,9 +424,12 @@ function game() {
     water()
     pause()
     time()
-    inventory()
-    crafting()
+    switch(menu) {
+        case 1: inventory(); break
+        case 2: crafting();
+    }
     health()
+    pickup()
     init()
 }
 //} main game mechanic functions 
@@ -489,7 +539,11 @@ function home() {
 draw = function() {
     keyPressed = function() {
         keys[keyCode] = true
-        if(key.toString() === "z") {ps = !ps}
+        switch(key.toString()) {
+            case "z": ps = !ps; break
+            case "f": mc(1); break
+            case "a": mc(2)
+        }
     }
     keyReleased = function() {keys[keyCode] = false}
     switch(sc) {
