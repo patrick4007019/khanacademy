@@ -4,19 +4,20 @@ see full version history at
 https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 
 
-And no, the loading section is not there just for aesthetics. 
+And no, the loading section is not there just for aesthetics.
 
 It's actually required in order to prevent the game crashing while the map's loading; KA can't process 8 loops that iterate through arrays 1000+ size in a single frame.
 
 */
 
-//jshint asi: true
+//cheaty jshint stuff ↓
+//jshint asi: true 
 //jshint esnext: true
 
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, hunger = 100, thirst = 100
 let res = [0]
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item\nG to toggle binoculars"
 let hm = [
@@ -235,6 +236,12 @@ function HUD() {
     rect(150, 25, 300, 5)
     fill(255, 0, 0)
     rect(150, 25, he*3, 5)
+    noFill()
+    strokeWeight(5)
+    stroke(0, 200, 255)
+    arc(550, 40, 60, 60, 270, 270+thirst*3.5)
+    stroke(252, 140, 3)
+    arc(550, 40, 50, 50, 270, 270+hunger*3.5)
 }
 function mc(me) {
     if(me === menu) {menu = 0}
@@ -293,6 +300,8 @@ function pause() {
 function health() {
     he += ox <= 0 ? -0.05 : 0.01
     he = constrain(he, 0, 100)
+    if(thirst <= 0) {he -= 0.01}
+    if(hunger <= 0) {he -= 0.01}
 }
 function water() {
     on = bs.filter(function(e) {
@@ -319,6 +328,15 @@ function time() {
         f -= 0.00024
         f = constrain(f, 0, 1)
     }
+    if(hr >= 25) {
+        hr = 1
+    }
+}
+function sustenance() {
+    hunger -= 0.0017
+    thirst -= 0.0025
+    hunger = constrain(hunger, 0, 100)
+    thirst = constrain(thirst, 0, 100)
 }
 //} other game mechanic functions
 //{
@@ -452,6 +470,7 @@ function game() {
     }
     health()
     pickup()
+    sustenance()
     init()
 }
 //} main game mechanic functions 
