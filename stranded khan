@@ -3,16 +3,22 @@ see full version history at
 
 https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 
+
+And no, the loading section is not there just for aesthetics. 
+
+It's actually required in order to prevent the game crashing while the map's loading; KA can't process 8 loops that iterate through arrays 1000+ size in a single frame.
+
 */
+
 //jshint asi: true
 //jshint esnext: true
 
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false
 let res = [0]
-let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
+let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item\nG to toggle binoculars"
 let hm = [
     "00000000330000000",
     "00000333133000000",
@@ -40,7 +46,8 @@ let islandSize = 400
 let loadSpeed = 2
 //player speed 
 let spd = 0.7
-//
+//render distance
+let render = 600
 //} setting vars
 //{
 function Palm(x, y) {
@@ -407,24 +414,33 @@ function init() {
     }
 }
 function game() {
+    let close = bs.filter(function(e) {return df(e) < render})
+    render = zoomed ? 10000 : 300
+    let x = 720
     c1 = color(0, 0, f*150)
     pushMatrix()    
-    scale(2)
+    if(zoomed) {
+    scale(0.35)
+    translate(x, x)
+    } else {scale(2)}
     background(c1)
     for(let i = 0; i < islands.length; i++) {
         if(islands[i].removing) {
         islands[i].rd()
         }
     }
-    for(let i = 0; i < bs.length; i++) {bs[i].draw()}
+    for(let i = 0; i < close.length; i++) {close[i].draw()}
     for(let i = 0; i < others.length; i++) {others[i].draw()}
     popMatrix()
-    player()
-    pushMatrix()    
-    scale(2)
+    if(!zoomed) {player()}
+    pushMatrix()
+    if(zoomed) {
+    scale(0.35)
+    translate(x, x)
+    } else {scale(2)}
     for(let i = 0; i < trees.length; i++) {trees[i].draw()}
     popMatrix()
-    if(!loading && !ps) {controls()}
+    if(!loading && !ps && !zoomed) {controls()}
     water()
     HUD()
     water()
@@ -465,13 +481,13 @@ function options() {
     textSize(15)
     textSize(18)
     text("ISLAND SIZE\n\nMOVEMENT SPEED\n(LAND)", 50, 200)
-    option(170, ["MEDIUM", "LARGE", "HUGE"], islandSize, [200, 400, 800])
+    option(170, ["MEDIUM", "LARGE", "HUGE"], islandSize, [200, 400, 1000])
     option(230, ["SLOW", "MEDIUM", "FAST"], spd, [0.4, 0.7, 1])
     if(mouseIsPressed && sc === "options") {
         if(mouseY > 170 && mouseY < 210) {
             if(mouseX > 260 && mouseX < 350) {islandSize = 200}
             else if(mouseX > 368 && mouseX < 458) {islandSize =  400}
-            else if(mouseX > 476 && mouseX < 566) {islandSize = 800} 
+            else if(mouseX > 476 && mouseX < 566) {islandSize = 1000} 
         }
         if(mouseY > 230 && mouseY < 270) {
             if(mouseX > 260 && mouseX < 350) {spd = 0.4}
@@ -548,7 +564,8 @@ draw = function() {
         switch(key.toString()) {
             case "z": ps = !ps; break
             case "f": mc(1); break
-            case "a": mc(2)
+            case "a": mc(2); break
+            case "g": zoomed = !zoomed; break
         }
     }
     keyReleased = function() {keys[keyCode] = false}
