@@ -91,8 +91,8 @@ function Land(x, y) {
     this.x = x
     this.y = y
     this.checked = 0
-    }
     this.rand = seed.nextGaussian()
+    }
     this.check = function() {
         if(check === 0) {
         this.count = 0
@@ -112,7 +112,7 @@ function Land(x, y) {
         }
         if(this.count > 9) {
             if(this.rand < -0.9) {trees.push(new Palm(this.x, this.y))}
-            if(this.rand > -0.65 && this.rand < 0.5) {others.push(new PSapling(this.x, this.y))}
+            if(this.rand > -0.65 && this.rand < 0) {others.push(new PSapling(this.x, this.y))}
         }
         if(this.rand > -0.9 && this.rand < -0.65) {others.push(new Rock(this.x, this.y))}
         }
@@ -215,21 +215,34 @@ function pickup() {
 }
 function capac(name, resource, weight, isTool) {
     if(resource > 0) {
-        if(!invm.includes(name)) {invm.push(name)}
+        if(!invm.includes(name)) {
+            println("Pushing " + name)
+            invm.push(name)
+        }
         let i = invm.indexOf(name)
         let y = 210+i*25
         fill(255, 255, 255)
         text(name, 170, y)
         text(round(resource), 300, y)
         text(weight, 380, y)
+        /*
         mousePressed = function() {
         if(isTool && mouseIsPressed && mouseY > 193+i*25 && mouseY < 223+i*25 && resource > 0) {
             if(equipped !== name) {equipped = name}
             else if(equipped === name) {equipped = "none"}
         }
         }
-        
-    } else {invm.splice(invm.indexOf(name), 1)}
+        */
+    } else {
+        invm.splice(invm.indexOf(name), 1)
+    }
+}
+function include() {
+    invm = []
+    if(res[0] > 0) {invm.push(["Stone", round(res[0]/2), 1])}
+    if(res[1] > 0) {invm.push(["Fibrous Leaves", res[1], 0.1])}
+    if(res[2] > 0) {invm.push(["Lashing", res[2], 0.4])}
+    if(tools[0] > 0) {invm.push(["Stone Tool", tools[0], 1])}
 }
 function inventory() {
     fill(100, 100, 155)
@@ -240,45 +253,53 @@ function inventory() {
     textSize(20)
     text("Name      #     weight", 170, 165)
     textSize(14)
-    
+    include()
     for(let i = 0; i < 10; i++) {
         noStroke()
         if(mouseX > 130 && mouseX < 470 && mouseY > 196+i*25 && mouseY < 221+i*25) {
             fill(120, 120, 180)
-            rect(130, 193+i*25, 340, 30)
+            rect(130, 198+i*25, 340, 25)
         }
     }
-    capac("Stone Tool", tools[0], 1, true)
-    capac("Rocks", res[0]/2, 1, false)
-    capac("Fibrous Leaves", res[1], 0.1, false)
-    capac("Lashing", res[2], 0.5, false)
+    fill(255, 255, 255)
+    for(let i = 0; i < invm.length; i++) {
+        text(invm[i][0], 160, 215+i*25)
+        text(invm[i][1], 285, 215+i*25)
+        text(invm[i][2], 380, 215+i*25)
+    }
+    let yy = invm.map(function(e) {return e[0]}).indexOf("Stone Tool")
+    if(mouseIsPressed) {
+        if(mouseX > 139 && mouseX < 470 && mouseY > 197+yy*25 && mouseY < 222+yy*25) {
+            equipped = "Stone Tool"
+        }
+    }
 }
 //} inventory
 //{
-function craft(resources,amounts,product, exec,y,needed) {
+function craft(y, amounts, resources, name, current) {
     fill(120, 120, 175);
     if(mouseX > 120 && mouseX < 480 && mouseY > y-25 && mouseY < y+25) {rect(125, y-28, 350, 50)}
-    fill(amounts.every(function(e, i) {return needed[i] >= e}) ? color(255, 255, 255) : color(140, 140, 140))
+    fill(current.every(function(e, i) {return e >= amounts[i]}) ? color(255, 255, 255) : color(150, 150, 200))
     textSize(15)
-    text(product, 150, y)
+    text(name, 150, y)
     textSize(13)
     for(let i = 0; i < amounts.length; i++) {
         text(amounts[i] + " " +  resources[i], 330, (y+i*14)-(amounts.length-1)*7+2)
     }
 }
-function exec() {
-    mousePressed = function() {
-        if(mouseX > 120 && mouseX < 480 && menu === 2) {
-            if(mouseY > 230-25 && mouseY < 230+25 && res[0] >= 1) {
-                tools[0]++
-                res[0] -= 2
-            }
-            if(mouseY > 280-25 && mouseY < 280+25 && res[1] >= 4) {
-                res[1] -= 4
-                res[2]++
-            }
+function exec(m) {
+    mousePressed = function() {if(mouseX > 120 && mouseX < 480 && menu === 2) {
+    if(m === 0) {
+        if(mouseY > 240-25 && mouseY < 230+35 && res[0] >= 1) {
+            tools[0]++
+            res[0] -= 2
+        }
+        if(mouseY > 290-25 && mouseY < 290+35 && res[1] >= 4) {
+            res[2]++
+            res[1] -= 4
         }
     }
+    }}
 }
 function crafting() {
     fill(100, 100, 155)
@@ -291,23 +312,18 @@ function crafting() {
     fill(255, 255, 255)
     noStroke()
     rect(140+wm*110, 190, 105, 5)
-    exec()
     for(let i = 0; i < 3; i++) {
         if(mouseIsPressed && mouseX > 140+i*110 && mouseX < 140+(i+1)*110 && mouseY > 140 && mouseY < 190) {
             wm = i
         }
     }
+    exec(wm)
     switch(wm) {
-        case 0: {
-            craft(["Stone"], [1], "Stone Tool", function() {
-                res[0] -= 2
-                tools[0] ++
-            }, 230, [res[0]])
-            craft(["Fibrous Leaves"], [4], "Lashing", function() {
-                res[1] -= 4
-                res[2] ++
-            }, 280, [res[1]])
-        }
+    case 0: 
+        craft(240, [1], ["Stone"], "Stone Tool", [res[0]])
+        craft(290, [4], ["Fibrous Leaves"], "Lashing", [res[1]])
+    break;
+    
     }
 }
 //}
