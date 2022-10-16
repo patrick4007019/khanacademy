@@ -13,7 +13,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //jshint esnext: true
 
 //put your save code here:
-let saveCode = "2676 117 -1"
+let saveCode = "6238 -87 -24 50 0.7 8.401 100 100 100 100"
 
 let tools = [0, 0] //stone tool, crude axe
 let res = [0, 0, 0, 0] //stone, fibrous leaves, lashing, sticks
@@ -405,8 +405,8 @@ function mc(me) {
     else {menu = me}
 }
 function pause() {
-    let sav = actual + " " + round(px) + " " + round(py)
-    // seed
+    let sav = actual + " " + round(px) + " " + round(py) + " " + islandSize + " " + spd + " " + round(hr*1000)/1000 + " " + round(ox) + " " + round(he) + " " + round(thirst) + " " + round(hunger)
+    // seed, position x, position y, island size, speed, time, health, oxygen, thirst, hunger
     if(ps) {
         if(!con2) {
         fill(0, 0, 100)
@@ -581,7 +581,6 @@ function init() {
         else if(!removed) {text("Removing Duplicates", 140, 290)}
         else if(!doing3) {text("Creating Map " + round(total2*100), 160, 290)}
         else {text("Coloring Map " + round(che/bs.length*100), 160, 290)}
-        ox = 100
     }
     if(doing3 && loading) {
         for(let i = 0; i < 10; i++) {
@@ -724,11 +723,18 @@ function load() {
     back()
 }
 function preload() {
-    let sp = saveCode.split(" ")
+    let sp = saveCode.split(" ").map(function(e) {return Number(e)})
     if(saveCode === "") {
         actual = ran
     } else {
-        actual = Number(sp[0])
+        islandSize = sp[3]
+        spd = sp[4]
+        hr = sp[5]
+        he = sp[6]
+        ox = sp[7]
+        thirst = sp[8]
+        hunger = sp[9]
+        actual = sp[0]
     }
     seed = new Random(actual)
 }
