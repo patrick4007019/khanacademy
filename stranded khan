@@ -1,4 +1,4 @@
-         /*
+/*
 This is a 2d island survival game based on the actual game, Stranded Deep.
 
 And no, the loading screen is not there just for aesthetics.
@@ -8,18 +8,20 @@ see full version history at
 https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 
 */
-
 //cheaty jshint stuff to make KA code more es6 ↓
 //jshint asi: true 
 //jshint esnext: true
 
+//put your save code here:
+let saveCode = "2676 117 -1"
+
 let tools = [0, 0] //stone tool, crude axe
 let res = [0, 0, 0, 0] //stone, fibrous leaves, lashing, sticks
-let islandSize = 100
+let islandSize = 50
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, hunger = 100, thirst = 100, wm = 0, advance = false, equipped = "none", pressed = false
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, hunger = 100, thirst = 100, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
     "00000000330000000",
@@ -40,8 +42,7 @@ let c1 = color(0, 0, 150)
 let f = 1
 //} basic vars
 //{
-//put your save code here:
-let savecode = ""
+
 //load speed
 let loadSpeed = 2
 //player speed 
@@ -193,7 +194,7 @@ function Island(x, y) {
         
     }}
     this.push = function() {
-        bs.push(new Land(this.c[this.sb].x, this.c[this.sb].y))
+        if(this.c[this.sb]) {bs.push(new Land(this.c[this.sb].x, this.c[this.sb].y))}
         this.sb++
         
         if(this.sb >= this.c.length-1) {
@@ -404,7 +405,8 @@ function mc(me) {
     else {menu = me}
 }
 function pause() {
-    let sav = ran + " " + islandSize + " " + round(px) + " " + round(py)
+    let sav = actual + " " + round(px) + " " + round(py)
+    // seed
     if(ps) {
         if(!con2) {
         fill(0, 0, 100)
@@ -534,6 +536,14 @@ function player() {
     rect(-15, -15, 30, 30)
     popMatrix()
 }
+function afterload() {
+    let sp = saveCode.split(" ")
+    let arr = bs.concat(others).concat(trees)
+    for(let i = 0; i < arr.length; i++) {
+        arr[i].x += Number(sp[1])
+        arr[i].y += Number(sp[2])
+    }
+}
 function init() {
     for(let i = 0; i < islands.length; i++) {
         if(islands[i].c.length < islandSize && !islands[i].finish) {
@@ -580,6 +590,7 @@ function init() {
         che += 10
         if(che >= bs.length-15) {
             check++
+            if(saveCode !== "") {afterload()}
             loading = false
         }
     }
@@ -703,6 +714,24 @@ function control() {
     }
     if(advance) {advanced()}
 }
+function load() {
+    background(c1)
+    textSize(26)
+    text("LOAD GAME", 230, 110)
+    textSize(14)
+    text("Make sure you have your save code entered into the\nsaveCode variable at line 16, then select New Game.", 100, 200)
+    textSize(20)
+    back()
+}
+function preload() {
+    let sp = saveCode.split(" ")
+    if(saveCode === "") {
+        actual = ran
+    } else {
+        actual = Number(sp[0])
+    }
+    seed = new Random(actual)
+}
 function home() {
     background(c1)
     let cond = [
@@ -748,7 +777,11 @@ function home() {
     }
     
     if(mouseIsPressed) {
-        if(cond[0]) {sc = "game"; loading = true}
+        if(cond[0]) {
+            sc = "game"; 
+            loading = true
+            preload()
+        }
         if(cond[1]) {sc = "load"}
         if(cond[2]) {sc = "controls"}
         if(cond[3]) {sc = "options"}
@@ -769,6 +802,7 @@ draw = function() {
     switch(sc) {
         case "home": home(); break
         case "game": game(); break
+        case "load": load(); break
         case "options": options(); break
         case "controls": control(); break
     }
