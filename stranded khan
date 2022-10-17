@@ -4,6 +4,9 @@ This is a 2d island survival game based on the actual game, Stranded Deep.
 And no, the loading screen is not there just for aesthetics.
 It's actually required in order to prevent the game crashing while the map's loading; KA can't process 8 loops that iterate through arrays 1000+ length in a single frame.
 
+Also please KA, add ES6!!!!
+The lack of array destructuring is killing me 
+
 see full version history at 
 https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 
@@ -13,7 +16,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //jshint esnext: true
 
 //put your save code here:
-let saveCode = "6238 -87 -24 50 0.7 8.401 100 100 100 100"
+let saveCode = ""
 
 let tools = [0, 0] //stone tool, crude axe
 let res = [0, 0, 0, 0] //stone, fibrous leaves, lashing, sticks
@@ -21,7 +24,7 @@ let islandSize = 50
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, hunger = 100, thirst = 100, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, hunger = 100, thirst = 100, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = []
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
     "00000000330000000",
@@ -203,8 +206,8 @@ function Island(x, y) {
         }
     }
 }
-for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
-    islands.push(new Island(i*700-1300, j*700-1300))
+for(let i = 1; i < 2; i++) {for(let j = 1; j < 2; j++) {
+    islands.push(new Island(2*700-1300, 2*700-1300))
 }}
 //} land constructors
 //{
@@ -220,6 +223,7 @@ function pickup() {
         fill(255, 255, 255)
         text("E to interact", 50, 560)
         if(keyIsPressed && key.toString() === "e") {
+            picklog.push(others.indexOf(uppable[0]))
             others.splice(others.indexOf(uppable[0]), 1)
             switch(uppable[0].constructor) {
                 case Rock: res[0]++; break
@@ -237,6 +241,7 @@ function sapup() {
         fill(255, 255, 255)
         text("E to interact", 50, 560)
         if(keyIsPressed && key.toString() === "e") {
+            picklog.push(others.indexOf(saplings[0]))
             others.splice(others.indexOf(saplings[0]), 1)
             res[1]++
         }
@@ -405,7 +410,7 @@ function mc(me) {
     else {menu = me}
 }
 function pause() {
-    let sav = actual + " " + round(px) + " " + round(py) + " " + islandSize + " " + spd + " " + round(hr*1000)/1000 + " " + round(ox) + " " + round(he) + " " + round(thirst) + " " + round(hunger)
+    let sav = actual + " " + round(px) + " " + round(py) + " " + islandSize + " " + spd + " " + round(hr*1000)/1000 + " " + round(ox) + " " + round(he) + " " + round(thirst) + " " + round(hunger) + " " + picklog + " " + res + " " + tools
     // seed, position x, position y, island size, speed, time, health, oxygen, thirst, hunger
     if(ps) {
         if(!con2) {
@@ -543,6 +548,10 @@ function afterload() {
         arr[i].x += Number(sp[1])
         arr[i].y += Number(sp[2])
     }
+    let gol = sp[10].split(",")
+    for(let i = 0; i < gol.length; i++) {
+        others.splice(others.indexOf(Number(gol[i])), 1)
+    }
 }
 function init() {
     for(let i = 0; i < islands.length; i++) {
@@ -572,9 +581,9 @@ function init() {
             return a+b.c.length
         }, 0)
         let ajk2 = round(100*(islands[0].c.length/islandSize))
-        background(c1)
         textSize(30)
         ajk2 = constrain(ajk2, 0, 100)
+        background(c1)
         fill(255, 255, 255)
         if(ajk2 > 95) {dl = true}
         if(!dl) {text("Loading Map " + ajk2, 180, 290)}
@@ -718,15 +727,18 @@ function load() {
     textSize(26)
     text("LOAD GAME", 230, 110)
     textSize(14)
-    text("Make sure you have your save code entered into the\nsaveCode variable at line 16, then select New Game.", 100, 200)
+    text("Make sure you have your save code entered into the\nsaveCode variable at line 19, then select New Game.", 100, 200)
     textSize(20)
     back()
 }
 function preload() {
     let sp = saveCode.split(" ").map(function(e) {return Number(e)})
+    let sp2 = saveCode.split(" ")
     if(saveCode === "") {
         actual = ran
     } else {
+        px = sp[1]
+        py = sp[2]
         islandSize = sp[3]
         spd = sp[4]
         hr = sp[5]
@@ -734,7 +746,8 @@ function preload() {
         ox = sp[7]
         thirst = sp[8]
         hunger = sp[9]
-        actual = sp[0]
+        res = sp2[11].split(",")
+        tools = sp2[12].split(",")
     }
     seed = new Random(actual)
 }
@@ -793,7 +806,7 @@ function home() {
         if(cond[3]) {sc = "options"}
     }
 }
-//} home screen functions
+//} home screen function
 draw = function() {
     keyPressed = function() {
         keys[keyCode] = true
