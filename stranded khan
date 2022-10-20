@@ -1,3 +1,4 @@
+
 /*
 This is a 2d island survival game based on the actual game, Stranded Deep.
 
@@ -14,7 +15,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //put your save code here:
 let saveCode = ""
 
-let tools = [0, 0, 0, 0] 
+let tools = [0, 0, 0, 1] 
 /*
 stone tool, crude axe, refined knife, fire
 */
@@ -26,7 +27,7 @@ let islandSize = 60
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, hunger = 100, thirst = 100, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 8, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, hunger = 100, thirst = 100, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = []
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
     "00000000330000000",
@@ -51,7 +52,7 @@ let f = 1
 //load speed
 let loadSpeed = 2
 //player speed 
-let spd = 0.7
+let spd = 0.5
 //render distance
 let render = 600
 //} setting vars
@@ -65,7 +66,7 @@ function Stick(x, y) {
         rect(this.x+9, this.y+4, 3, 12)
     }
 }
-function Palm(x, y) {
+function PalmㅤTree(x, y) {
     this.x = x
     this.y = y
     this.he = 1
@@ -137,7 +138,7 @@ function Rock(x, y) {
         rect(this.x+8, this.y+8, 4, 4)
     }
 }
-function PSapling(x, y) {
+function PalmㅤSapling(x, y) {
     this.x = x
     this.y = y
     this.he = 1
@@ -175,7 +176,7 @@ function Land(x, y) {
             }
         }
         if(this.count > 9) {
-            if(this.rand < -1) {trees.push(new Palm(this.x, this.y))}
+            if(this.rand < -1) {trees.push(new PalmㅤTree(this.x, this.y))}
             if(this.rand > 0.25 && this.rand < 0.4) {trees.push(new Yucca(this.x, this.y))}
         }
         if(this.rand > -1 && this.rand < -0.5) {
@@ -183,7 +184,7 @@ function Land(x, y) {
         }
         if(this.rand > -0.1 && this.rand < 0.24) {others.push(new Stick(this.x, this.y))}
         }
-        if(this.rand > -0.5 && this.rand < -0.1) {others.push(new PSapling(this.x, this.y))}
+        if(this.rand > -0.5 && this.rand < -0.1) {others.push(new PalmㅤSapling(this.x, this.y))}
     }
     this.draw = function() {
         this.col = color(0, f*(230-(this.count-8)*7), 0);
@@ -252,15 +253,51 @@ for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
 }}
 //} land constructors
 //{
+function Fire(x, y) {
+    this.x = x
+    this.y = y
+    this.heat = 0
+    this.fuel = 1
+    this.started = false
+    this.draw = function() {
+        pushMatrix()
+        translate(this.x, this.y)
+        fill(150, 0, 0)
+        rotate(45)
+        rect(-1, -5, 2, 10)
+        rect(-5, -1, 10, 2)
+        if(this.started) {
+            fill(255, 100, 0)
+            ellipse(0, 0.5, 8*this.fuel, 8*this.fuel)
+            this.fuel = constrain(this.fuel, 0, 1)
+            this.fuel -= 0.00003
+        }
+        popMatrix()
+        pushMatrix()
+        translate(0, -250)
+        if(!this.started) {
+            fill(255, 100, 0)
+            rect(20, 500, 3, -this.heat*2.2)
+        }
+        popMatrix()
+        if(this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165) {
+            let mov = [abs(mouseX-pmouseX), abs(mouseY-pmouseY)]
+            this.heat += mov[0]/100+mov[1]/100
+            this.heat -= 0.3
+            this.heat = constrain(this.heat, 0, 100)
+            if(this.heat >= 100) {this.started = true}
+        }
+    }
+}
+//} building constructors
+//{
 function df(e) {
     return round(dist(e.x, e.y, 140, 140))
 }
 function pickup() {
     let uppable = others.filter(function(e) {return e.constructor === Rock || e.constructor === Stick})
     uppable.sort(function(a,b) {return df(a)-df(b)})
-    if(uppable.some(function(e) {return df(e) < 20})) {
-        fill(255, 255, 255)
-        text("E to interact", 50, 560)
+    if(uppable.some(function(e) {return df(e) < 15})) {
         if(keyIsPressed && key.toString() === "e") {
             picklog.push(others.indexOf(uppable[0]))
             others.splice(others.indexOf(uppable[0]), 1)
@@ -272,11 +309,9 @@ function pickup() {
     }
 }
 function sapup() {
-    let saplings = others.filter(function(e) {return e.constructor === PSapling})
+    let saplings = others.filter(function(e) {return e instanceof PalmㅤSapling})
     saplings.sort(function(a,b) {return df(a)-df(b)})
-    if(saplings.some(function(e) {return df(e) < 20}) && (equipped === "Stone Tool" || equipped === "Crude Axe")) {
-        fill(255, 255, 255)
-        text("Hold E to cut", 50, 560)
+    if(saplings.some(function(e) {return df(e) < 15}) && (equipped === "Stone Tool" || equipped === "Crude Axe")) {
         if(keys.e) {
             saplings[0].he -= 0.01
             if(saplings[0].he <= 0) {
@@ -290,8 +325,7 @@ function sapup() {
 function treedown() {
     let cutting = trees.map(function(e) {return e})
     cutting.sort(function(a, b) {return df(a)-df(b)})
-    if(cutting.some(function(e) {return df(e) < 18}) && equipped === "Crude Axe" && cutting[0].constructor === Palm) {
-        text("Hold E to cut", 50, 560)
+    if(cutting.some(function(e) {return df(e) < 18}) && equipped === "Crude Axe" && cutting[0] instanceof PalmㅤTree) {
         if(keys.e) {
             cutting[0].he -= 0.002
             if(cutting[0].he <= 0.3) {
@@ -340,8 +374,7 @@ function interaction() {
             }
         }
     }
-    let cocon = yx.indexOf("Coconut")
-    let drinka = yx.indexOf("Drinkable Coconut")
+    let cocon = yx.indexOf("Coconut"), drinka = yx.indexOf("Drinkable Coconut"), firea = yx.indexOf("Fire")
     mousePressed = function() {
         if(mouseX > 139 && mouseX < 470 && mouseY > 197+cocon*25 && mouseY < 222+cocon*25) {
             res[6] ++
@@ -350,6 +383,10 @@ function interaction() {
         if(mouseX > 139 && mouseX < 470 && mouseY > 197+drinka*25 && mouseY < 222+drinka*25) {
             thirst += 20
             res[6] --
+        }
+        if(mouseX > 139 && mouseX < 470 && mouseY > 197+firea*25 && mouseY < 222+firea*25 && on) {
+            builds.push(new Fire(150, 150))
+            tools[3] --
         }
     }
 }
@@ -401,21 +438,17 @@ function craft(y, amounts, resources, name, current) {
 function exec(m) {
     mousePressed = function() {if(mouseX > 120 && mouseX < 480 && menu === 2) {
     if(m === 0) {
-        if(mouseY > 240-25 && mouseY < 230+35 && res[0] >= 1) {
+        if(mouseY > 240-25 && mouseY < 240+35 && res[0] >= 1) {
             tools[0]++
             res[0] -= 2
         }
-        if(mouseY > 290-25 && mouseY < 290+35 && res[1] >= 4) {
-            res[2]++
-            res[1] -= 4
-        }
-        if(mouseY > 340-25 && mouseY < 340+35 && tools[0] >= 2 && res[2] >= 1 && res[3] >= 2) {
+        if(mouseY > 290-25 && mouseY < 290+35 && tools[0] >= 2 && res[2] >= 1 && res[3] >= 2) {
             tools[0] -= 2
             res[2] --
             res[3] -= 2
             tools[1] ++
         }
-        if(mouseY > 390-25 && mouseY < 390+35 && tools[0] >= 1 && res[2] >= 1 && res[3] >= 1) {
+        if(mouseY > 340-25 && mouseY < 340+35 && tools[0] >= 1 && res[2] >= 1 && res[3] >= 1) {
             tools[0] --
             res[2] --
             res[3] --
@@ -423,9 +456,15 @@ function exec(m) {
         }
     }
     if(m === 1) {
-        if(mouseY > 240-25 && mouseY < 230+35 && res[3] >= 4) {
+        if(mouseY > 240-25 && mouseY < 240+35 && res[3] >= 4) {
             tools[3]++
             res[3] -= 4
+        }
+    }
+    if(m === 2) {
+        if(mouseY > 240-25 && mouseY < 240+35 && res[1] >= 4) {
+            res[2]++
+            res[1] -= 4
         }
     }
     }}
@@ -437,7 +476,7 @@ function crafting() {
     textSize(25)
     text("Crafting", 240, 140)
     textSize(15)
-    text("Tools      Buildings     Other", 165, 180)
+    text("Tools      Buildings   Resources", 170, 180)
     fill(255, 255, 255)
     noStroke()
     rect(140+wm*110, 190, 105, 5)
@@ -450,21 +489,18 @@ function crafting() {
     switch(wm) {
     case 0: 
         craft(240, [1], ["Stone"], "Stone Tool", [res[0]])
-        craft(290, [4], ["Fibrous Leaves"], "Lashing", [res[1]])
-        craft(340, [2, 1, 2], ["Stone Tool", "Lashing", "Stick"], "Crude Axe", [tools[0], res[2], res[3]])
-        craft(390, [1, 1, 1], ["Stone Tool", "Lashing", "Stick"], "Refined Knife", [tools[0], res[2], res[3]])
+        craft(290, [2, 1, 2], ["Stone Tool", "Lashing", "Stick"], "Crude Axe", [tools[0], res[2], res[3]])
+        craft(340, [1, 1, 1], ["Stone Tool", "Lashing", "Stick"], "Refined Knife", [tools[0], res[2], res[3]])
     break
     case 1: 
         craft(240, [5], ["Stick"], "Fire", [res[3]])
     break
+    case 2:
+        craft(240, [4], ["Fibrous Leaves"], "Lashing", [res[1]])
+    break
     }
 }
-//}
-//{
-function tool() {
-    
-}
-//}
+//} crafting
 //{
 function HUD() {
     fill(255, 255, 255)
@@ -593,17 +629,10 @@ function sustenance() {
 function controls() {
     let x = keys[RIGHT] ? (on ? spd : spd/3) : keys[LEFT] ? -(on ? spd : spd/3) : 0
     let y = keys[UP] ? -(on ? spd : spd/3) : keys[DOWN] ? (on ? spd : spd/3) : 0
-    for(let i = 0; i < bs.length; i++) {
-        bs[i].x -= x
-        bs[i].y -= y
-    }
-    for(let i = 0; i < trees.length; i++) {
-        trees[i].x -= x
-        trees[i].y -= y
-    }
-    for(let i = 0; i < others.length; i++) {
-        others[i].x -= x
-        others[i].y -= y
+    let items = bs.concat(trees).concat(others).concat(builds)
+    for(let i = 0; i < items.length; i++) {
+        items[i].x -= x
+        items[i].y -= y
     }
     px -= x
     py -= y
@@ -619,7 +648,7 @@ function player() {
     else if (keys[DOWN] && !keys[UP] && !keys[RIGHT] && !keys[LEFT]) {pd = 180}
     pushMatrix()
     translate(150, 150)
-    scale(0.25)
+    scale(0.22)
     rotate(pd)
     noStroke()
     fill(f*150, f*150, f*150)
@@ -715,13 +744,16 @@ function game() {
     if(zoomed) {
     scale(0.35)
     translate(x, x)
-    } else {scale(2)}
+    } else {
+        scale(2)
+    }
     background(c1)
     for(let i = 0; i < islands.length; i++) {
         if(islands[i].removing) {islands[i].rd()}
     }
     for(let i = 0; i < close.length; i++) {close[i].draw()}
     for(let i = 0; i < others.length; i++) {others[i].draw()}
+    for(let i = 0; i < builds.length; i++) {builds[i].draw()}
     if(climbed) {for(let i = 0; i < trees.length; i++) {trees[i].draw()}}
     player()
     popMatrix()
@@ -729,15 +761,15 @@ function game() {
     if(zoomed) {
     scale(0.35)
     translate(x, x)
-    } else {scale(2)}
-    if(!climbed) {for(let i = 0; i < trees.length; i++) {trees[i].draw()}}
+    } else {
+        scale(2)
+    }    if(!climbed) {for(let i = 0; i < trees.length; i++) {trees[i].draw()}}
     popMatrix()
     if(!loading && !ps && !zoomed && !climbed) {controls()}
     HUD()
-    tool()
     switch(menu) {
         case 1: inventory(); break
-        case 2: crafting();
+        case 2: crafting(); break
     }
     pause()
     if(!ps) {
