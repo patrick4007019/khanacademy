@@ -14,9 +14,15 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //put your save code here:
 let saveCode = ""
 
-let tools = [0, 0] //stone tool, crude axe
-let res = [0, 0, 0, 0, 0, 0] //stone, fibrous leaves, lashing, sticks, palm leaves, coconut
-let islandSize = 200
+let tools = [0, 0, 0, 0] 
+/*
+stone tool, crude axe, refined knife, fire
+*/
+let res = [0, 0, 0, 0, 0, 0, 0] 
+/*
+stone, fibrous leaves, lashing, sticks, palm leaves, coconut drinkable coconut
+*/
+let islandSize = 60
 //{
 noStroke()
 let ran = round(random(0, 10000))
@@ -169,15 +175,15 @@ function Land(x, y) {
             }
         }
         if(this.count > 9) {
-            if(this.rand < -0.9) {trees.push(new Palm(this.x, this.y))}
-            if(this.rand > 0.15 && this.rand < 0.4) {trees.push(new Yucca(this.x, this.y))}
+            if(this.rand < -1) {trees.push(new Palm(this.x, this.y))}
+            if(this.rand > 0.25 && this.rand < 0.4) {trees.push(new Yucca(this.x, this.y))}
         }
-        if(this.rand > -0.9 && this.rand < -0.5) {
+        if(this.rand > -1 && this.rand < -0.5) {
             others.push(new Rock(this.x, this.y))
         }
-        if(this.rand > -0.2 && this.rand < 0.15) {others.push(new Stick(this.x, this.y))}
+        if(this.rand > -0.1 && this.rand < 0.24) {others.push(new Stick(this.x, this.y))}
         }
-        if(this.rand > -0.5 && this.rand < -0.2) {others.push(new PSapling(this.x, this.y))}
+        if(this.rand > -0.5 && this.rand < -0.1) {others.push(new PSapling(this.x, this.y))}
     }
     this.draw = function() {
         this.col = color(0, f*(230-(this.count-8)*7), 0);
@@ -318,8 +324,34 @@ function include() {
     if(res[3] > 0) {invm.push(["Stick", round(res[3]), 1])}
     if(res[4] > 0) {invm.push(["Palm Leaves", res[4], 0.5])}
     if(res[5] > 0) {invm.push(["Coconut", res[5], 2])}
+    if(res[6] > 0) {invm.push(["Drinkable Coconut", res[6], 1])}
     if(tools[0] > 0) {invm.push(["Stone Tool", tools[0], 1])}
-    if(tools[1] > 0) {invm.push(["Crude Axe", tools[1], 2.4])}
+    if(tools[1] > 0) {invm.push(["Crude Axe", tools[1], 4.4])}
+    if(tools[2] > 0) {invm.push(["Refined Knife", tools[2], 2.4])}
+    if(tools[3] > 0) {invm.push(["Fire", tools[3], 4])}
+}
+function interaction() {
+    let yx = invm.map(function(e) {return e[0]})
+    let yy = [[yx.indexOf("Stone Tool"), "Stone Tool"], [yx.indexOf("Crude Axe"), "Crude Axe"], [yx.indexOf("Refined Knife"), "Refined Knife"],]
+    if(mouseIsPressed) {
+        for(let i = 0; i < yy.length; i++) {
+            if(mouseX > 139 && mouseX < 470 && mouseY > 197+yy[i][0]*25 && mouseY < 222+yy[i][0]*25) {
+                equipped = yy[i][1]
+            }
+        }
+    }
+    let cocon = yx.indexOf("Coconut")
+    let drinka = yx.indexOf("Drinkable Coconut")
+    mousePressed = function() {
+        if(mouseX > 139 && mouseX < 470 && mouseY > 197+cocon*25 && mouseY < 222+cocon*25) {
+            res[6] ++
+            res[5] --
+        }
+        if(mouseX > 139 && mouseX < 470 && mouseY > 197+drinka*25 && mouseY < 222+drinka*25) {
+            thirst += 20
+            res[6] --
+        }
+    }
 }
 function inventory() {
     fill(100, 100, 155)
@@ -327,10 +359,10 @@ function inventory() {
     fill(255, 255, 255)
     textSize(25)
     text("Inventory", 225, 130)
-    textSize(20)
-    text("Name       #     weight", 160, 175)
+    textSize(21)
+    text("Name      #     weight", 170, 175)
     textSize(10)
-    text("Per/total", 370, 187)
+    text("Per/total", 375, 187)
     textSize(14)
     include()
     for(let i = 0; i < 10; i++) {
@@ -343,20 +375,13 @@ function inventory() {
     fill(255, 255, 255)
     for(let i = 0; i < invm.length; i++) {
         textAlign(CENTER)
-        text(invm[i][0], 185, 215+i*25)
+        textSize(13)
+        text(invm[i][0], 195, 215+i*25)
         text(invm[i][1], 300, 215+i*25)
         text(invm[i][2] + "/" + invm[i][2]*round(invm[i][1]*10)/10, 395, 215+i*25)
     }
     textAlign(LEFT)
-    let yx = invm.map(function(e) {return e[0]})
-    let yy = [[yx.indexOf("Stone Tool"), "Stone Tool"], [yx.indexOf("Crude Axe"), "Crude Axe"]]
-    if(mouseIsPressed) {
-        for(let i = 0; i < yy.length; i++) {
-            if(mouseX > 139 && mouseX < 470 && mouseY > 197+yy[i][0]*25 && mouseY < 222+yy[i][0]*25) {
-                equipped = yy[i][1]
-            }
-        }
-    }
+    interaction()
     let totalweight = invm.reduce(function(a,b,i) {return a+(b[2]*b[1])}, 0)
     text("Total weight: " + round(totalweight*10)/10, 140, 490)
 }
@@ -384,11 +409,23 @@ function exec(m) {
             res[2]++
             res[1] -= 4
         }
-        if(mouseY > 340-25 && mouseY < 340+35 && res[0] >= 2 && res[2] >= 1 && res[3] >= 2) {
-            res[0] -= 2
+        if(mouseY > 340-25 && mouseY < 340+35 && tools[0] >= 2 && res[2] >= 1 && res[3] >= 2) {
+            tools[0] -= 2
             res[2] --
             res[3] -= 2
             tools[1] ++
+        }
+        if(mouseY > 390-25 && mouseY < 390+35 && tools[0] >= 1 && res[2] >= 1 && res[3] >= 1) {
+            tools[0] --
+            res[2] --
+            res[3] --
+            tools[2] ++
+        }
+    }
+    if(m === 1) {
+        if(mouseY > 240-25 && mouseY < 230+35 && res[3] >= 4) {
+            tools[3]++
+            res[3] -= 4
         }
     }
     }}
@@ -414,9 +451,12 @@ function crafting() {
     case 0: 
         craft(240, [1], ["Stone"], "Stone Tool", [res[0]])
         craft(290, [4], ["Fibrous Leaves"], "Lashing", [res[1]])
-        craft(340, [2, 1, 2], ["Stone", "Lashing", "Stick"], "Crude Axe", [res[0], res[2], res[3]])
-    break;
-    
+        craft(340, [2, 1, 2], ["Stone Tool", "Lashing", "Stick"], "Crude Axe", [tools[0], res[2], res[3]])
+        craft(390, [1, 1, 1], ["Stone Tool", "Lashing", "Stick"], "Refined Knife", [tools[0], res[2], res[3]])
+    break
+    case 1: 
+        craft(240, [5], ["Stick"], "Fire", [res[3]])
+    break
     }
 }
 //}
