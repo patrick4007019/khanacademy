@@ -1,5 +1,22 @@
 
 /*
+
+YOU CAN'T PLAY THIS GAME BLAKE
+JUST DON'T
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 This is a 2d island survival game based on the actual game, Stranded Deep.
 
 Also please KA, add ES6; the lack of array destructuring is killing me!!!!
@@ -32,7 +49,7 @@ let islandSize = 200
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 7, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, hunger = 100, thirst = 100, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = []
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 7, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, hunger = 100, thirst = 100, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = [],totalweight = 0, not = []
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
     "00000000330000000",
@@ -60,6 +77,8 @@ let loadSpeed = 2
 let spd = 0.5
 //render distance
 let render = 600
+// max weight
+let maxweight = 30
 //} setting vars
 
 //{
@@ -111,6 +130,7 @@ function Palm(x, y) {
             }
             if(this.isclimbed) { text("E to pick coconut", 25, 270)}
             if(climbed && this.isclimbed && keys.e && this.coco) {
+                not.push(1, "Coconut", 100, "Pickup")
                 this.coco = false
                 res[5]++
             }
@@ -197,6 +217,27 @@ function Fire(x, y) {
 }
 //} building constructors
 //{
+function notif() {
+    textAlign(RIGHT)
+    for(let i = 0; i < not.length; i++) {
+    if(not[i]) {
+        not[i][2] -= 0.25
+        if(not[i][2] < 20) {not.splice(i, 1)}
+        if(not[i] && not[i][3] === "Pickup") {
+            fill(not[i][2]*1.5, not[i][2]*1.5, 155+not[i][2])
+            text("+" + not[i][0] + " " + not[i][1], 580, 100+i*20)
+        } else if(not[i] && not[i][3] === "Heavy") {
+            not[i][2] -= 0.1
+            fill(not[i][2]*2.5, not[i][2]*1.5, 155+not[i][2])
+            text("You're carrying too much!", 580, 100+i*20)
+        }
+    }
+    }
+    if(not.length > 20) {not.shift()}
+    textAlign(LEFT)
+}
+//} notifications 
+//{
 function Land(x, y) {
     {
     this.x = x
@@ -234,11 +275,16 @@ function Land(x, y) {
         if(this.rand > -0.5 && this.rand < -0.1) {others.push(new PSapling(this.x, this.y))}
     }
     this.draw = function() {
+        let ff
+        if(hr > 18 || hr < 6) {
         let fires = builds.filter(function(e) {return e instanceof Fire})
         let that = this
         let closefires = fires.filter(function(e) {return dist(e.x, e.y, that.x+10, that.y+10) < 35})
         let farfires = fires.filter(function(e) {return dist(e.x, e.y, that.x+10, that.y+10) < 55})
-        let ff = closefires.length >= 1 && closefires.some(function(e) {return e.started}) ? 0.8 : farfires.length >= 1 && farfires.some(function(e) {return e.started}) ? 0.2 : f
+        ff = closefires.length >= 1 && closefires.some(function(e) {return e.started}) ? 0.8 : farfires.length >= 1 && farfires.some(function(e) {return e.started}) ? 0.2 : f
+        } else {
+            ff = f
+        }
         this.col = color(0, ff*(230-(this.count-8)*7), 0);
         if(this.count <= 9) {this.col = color(ff*255, ff*255, ff*150)}
         stroke(this.col)
@@ -311,25 +357,29 @@ function df(e) {
 function pickup() {
     let uppable = others.filter(function(e) {return e.constructor === Rock || e.constructor === Stick})
     uppable.sort(function(a,b) {return df(a)-df(b)})
-    if(uppable.some(function(e) {return df(e) < 15})) {
-        if(keyIsPressed && key.toString() === "e") {
+    if(uppable.some(function(e) {return df(e) < 15}) && keyIsPressed && key.toString() === "e") {
+        if(totalweight < maxweight) {
             picklog.push(others.indexOf(uppable[0]))
+            not.push([1, uppable[0].constructor.__name, 100, "Pickup"])
             others.splice(others.indexOf(uppable[0]), 1)
             switch(uppable[0].constructor) {
                 case Rock: res[0]++; break
                 case Stick: res[3]++; break
             }
+        } else {
+            not.push([0, 0, 100, "Heavy"])
         }
     }
 }
 function sapup() {
     let saplings = others.filter(function(e) {return e instanceof PSapling})
     saplings.sort(function(a,b) {return df(a)-df(b)})
-    if(saplings.some(function(e) {return df(e) < 15}) && (equipped === "Stone Tool" || equipped === "Crude Axe")) {
+    if(saplings.some(function(e) {return df(e) < 15}) && (equipped === "Stone Tool" || equipped === "Crude Axe") && totalweight <= maxweight) {
         if(keys.e) {
             saplings[0].he -= 0.01
             if(saplings[0].he <= 0) {
                 picklog.push(others.indexOf(saplings[0]))
+                not.push([1, "Fibrous Leaves", 100, "Pickup"])
                 others.splice(others.indexOf(saplings[0]), 1)
                 res[1]++
             }
@@ -339,23 +389,25 @@ function sapup() {
 function treedown() {
     let cutting = trees.map(function(e) {return e})
     cutting.sort(function(a, b) {return df(a)-df(b)})
-    if(cutting.some(function(e) {return df(e) < 18}) && equipped === "Crude Axe" && cutting[0] instanceof Palm) {
+    if(cutting.some(function(e) {return df(e) < 18}) && equipped === "Crude Axe" && cutting[0] instanceof Palm && totalweight <= maxweight) {
         if(keys.e) {
             cutting[0].he -= 0.002
             if(cutting[0].he <= 0.3) {
                 picklog2.push(trees.indexOf(cutting[0]), 1)
+                not.push([8, "Stick", 100], [5, "Palm Leaves", 100, "Pickup"])
                 trees.splice(trees.indexOf(cutting[0]), 1)
                 res[3] += 8
                 res[4] += 5
             }
         }
     }
-    if(cutting.some(function(e) {return df(e) < 18}) && (equipped === "Crude Axe" || equipped === "Stone Tool") && cutting[0].constructor === Yucca) {
+    if(cutting.some(function(e) {return df(e) < 18}) && (equipped === "Crude Axe" || equipped === "Stone Tool") && cutting[0].constructor === Yucca && totalweight <= maxweight) {
         text("Hold E to cut", 50, 560)
         if(keys.e) {
             cutting[0].he -= equipped === "Stone Tool" ? 0.0015 : 0.0035
             if(cutting[0].he <= 0.3) {
                 picklog2.push(trees.indexOf(cutting[0]), 1)
+                not.push([6, "Fibrous Leaves", 100, "Pickup"])
                 trees.splice(trees.indexOf(cutting[0]), 1)
                 res[1] += 6
             }
@@ -424,7 +476,6 @@ function inventory() {
     textSize(10)
     text("Per/total", 375, 187)
     textSize(14)
-    include()
     for(let i = 0; i < 10; i++) {
         noStroke()
         if(mouseX > 130 && mouseX < 470 && mouseY > 196+i*25 && mouseY < 221+i*25) {
@@ -442,7 +493,6 @@ function inventory() {
     }
     textAlign(LEFT)
     interaction()
-    let totalweight = invm.reduce(function(a,b,i) {return a+(b[2]*b[1])}, 0)
     text("Total weight: " + round(totalweight*10)/10, 140, 490)
 }
 //} inventory
@@ -558,6 +608,7 @@ function HUD() {
     textSize(15)
     fill(255, 255, 255)
     text("Equipped: " + equipped, 220, 580)
+
 }
 function mc(me) {
     if(me === menu) {menu = 0}
@@ -800,11 +851,14 @@ function game() {
     popMatrix()
     if(!loading && !ps && !zoomed && !climbed) {controls()}
     HUD()
+    notif()
     switch(menu) {
         case 1: inventory(); break
         case 2: crafting(); break
     }
+    totalweight = invm.reduce(function(a,b,i) {return a+(b[2]*b[1])}, 0)
     pause()
+    include()
     if(!ps) {
         water()
         time()
