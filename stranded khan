@@ -1,55 +1,38 @@
-
 /*
-
-YOU CAN'T PLAY THIS GAME BLAKE
-JUST DON'T
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 This is a 2d island survival game based on the actual game, Stranded Deep.
 
 Also please KA, add ES6; the lack of array destructuring is killing me!!!!
 
 see full version history at 
 https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
-
 */
+
 //cheaty jshint stuff to make KA code more es6 ↓
 //jshint asi: true 
 //jshint esnext: true
-
 //put your save code here:
 let saveCode = ""
 
-let tools = [0, 0, 0, 0, 0] 
-let tnames = ["Stone Tool", "Crude Axe", "Refined Knife", "Kindling"]
+let tools = [0, 0, 0, 1, 1, 0] 
+let tnames = ["Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", "Fishing Spear"]
 /*
 stone tool, crude axe, refined knife, fire
 */
 let res = [
     0,0,0,0,0,
-    0,0,0
+    0,0,0,1,0,
+    0
 ] 
 /*
 stone, fibrous leaves, lashing, sticks, palm leaves, 
-coconut, drinkable coconut, kindling
+coconut, drinkable coconut, kindling, raw fish, cooked fish,
+sardine
 */
 let islandSize = 200
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 7, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, hunger = 100, thirst = 100, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = [],totalweight = 0, not = []
+let sc = "home", keys = [], seed = new Random(ran), bs = [], px = 0, py = 0, pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, hr = 7, trees = [], on = 0, ox = 100, he = 100, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, hunger = 100, thirst = 100, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000)
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
     "00000000330000000",
@@ -130,7 +113,7 @@ function Palm(x, y) {
             }
             if(this.isclimbed) { text("E to pick coconut", 25, 270)}
             if(climbed && this.isclimbed && keys.e && this.coco) {
-                not.push(1, "Coconut", 100, "Pickup")
+                not.push([1, "Coconut", 100, "Pickup"])
                 this.coco = false
                 res[5]++
             }
@@ -183,7 +166,10 @@ function Fire(x, y) {
     this.heat = 0
     this.fuel = 1
     this.started = false
+    this.meaton = false
+    this.mtimer = 500
     this.draw = function() {
+        let fclose = this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165
         pushMatrix()
         translate(this.x, this.y)
         fill(150, 0, 0)
@@ -195,11 +181,30 @@ function Fire(x, y) {
             ellipse(0, 0.5, 8*this.fuel, 8*this.fuel)
             this.fuel = constrain(this.fuel, 0, 1)
             this.fuel -= 0.00003
+            if(keys.e && !this.meaton && res[8] >= 1) {
+                res[8] --
+                this.meaton = true
+                this.mtimer = 1000
+            }
+            if(this.meaton) {
+                rotate(-45)
+                fill(this.ready ? 50 : 170, 0, 0)
+                rect(-2, -2, 3, 3)
+                this.mtimer --
+                if(this.mtimer < 0) {
+                    this.ready = true
+                }
+                
+                if(this.ready && fclose && keys.e) {
+                    this.ready = false
+                    this.meaton = false
+                    res[9]++
+                }
+            }
         }
         popMatrix()
         pushMatrix()
         translate(0, -250)
-        let fclose = this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165
         if(!this.started) {
             fill(255, 100, 0)
             rect(20, 500, 3, -this.heat*2.2)
@@ -424,16 +429,20 @@ function include() {
         ["Stick", round(res[3]), 1],
         ["Palm Leaves", res[4], 0.5],
         ["Coconut", res[5], 2],
-        ["Drinkable Coconut", res[6], 1]
+        ["Drinkable Coconut", res[6], 1],
+        [],
+        ["Raw Meat", res[8], 0.5],
+        ["Cooked Meat", res[9], 0.5],
+        ["Sardine", res[10], 0.5] 
     ]
     let toolsm = [
         ["Stone Tool", tools[0], 1],
         ["Crude Axe", tools[1], 4.4],
         ["Refined Knife", tools[2], 2.4],
         ["Fire", tools[3], 4],
-        ["Kindling", tools[4], 2]
+        ["Kindling", tools[4], 2],
+        ["Fishing Spear", tools[5], 1]
     ]
-
     invm = []
     for(let i = 0; i < invs.length; i++) {if(res[i] > 0) {invm.push(invs[i])}}
     for(let i = 0; i < toolsm.length; i++) {if(tools[i] > 0) {invm.push(toolsm[i])}}
@@ -441,7 +450,6 @@ function include() {
 function interaction() {
     let yx = invm.map(function(e) {return e[0]})
     let yy = tnames.map(function(e) {return [yx.indexOf(e), e]})
-    //let yy = [[yx.indexOf("Stone Tool"), "Stone Tool"], [yx.indexOf("Crude Axe"), "Crude Axe"], [yx.indexOf("Refined Knife"), "Refined Knife"]]
     if(mouseIsPressed) {
         for(let i = 0; i < yy.length; i++) {
             if(mouseX > 139 && mouseX < 470 && mouseY > 197+yy[i][0]*25 && mouseY < 222+yy[i][0]*25) {
@@ -449,19 +457,29 @@ function interaction() {
             }
         }
     }
-    let cocon = yx.indexOf("Coconut"), drinka = yx.indexOf("Drinkable Coconut"), firea = yx.indexOf("Fire")
+    let cocon = yx.indexOf("Coconut"), drinka = yx.indexOf("Drinkable Coconut"), firea = yx.indexOf("Fire"), sard = yx.indexOf("Sardine"), cmeat = yx.indexOf("Cooked Meat")
     mousePressed = function() {
-        if(mouseX > 139 && mouseX < 470 && mouseY > 197+cocon*25 && mouseY < 222+cocon*25) {
+        if(mouseX > 139 && mouseX < 470) {
+        if(mouseY > 197+cocon*25 && mouseY < 222+cocon*25) {
             res[6] ++
             res[5] --
         }
-        if(mouseX > 139 && mouseX < 470 && mouseY > 197+drinka*25 && mouseY < 222+drinka*25) {
+        if(mouseY > 197+drinka*25 && mouseY < 222+drinka*25) {
             thirst += 20
             res[6] --
         }
-        if(mouseX > 139 && mouseX < 470 && mouseY > 197+firea*25 && mouseY < 222+firea*25 && on) {
+        if(mouseY > 197+firea*25 && mouseY < 222+firea*25 && on) {
             builds.push(new Fire(150, 150))
             tools[3] --
+        }
+        if(mouseY > 197+sard*25 && mouseY < 222+sard*25 && equipped === "Refined Knife") {
+            res[10] --
+            res[8] ++
+        }
+        if(mouseY > 197+cmeat*25 && mouseY < 222+cmeat*25) {
+            res[9] --
+            hunger += 30
+        }
         }
     }
 }
@@ -493,7 +511,7 @@ function inventory() {
     }
     textAlign(LEFT)
     interaction()
-    text("Total weight: " + round(totalweight*10)/10, 140, 490)
+    text("Total weight: " + round(totalweight*10)/10 + "/" + maxweight, 140, 490)
 }
 //} inventory
 //{
@@ -526,6 +544,10 @@ function exec(m) {
             res[2] --
             res[3] --
             tools[2] ++
+        }
+        if(mouseY > 390-25 && mouseY < 390+35 && res[3] >= 2) {
+            res[3] -= 2
+            tools[5] ++
         }
     }
     if(m === 1) {
@@ -568,6 +590,7 @@ function crafting() {
         craft(240, [1], ["Stone"], "Stone Tool", [res[0]])
         craft(290, [2, 1, 2], ["Stone Tool", "Lashing", "Stick"], "Crude Axe", [tools[0], res[2], res[3]])
         craft(340, [1, 1, 1], ["Stone Tool", "Lashing", "Stick"], "Refined Knife", [tools[0], res[2], res[3]])
+        craft(390, [2], ["Stick"], "Fishing Spear", [res[3]])
     break
     case 1: 
         craft(240, [5], ["Stick"], "Fire", [res[3]])
@@ -579,6 +602,18 @@ function crafting() {
     }
 }
 //} crafting
+//{
+function fishing() {
+    if(!on && equipped === "Fishing Spear" && keys.e) {
+        nfish --
+        if(nfish < 0) {
+            not.push([1, "Sardine", 100, "Pickup"])
+            res[10] ++
+            nfish = 500+random(0, 1000)
+        }
+    }
+}
+//} fishing
 //{
 function HUD() {
     fill(255, 255, 255)
@@ -867,6 +902,7 @@ function game() {
         sapup()
         treedown()
         sustenance()
+        fishing()
     }
     init()
 }
