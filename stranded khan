@@ -13,14 +13,20 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //put your save code here:
 let saveCode = ""
 
-let tools = [0, 0, 0, 1, 1, 0] 
-let tnames = ["Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", "Fishing Spear"]
+let tools = [
+    0, 0, 0, 0, 0,
+    0
+] 
+let tnames = [
+    "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
+    "Fishing Spear"
+]
 /*
 stone tool, crude axe, refined knife, fire
 */
 let res = [
     0,0,0,0,0,
-    0,0,0,1,0,
+    0,0,0,0,0,
     0
 ] 
 /*
@@ -168,19 +174,31 @@ function Fire(x, y) {
     this.started = false
     this.meaton = false
     this.mtimer = 500
-    this.draw = function() {
+    this.ref = function() {
+        if(keys.r && this.started) {
+            
+        if(res[3] >= 1 && this.started) {
+            this.fuel += 0.33
+            res[3] --
+        }
+        
+        }
+    }
+    this.start = function() {
         let fclose = this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165
-        pushMatrix()
-        translate(this.x, this.y)
-        fill(150, 0, 0)
-        rotate(45)
-        rect(-1, -5, 2, 10)
-        rect(-5, -1, 10, 2)
         if(this.started) {
             fill(255, 100, 0)
-            ellipse(0, 0.5, 8*this.fuel, 8*this.fuel)
+            ellipse(0.25, 0, 8, 8)
+            noFill()
+            strokeWeight(2)
+            stroke(100, 100, 100)
+            arc(0.25, 0, 8, 8, -130, this.fuel*360-150)
             this.fuel = constrain(this.fuel, 0, 1)
-            this.fuel -= 0.00003
+            this.fuel -= 0.0001 //0.00003
+            if(this.fuel < 0) {
+                this.started = false
+                this.fuel = 100
+            }
             if(keys.e && !this.meaton && res[8] >= 1) {
                 res[8] --
                 this.meaton = true
@@ -202,6 +220,19 @@ function Fire(x, y) {
                 }
             }
         }
+    }
+    this.draw = function() {
+        let fclose = this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165
+        pushMatrix()
+        translate(this.x, this.y)
+        fill(150, 0, 0)
+        rotate(45)
+        noStroke();
+        scale(1.4)
+        rect(-1, -5, 2, 10)
+        rect(-5, -1, 10, 2)
+        scale(0.9)
+        this.start()
         popMatrix()
         pushMatrix()
         translate(0, -250)
@@ -215,9 +246,20 @@ function Fire(x, y) {
             this.heat += mov[0]/100+mov[1]/100
             this.heat -= 0.3
             this.heat = constrain(this.heat, 0, 100)
-            if(this.heat >= 100) {this.started = true}
+            if(this.heat >= 100) {
+                this.started = true
+                tools[4] --
+            }
         }
         if(!fclose) {this.heat = 0}
+    }
+}
+function refuel() {
+    let fires = builds.filter(function(e) {
+        return e instanceof Fire
+    })
+    for(let i = 0; i < fires.length; i++) {
+        fires[i].ref()
     }
 }
 //} building constructors
@@ -358,7 +400,7 @@ for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
 //{
 function df(e) {
     return round(dist(e.x, e.y, 140, 140))
-}
+} 
 function pickup() {
     let uppable = others.filter(function(e) {return e.constructor === Rock || e.constructor === Stick})
     uppable.sort(function(a,b) {return df(a)-df(b)})
@@ -399,7 +441,7 @@ function treedown() {
             cutting[0].he -= 0.002
             if(cutting[0].he <= 0.3) {
                 picklog2.push(trees.indexOf(cutting[0]), 1)
-                not.push([8, "Stick", 100], [5, "Palm Leaves", 100, "Pickup"])
+                not.push([8, "Stick", 100, "Pickup"], [5, "Palm Leaves", 100, "Pickup"])
                 trees.splice(trees.indexOf(cutting[0]), 1)
                 res[3] += 8
                 res[4] += 5
@@ -423,29 +465,38 @@ function treedown() {
 //{
 function include() {
     let invs = [
-        ["Stone", round(res[0]/2), 1],
-        ["Fibrous Leaves", res[1], 0.1],
-        ["Lashing", res[2], 0.4],
-        ["Stick", round(res[3]), 1],
-        ["Palm Leaves", res[4], 0.5],
-        ["Coconut", res[5], 2],
-        ["Drinkable Coconut", res[6], 1],
-        [],
-        ["Raw Meat", res[8], 0.5],
-        ["Cooked Meat", res[9], 0.5],
-        ["Sardine", res[10], 0.5] 
+        ["Stone", round(res[0]/2), 1, [0, 0]],
+        ["Fibrous Leaves", res[1], 0.1, [1, 0]],
+        ["Lashing", res[2], 0.4, [2, 0]],
+        ["Stick", round(res[3]), 1, [3, 0]],
+        ["Palm Leaves", res[4], 0.5, [4, 0]],
+        ["Coconut", res[5], 2, [5, 0]],
+        ["Drinkable Coconut", res[6], 1, [6, 0]],
+        ["",0,0,[0,0]],
+        ["Raw Meat", res[8], 0.5, [8, 0]],
+        ["Cooked Meat", res[9], 0.5, [9, 0]],
+        ["Sardine", res[10], 0.5, [10, 0]] 
     ]
     let toolsm = [
-        ["Stone Tool", tools[0], 1],
-        ["Crude Axe", tools[1], 4.4],
-        ["Refined Knife", tools[2], 2.4],
-        ["Fire", tools[3], 4],
-        ["Kindling", tools[4], 2],
-        ["Fishing Spear", tools[5], 1]
+        ["Stone Tool", tools[0], 1, [0, 1]],
+        ["Crude Axe", tools[1], 4.4, [1, 1]],
+        ["Refined Knife", tools[2], 2.4, [2, 1]],
+        ["Fire", tools[3], 4, [3, 1]],
+        ["Kindling", tools[4], 2, [4, 1]],
+        ["Fishing Spear", tools[5], 1, [5, 1]]
     ]
     invm = []
     for(let i = 0; i < invs.length; i++) {if(res[i] > 0) {invm.push(invs[i])}}
     for(let i = 0; i < toolsm.length; i++) {if(tools[i] > 0) {invm.push(toolsm[i])}}
+}
+function drop() {
+    let yx = invm.map(function(e, i) {return [e[0], e[3]]})
+    for(let i = 0; i < yx.length; i++) {
+        if(mouseX > 139 && mouseX < 470 && mouseY > 197+i*25 && mouseY < 222+i*25 && keys.q) {
+            if(yx[i][1][1] === 0) {res[yx[i][1][0]] --}
+            if(yx[i][1][1] === 1) {tools[yx[i][1][0]] --}
+        }
+    }
 }
 function interaction() {
     let yx = invm.map(function(e) {return e[0]})
@@ -454,6 +505,9 @@ function interaction() {
         for(let i = 0; i < yy.length; i++) {
             if(mouseX > 139 && mouseX < 470 && mouseY > 197+yy[i][0]*25 && mouseY < 222+yy[i][0]*25) {
                 equipped = yy[i][1]
+            }
+            if(yy[i][1] < 1 && equipped === yy[i][1]) {
+                equipped = ""
             }
         }
     }
@@ -1069,6 +1123,8 @@ draw = function() {
     keyPressed = function() {
         keys[keyCode] = true
         keys[key.toString()] = true
+        if(menu === 1) {drop()}
+        refuel()
         switch(key.toString()) {
             case "z": ps = !ps; break
             case "f": mc(1); break
