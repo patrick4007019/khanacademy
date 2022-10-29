@@ -10,12 +10,12 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //cheaty jshint stuff to make KA code more es6 ↓
 //jshint asi: true 
 //jshint esnext: true
-//put your save code here:
+//put your save code here:ff
 let saveCode = ""
 
 let tools = [
-    0, 0, 0, 0, 0,
-    0, 0
+    0,0,0,0,0,
+    0,0
 ] 
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
@@ -26,21 +26,21 @@ stone tool, crude axe, refined knife, fire
 */
 let res = [
     0,0,0,0,0,
-    0,0,0,0,0,
+    0,0,0,0,
     0
 ] 
 /*
 stone, fibrous leaves, lashing, sticks, palm leaves, 
-coconut, drinkable coconut, kindling, raw fish, cooked fish,
+coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 400
+let islandSize = 200
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300
+let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false
 
-let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, thirst = 100
+let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, thirst = 100, invy = 176
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
     "00000000330000000",
@@ -177,7 +177,7 @@ function Fire(x, y) {
     this.meaton = false
     this.mtimer = 500
     this.ref = function() {
-        if(keys.r && this.started && res[2] >= 1 && this.fuel <= 0.66) {
+        if(keys.r && this.started && res[2] >= 1 && this.fuel <= 0.66 && this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165) {
             this.fuel += 0.33
             res[3] --
         }
@@ -197,8 +197,8 @@ function Fire(x, y) {
                 this.started = false
                 this.fuel = 100
             }
-            if(keys.e && !this.meaton && res[8] >= 1) {
-                res[8] --
+            if(keys.e && !this.meaton && res[7] >= 1) {
+                res[7] --
                 this.meaton = true
                 this.mtimer = 1000
             }
@@ -215,7 +215,7 @@ function Fire(x, y) {
                 if(this.ready && fclose && keys.e) {
                     this.ready = false
                     this.meaton = false
-                    res[9]++
+                    res[8]++
                 }
             }
         }
@@ -276,7 +276,7 @@ function WStill(x, y) {
         popMatrix()
     }
     this.ref = function() {
-        if(keys.r && res[4] >= 1 && this.fuel <= 0.75) {
+        if(keys.r && res[4] >= 1 && this.fuel <= 0.75 && this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165) {
             res[4] --
             this.fuel += 0.25
         }
@@ -455,9 +455,7 @@ function pickup() {
                 case Rock: res[0]++; break
                 case Stick: res[3]++; break
             }
-        } else {
-            not.push([0, 0, 100, "Heavy"])
-        }
+        } else {not.push([0, 0, 100, "Heavy"])}
     }
 }
 function sapup() {
@@ -465,6 +463,7 @@ function sapup() {
     saplings.sort(function(a,b) {return df(a)-df(b)})
     if(saplings.some(function(e) {return df(e) < 15}) && (equipped === "Stone Tool" || equipped === "Crude Axe") && totalweight <= maxweight) {
         if(keys.e) {
+            if(totalweight < maxweight) {
             saplings[0].he -= 0.01
             if(saplings[0].he <= 0) {
                 picklog.push(others.indexOf(saplings[0]))
@@ -472,14 +471,16 @@ function sapup() {
                 others.splice(others.indexOf(saplings[0]), 1)
                 res[1]++
             }
+            } else {not.push([0, 0, 100, "Heavy"])}
         }
     }
 }
 function treedown() {
     let cutting = trees.map(function(e) {return e})
     cutting.sort(function(a, b) {return df(a)-df(b)})
-    if(cutting.some(function(e) {return df(e) < 18}) && equipped === "Crude Axe" && cutting[0] instanceof Palm && totalweight <= maxweight) {
+    if(cutting.some(function(e) {return df(e) < 18}) && equipped === "Crude Axe" && cutting[0] instanceof Palm) {
         if(keys.e) {
+            if(totalweight < maxweight) {
             cutting[0].he -= 0.002
             if(cutting[0].he <= 0.3) {
                 picklog2.push(trees.indexOf(cutting[0]), 1)
@@ -488,17 +489,23 @@ function treedown() {
                 res[3] += 8
                 res[4] += 5
             }
+            } else {
+                not.push([0, 0, 100, "Heavy"])
+            }
         }
     }
-    if(cutting.some(function(e) {return df(e) < 18}) && (equipped === "Crude Axe" || equipped === "Stone Tool") && cutting[0].constructor === Yucca && totalweight <= maxweight) {
-        text("Hold E to cut", 50, 560)
+    if(cutting.some(function(e) {return df(e) < 18}) && (equipped === "Crude Axe" || equipped === "Stone Tool") && cutting[0].constructor === Yucca) {
         if(keys.e) {
-            cutting[0].he -= equipped === "Stone Tool" ? 0.0015 : 0.0035
+            if(totalweight < maxweight) {
+            cutting[0].he -= equipped === "Stone Tool" ? 0.0015 : 0.005
             if(cutting[0].he <= 0.3) {
                 picklog2.push(trees.indexOf(cutting[0]), 1)
                 not.push([6, "Fibrous Leaves", 100, "Pickup"])
                 trees.splice(trees.indexOf(cutting[0]), 1)
                 res[1] += 6
+            }
+            } else {
+                not.push([0, 0, 100, "Heavy"])
             }
         }
     }
@@ -507,17 +514,16 @@ function treedown() {
 //{
 function include() {
     let invs = [
-        ["Stone", round(res[0]/2), 1, [0, 0]],
+        ["Stone", round(res[0]), 1, [0, 0]],
         ["Fibrous Leaves", res[1], 0.1, [1, 0]],
         ["Lashing", res[2], 0.4, [2, 0]],
         ["Stick", round(res[3]), 1, [3, 0]],
         ["Palm Leaves", res[4], 0.5, [4, 0]],
         ["Coconut", res[5], 2, [5, 0]],
         ["Drinkable Coconut", res[6], 1, [6, 0]],
-        ["",0,0,[0,0]],
-        ["Raw Meat", res[8], 0.5, [8, 0]],
-        ["Cooked Meat", res[9], 0.5, [9, 0]],
-        ["Sardine", res[10], 0.5, [10, 0]] 
+        ["Raw Meat", res[7], 0.5, [8, 0]],
+        ["Cooked Meat", res[8], 0.5, [9, 0]],
+        ["Sardine", res[9], 0.5, [10, 0]] 
     ]
     let toolsm = [
         ["Stone Tool", tools[0], 1, [0, 1]],
@@ -531,11 +537,14 @@ function include() {
     invm = []
     for(let i = 0; i < invs.length; i++) {if(res[i] > 0) {invm.push(invs[i])}}
     for(let i = 0; i < toolsm.length; i++) {if(tools[i] > 0) {invm.push(toolsm[i])}}
+    totalweight = invm.reduce(function(a,b,i) {return a+(b[2]*b[1])}, 0)
+    if(!scroll) {invm.splice(12, invm.length-12)}
+    else {invm.splice(0, 12)}
 }
 function drop() {
     let yx = invm.map(function(e, i) {return [e[0], e[3]]})
     for(let i = 0; i < yx.length; i++) {
-        if(mouseX > 139 && mouseX < 470 && mouseY > 197+i*25 && mouseY < 222+i*25 && keys.q) {
+        if(mouseX > 139 && mouseX < 470 && mouseY > invy+i*25 && mouseY < invy+25+i*25 && keys.q) {
             if(yx[i][1][1] === 0) {res[yx[i][1][0]] --}
             if(yx[i][1][1] === 1) {tools[yx[i][1][0]] --}
         }
@@ -546,38 +555,38 @@ function interaction() {
     let yy = tnames.map(function(e) {return [yx.indexOf(e), e]})
     if(mouseIsPressed) {
         for(let i = 0; i < yy.length; i++) {
-            if(mouseX > 139 && mouseX < 470 && mouseY > 197+yy[i][0]*25 && mouseY < 222+yy[i][0]*25) {
+            if(mouseX > 139 && mouseX < 470 && mouseY > invy+yy[i][0]*25 && mouseY < invy+25+yy[i][0]*25) {
                 equipped = yy[i][1]
             }
-            if(yy[i][0] < 1 && equipped === yy[i][1]) {
-                equipped = ""
+            if(yy[i][0] === -1 && equipped === yy[i][1]) {
+                equipped = "none"
             }
         }
     }
     let cocon = yx.indexOf("Coconut"), drinka = yx.indexOf("Drinkable Coconut"), firea = yx.indexOf("Fire"), sard = yx.indexOf("Sardine"), cmeat = yx.indexOf("Cooked Meat"), wstill = yx.indexOf("Water Still")
     mousePressed = function() {
         if(mouseX > 139 && mouseX < 470) {
-        if(mouseY > 197+cocon*25 && mouseY < 222+cocon*25) {
+        if(mouseY > invy+cocon*25 && mouseY < invy+25+cocon*25) {
             res[6] ++
             res[5] --
         }
-        if(mouseY > 197+drinka*25 && mouseY < 222+drinka*25) {
+        if(mouseY > invy+drinka*25 && mouseY < invy+25+drinka*25) {
             thirst += 20
             res[6] --
         }
-        if(mouseY > 197+firea*25 && mouseY < 222+firea*25 && on) {
+        if(mouseY > invy+firea*25 && mouseY < invy+25+firea*25 && on) {
             builds.push(new Fire(150, 150))
             tools[3] --
         }
-        if(mouseY > 197+wstill*25 && mouseY < 222+wstill*25 && on) {
+        if(mouseY > invy+wstill*25 && mouseY < invy+25+wstill*25 && on) {
             builds.push(new WStill(150, 150))
             tools[6] --
         }
-        if(mouseY > 197+sard*25 && mouseY < 222+sard*25 && equipped === "Refined Knife") {
+        if(mouseY > invy+sard*25 && mouseY < invy+25+sard*25 && equipped === "Refined Knife") {
             res[10] --
             res[8] ++
         }
-        if(mouseY > 197+cmeat*25 && mouseY < 222+cmeat*25) {
+        if(mouseY > invy+cmeat*25 && mouseY < invy+25+cmeat*25) {
             res[9] --
             hunger += 30
         }
@@ -586,33 +595,38 @@ function interaction() {
 }
 function inventory() {
     fill(100, 100, 155)
-    rect(120, 90, 360, 420)
+    rect(110, 80, 380, 440)
     fill(255, 255, 255)
     textSize(25)
-    text("Inventory", 225, 130)
+    text("Inventory", 225, 120)
     textSize(21)
-    text("Name      #     weight", 170, 175)
+    text("Name      #     weight", 170, 155)
     textSize(10)
-    text("Per/total", 375, 187)
+    text("Per/total", 375, 167)
     textSize(14)
-    for(let i = 0; i < 10; i++) {
+    for(let i = 0; i < 12; i++) {
         noStroke()
-        if(mouseX > 130 && mouseX < 470 && mouseY > 196+i*25 && mouseY < 221+i*25) {
+        if(mouseX > 130 && mouseX < 470 && mouseY > 176+i*25 && mouseY < 176+25+i*25) {
             fill(120, 120, 180)
-            rect(130, 198+i*25, 340, 25)
+            rect(130, 178+i*25, 340, 25)
         }
     }
     fill(255, 255, 255)
     for(let i = 0; i < invm.length; i++) {
         textAlign(CENTER)
         textSize(13)
-        text(invm[i][0], 195, 215+i*25)
-        text(invm[i][1], 300, 215+i*25)
-        text(invm[i][2] + "/" + invm[i][2]*round(invm[i][1]*10)/10, 395, 215+i*25)
+        text(invm[i][0], 195, invy+19+i*25)
+        text(invm[i][1], 300, invy+19+i*25)
+        text(invm[i][2] + "/" + invm[i][2]*round(invm[i][1]*10)/10, 395, invy+19+i*25)
     }
     textAlign(LEFT)
     interaction()
-    text("Total weight: " + round(totalweight*10)/10 + "/" + maxweight, 140, 490)
+    textSize(15)
+    text("Total weight: " + round(totalweight*10)/10 + "/" + maxweight, 140, 505)
+    text("Page " + (scroll ? 2 : 1) + "/" + (invm.length >= 12 || scroll ? 2 : 1), 390, 503)
+    if(keys[ALT]) {
+        scroll = scroll && keys[UP] ? false : !scroll && keys[DOWN] ? true : scroll 
+    }
 }
 //} inventory
 //{
@@ -727,8 +741,8 @@ function HUD() {
     fill(255, 255, 255)
     textSize(15)
     text("Press Z to pause game", 210, 15)
-    text(abs(round(-py/10*2)) + (py < 0 ? "S" : "N") +  ", " + abs(round(-px/10)) + (px < 0 ? "E" : "W"), 500, 550)
-    text(floor(hr) + ":" + (round(60*(hr%1)) < 10 ? "0" : "") + (round(60*(hr%1))), 500, 570)
+    text(abs(round(-py/10)) + (py < 0 ? "S" : "N") +  ", " + abs(round(-px/10*2)) + (px < 0 ? "E" : "W"), 500, 550)
+    text(floor(hr) + ":" + (round(59*(hr%1)) < 10 ? "0" : "") + (round(59*(hr%1))), 500, 570)
     stroke(50, 50, 50);
     strokeWeight(2)
     if(ox < 100) {
@@ -1014,14 +1028,13 @@ function game() {
     }    
     if(!climbed) {for(let i = 0; i < ctrees.length; i++) {ctrees[i].draw()}}
     popMatrix()
-    if(!loading && !ps && !zoomed && !climbed && !dead) {controls()}
+    if(!loading && !ps && !zoomed && !climbed && !dead && menu === 0) {controls()}
     HUD()
     notif()
     switch(menu) {
         case 1: inventory(); break
         case 2: crafting(); break
     }
-    totalweight = invm.reduce(function(a,b,i) {return a+(b[2]*b[1])}, 0)
     pause()
     include()
     if(!ps) {
