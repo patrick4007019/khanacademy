@@ -2,6 +2,9 @@
 //jshint esnext: true
 
 let kc = 0, kcs = 0, kcc = 1
+let h = 50
+let builds = [0,0]
+let upgrades = []
 
 function symbol(x, y, z) {
     noStroke()
@@ -9,9 +12,9 @@ function symbol(x, y, z) {
     translate(x, y)
     scale(z)
     fill(102, 168, 94);
-    triangle(-60, -40, 60, -40, 0, -70)
+    triangle(-60, -39, 60, -39, 0, -70)
     rect(-60, -40, 120, 80, 0)
-    triangle(-60, 40, 60, 40, 0, 70)
+    triangle(-60, 39, 60, 39, 0, 70)
     //lower right
     pushMatrix()
     translate(17, 0)
@@ -66,16 +69,92 @@ function display() {
     fill(0);
     textFont(createFont("monospace"), 22)
     textAlign(CENTER)
-    text(kc + " khans", 150, 150)
+    text(round(kc) + " khans", 150, 150)
     textSize(15)
-    text(kcs + " khans per second", 150, 175)
+    text(round(kcs*10)/10 + " khans per second", 150, 175)
+    for(let i = 0; i < builds.length; i++) {
+        textAlign(RIGHT)
+        textSize(34)
+        text(builds[i] > 0 ? builds[i] : "", 590, i*50+85)
+        textAlign(LEFT)
+    }
 }
+function Upgrade(y, cost, cps, name, img, id) {
+    this.y = y
+    this.cost = cost
+    this.cps = cps
+    this.name = name
+    this.img = img
+    this.id = id
+    
+    this.draw = function() {
+        let hv = (mouseX > 300 && mouseY > this.y*h && mouseY < this.y*h+h)
+        let hov = kc < this.cost ? (hv ? 160 : 175): hv ? 198 : 210
+        textAlign(LEFT)
+        fill(hov, hov, hov)
+        stroke(150, 150, 150)
+        rect(303, this.y*h, 300, h)
+        fill(0)
+        textSize(20)
+        image(this.img, 305, this.y*h+5, 40, 40)
+        text(this.name, 370, this.y*h+28)
+        textSize(13)
+        symbol(376, this.y*h+40, 0.11)
+        fill(0)
+        text(this.cost, 385, this.y*h+43)
+    }
+    this.buy = function() {
+        let hv = (mouseX > 300 && mouseY > this.y*h && mouseY < this.y*h+h)
+        if(hv && kc >= this.cost) {
+            kc -= this.cost
+            builds[this.id] ++
+        }
+    }
+}
+function upgrading() {
+    for(let i = 0; i < upgrades.length; i++) {
+        upgrades[i].draw()
+    }
+    //image(getImage("avatars/leaf-blue")
+    /*
+    leaf 
+    winston
+    oh noes 
+    hopper
+    spunky sam
+    purple pi
+    oj squid
+    johnny
+    amelia
+    mr pink
+    old spice man
+    marcimus
+    mr pants
+    */
+}
+function perseconds() {
+    kcs = builds[0]/10+builds[1]
+}
+
+{
+upgrades.push(
+    new Upgrade(1, 10, 0.1, "Leaf", getImage("avatars/leaf-green"), 0),
+    new Upgrade(2, 120, 1, "Winston", getImage("creatures/Winston"), 1))
+}
+    
 draw = function() {
     background(220, 220, 220)
     symbol(150, 290, mouseX > 90 && mouseX < 210 && mouseY > 220 && mouseY < 360 ? 1.07 : 1)
     mousePressed = function() {
         clicking()
+        for(let i = 0; i < upgrades.length; i++) {
+            upgrades[i].buy()
+        }
     }
+    fill(150, 150, 150);
+    rect(300, 0, 3, 600)
     basics()
+    upgrading()
+    perseconds()
     display()
 }
