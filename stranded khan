@@ -15,15 +15,12 @@ let saveCode = ""
 
 let tools = [
     0,0,0,0,0,
-    0,0
+    0,0,1
 ] 
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
-    "Fishing Spear", "Water Still"
+    "Fishing Spear", "Water Still", "Shelter"
 ]
-/*
-stone tool, crude axe, refined knife, fire
-*/
 let res = [
     0,0,0,0,0,
     0,0,0,0,
@@ -34,13 +31,13 @@ stone, fibrous leaves, lashing, sticks, palm leaves,
 coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 200
+let islandSize = 50
 //{
 noStroke()
 let ran = round(random(0, 10000))
-let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false
+let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0
 
-let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, thirst = 100, invy = 176
+let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, sleep = -0.5, thirst = 100, invy = 176
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
     "00000000330000000",
@@ -65,7 +62,7 @@ let f = 1
 //load speed
 let loadSpeed = 2
 //player speed 
-let spd = 0.5
+let spd = 0.5, defaultspd = 0.5
 //render distance
 let render = 600
 // max weight
@@ -304,6 +301,23 @@ function refuel() {
         fires[i].ref()
     }
 }
+function Shelter(x, y) {
+    this.x = x
+    this.y = y
+    this.sleep = function() {
+        
+    }
+    this.draw = function() {
+        pushMatrix()
+        translate(this.x, this.y)
+        fill(0, f*130, 0)
+        stroke(100, 0, 0)
+        strokeWeight(2)
+        rect(-4, -7, 8,14, 3)
+        popMatrix()
+        this.sleep()
+    }
+}
 //} building constructors
 //{
 function notif() {
@@ -353,8 +367,8 @@ function Land(x, y) {
             }
         }
         if(this.count > 9) {
-            if(this.rand < -1) {trees.push(new Palm(this.x, this.y))}
-            if(this.rand > 0.25 && this.rand < 0.4) {trees.push(new Yucca(this.x, this.y))}
+            if(this.rand < -1.1) {trees.push(new Palm(this.x, this.y))}
+            if(this.rand > 0.25 && this.rand < 0.5) {trees.push(new Yucca(this.x, this.y))}
         }
         if(this.rand > -1 && this.rand < -0.5) {
             others.push(new Rock(this.x, this.y))
@@ -532,7 +546,8 @@ function include() {
         ["Fire", tools[3], 4, [3, 1]],
         ["Kindling", tools[4], 2, [4, 1]],
         ["Fishing Spear", tools[5], 1, [5, 1]],
-        ["Water Still", tools[6], 6.8, [6, 1]]
+        ["Water Still", tools[6], 6.8, [6, 1]],
+        ["Shelter", tools[7], 7.7, [7, 1]]
     ]
     invm = []
     for(let i = 0; i < invs.length; i++) {if(res[i] > 0) {invm.push(invs[i])}}
@@ -550,6 +565,13 @@ function drop() {
         }
     }
 }
+function place(thing, construct, tool) {
+    let yx = invm.map(function(e) {return e[0]})
+    if(mouseY > invy+yx.indexOf(thing)*25 && mouseY < invy+yx.indexOf(thing)*25+25 && on && tools[tool] >= 1) {
+        builds.push(new construct(150, 150))
+        tools[tool] --
+    }
+}
 function interaction() {
     let yx = invm.map(function(e) {return e[0]})
     let yy = tnames.map(function(e) {return [yx.indexOf(e), e]})
@@ -563,9 +585,9 @@ function interaction() {
             }
         }
     }
-    let cocon = yx.indexOf("Coconut"), drinka = yx.indexOf("Drinkable Coconut"), firea = yx.indexOf("Fire"), sard = yx.indexOf("Sardine"), cmeat = yx.indexOf("Cooked Meat"), wstill = yx.indexOf("Water Still")
+    let cocon = yx.indexOf("Coconut"), drinka = yx.indexOf("Drinkable Coconut"), firea = yx.indexOf("Fire"), sard = yx.indexOf("Sardine"), cmeat = yx.indexOf("Cooked Meat"), wstill = yx.indexOf("Water Still"), shelt = yx.indexOf("Shelter")
     mousePressed = function() {
-        if(mouseX > 139 && mouseX < 470) {
+        if(mouseX > 139 && mouseX < 470 && menu === 1) {
         if(mouseY > invy+cocon*25 && mouseY < invy+25+cocon*25) {
             res[6] ++
             res[5] --
@@ -574,14 +596,9 @@ function interaction() {
             thirst += 20
             res[6] --
         }
-        if(mouseY > invy+firea*25 && mouseY < invy+25+firea*25 && on) {
-            builds.push(new Fire(150, 150))
-            tools[3] --
-        }
-        if(mouseY > invy+wstill*25 && mouseY < invy+25+wstill*25 && on) {
-            builds.push(new WStill(150, 150))
-            tools[6] --
-        }
+        place("Fire", Fire, 3)
+        place("Water Still", WStill, 6)
+        place("Shelter", Shelter, 7)
         if(mouseY > invy+sard*25 && mouseY < invy+25+sard*25 && equipped === "Refined Knife") {
             res[10] --
             res[8] ++
@@ -595,6 +612,7 @@ function interaction() {
 }
 function inventory() {
     fill(100, 100, 155)
+    stroke(50, 50, 50)
     rect(110, 80, 380, 440)
     fill(255, 255, 255)
     textSize(25)
@@ -676,6 +694,12 @@ function exec(m) {
             res[4] -= 4
             tools[6] ++
         }
+        if(mouseY > 340-25 && mouseY < 340+35 && res[2] >= 3 && res[3] >= 4 && res[4] >= 5) {
+            res[2] -= 3
+            res[3] -= 4
+            res[4] -= 5
+            tools[7] ++
+        }
     }
     if(m === 2) {
         if(mouseY > 240-25 && mouseY < 240+35 && res[1] >= 4) {
@@ -691,6 +715,7 @@ function exec(m) {
 }
 function crafting() {
     fill(100, 100, 155)
+    stroke(50, 50, 50)
     rect(120, 100, 360, 400)
     fill(255, 255, 255)
     textSize(25)
@@ -716,6 +741,7 @@ function crafting() {
     case 1: 
         craft(240, [5], ["Stick"], "Fire", [res[3]])
         craft(290, [4, 4, 2], ["Palm Leaves", "Stick", "Lashing"], "Water Still", [res[3], res[4], res[2]])
+        craft(340, [5, 4, 3], ["Palm Leaves", "Stick", "Lashing"], "Shelter", [res[3], res[4], res[2]])
     break
     case 2:
         craft(240, [4], ["Fibrous Leaves"], "Lashing", [res[1]])
@@ -761,6 +787,8 @@ function HUD() {
     arc(550, 40, 60, 60, 270, 270+thirst*3.5)
     stroke(252, 140, 3)
     arc(550, 40, 50, 50, 270, 270+hunger*3.5)
+    stroke(143, 42, 176)
+    arc(550, 40, 40, 40, 270, 270+sleep*3.5)
     
     textSize(15)
     fill(255, 255, 255)
@@ -819,6 +847,25 @@ function pause() {
 }
 //} displayed functions
 //{
+function slept() {
+    sleep -= 0.0015
+    if(sleep < 30) {
+        spd = defaultspd/1.5
+    }
+    if(sleep < 15) {
+        pulsation += 0.7
+        noFill()
+        stroke(cos(pulsation)*130, cos(pulsation)*130, cos(pulsation)*130)
+        strokeWeight(360+(15-sleep)*50)
+        arc(300, 300, 1200, 1200, 0, 360)
+    }
+    if(sleep < -1.5) {
+        sleep = 100
+        hr += 8
+        hunger -= 30
+        thirst -= 30
+    }
+}
 function health() {
     he += ox <= 0 ? -0.05 : 0.01
     he = constrain(he, 0, 100)
@@ -1040,6 +1087,7 @@ function game() {
     if(!ps) {
         water()
         time()
+        slept()
         health()
         pickup()
         sapup()
@@ -1081,7 +1129,6 @@ function options() {
     textSize(18)
     text("ISLAND SIZE\n\nMOVEMENT SPEED\n(LAND)", 50, 200)
     option(170, ["MEDIUM", "LARGE", "HUGE"], islandSize, [200, 400, 1000])
-    option(230, ["SLOW", "MEDIUM", "FAST"], spd, [0.4, 0.7, 1])
     if(mouseIsPressed && sc === "options") {
         if(mouseY > 170 && mouseY < 210) {
             if(mouseX > 260 && mouseX < 350) {islandSize = 200}
