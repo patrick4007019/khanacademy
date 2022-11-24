@@ -1,0 +1,206 @@
+/*
+
+All the songs included in this game are derived from the VR game Beat Saber.
+
+And in case you haven't figured out already, the game is inspired by Beat Saber as well.
+
+No music though :(
+
+*/
+
+
+//jshint asi: true
+//jshint esnext: true
+
+let xp = 300, spd = 5, mov = CENTER, timer = 0, sc = "home", mopen = false, selected = "None", ctimer = 0, closing = false
+const len = 100
+const notes = [
+    "200 200 200 200 200 200 200 023 200 200 122 200 200 200 083 200 200 023 200 200 052 200 200 033 200 200 092 200 200 073 200 200 051 200 200 081 200 200 091 101 200 200 200 200 053 200 092 200 063 200 082 200 200 200 200 092 200 043 200 200 132 200 113 200 200 200 200 112 200 053 200 112 200 053 200 200 200 200 112 200 053 200 112 200 053 200 200 200 200 112 200 053 200 112 200 053 200 200 200 200 111 101 091 081 071 061 051 041 031 021 011 200 200 200 200 200 061"
+]
+const blocks = []
+
+const st = ""
+noStroke()
+
+function Song(name, nps, duration) {
+    this.name = name
+    this.nps = nps
+}
+const songs = [
+    new Song("$100 Bills"),
+    new Song("Balearic Pumping")
+]
+
+function Note(time, x, type, y) {
+    this.time = time
+    this.x = x
+    this.y = y
+    this.type = type
+    this.cutting = false
+    this.enter = false
+    this.missed = false
+    this.move = function() {
+        this.y += spd
+    }
+    this.draw = function() {
+        fill(this.cutting ? color(0, 100, 50):color(0, 150, 0))
+        rect(this.x-20, this.y-len/2, 40, len, 5)
+        fill(255, 255, 255);
+        switch(this.type) {
+            case 1: ellipse(this.x, this.y, 20, 20); break
+            case 2: rect(this.x-20, this.y-20, 10, 40); break
+            case 3: rect(this.x+10, this.y-20, 10, 40)
+        }
+    }
+    this.cut = function() {
+        if(abs(this.x-xp) < 70 && this.y === round((500-len/2)/spd)*spd && this.type === 1) {this.cutting = true}
+        
+        if(this.type === 2 || this.type === 3) {
+            if(abs(this.x-xp) < 70 && this.y >= 500-len/2 && this.y <= 500+len/2 && !this.missed) {
+                this.enter = true
+            }
+        }
+        
+        if(this.enter) {
+            if(this.y === round((500-len/2)/spd)*spd) {
+                this.enter = false
+                this.missed = true
+            } else if((mov === RIGHT && this.type === 2) || (mov === LEFT && this.type === 3)) {
+                this.cutting = true
+            }
+        }
+    }
+    this.display = function() {
+        this.move()
+        this.draw()
+        this.cut()
+    }
+}
+function parse(str) {
+    let sp1 = str.split(" ")
+    let sp2 = sp1.map(function(e) {
+        return [Number(e[0]+e[1]), 
+        Number(e[2])]
+    })
+    for(let i = 0; i < sp2.length; i++) {
+        blocks.push(new Note(i, sp2[i][0]*45, sp2[i][1], 0-i*100))
+    }
+}
+
+//parse(st)
+
+function game() {
+    xp = mouseX
+    background(120, 150, 150)
+    fill(0, 100, 150)
+    rect(xp-50, 500, 100, 5)
+    for(let i = 0; i < blocks.length; i++) {
+        blocks[i].display()
+    }
+    mov = mouseX-pmouseX > 0 ? RIGHT : mouseX-pmouseX < 0 ? LEFT : CENTER
+    if(closing) {
+        fill(0)
+        rect(ctimer-400, 0, 400, 600)
+        rect(600-ctimer, 0, 400, 600)
+        ctimer -= 4
+        if(ctimer < 0) {
+            closing = false
+        }
+    }
+}
+function home() {
+    background(60, 80, 120)
+    textSize(40)
+    textAlign(CENTER)
+    fill(255, 255, 255);
+    text("Beatslide", 300, 160)
+    for(let i = 0; i < 3; i++) {
+        fill(100, 110, 120)
+        if(mouseX > 175 && mouseX < 425 && mouseY > 340+i*60 && mouseY < 380+i*60) {rect(175-10, 340+i*60-1.6, 270, 43.2, 15)}
+        else {rect(175, 340+i*60, 250, 40, 10)}
+    }
+    textSize(21)
+    fill(255, 255, 255);
+    text("Level Select\n\nTutorial\n\nOptions", 300, 369)
+    
+    if(mouseX > 175 && mouseX < 425 && mouseIsPressed) {
+        if(mouseY > 340 && mouseY < 380) {sc = "select"}
+        else if(mouseY > 400 && mouseY < 440) {sc = "tutorial"}
+        else if(mouseY > 460 && mouseY < 500) {sc = "options"}
+    }
+}
+
+function level(name, id, nps, duration) {
+    fill(selected === name ? color(160, 170, 180) : color(140, 150, 160) )
+    rect(50, 160+id*60, 300, 50, 10)
+    textSize(20)
+    fill(255)
+    text(name, 200, 193+id*60)
+    
+    if(mouseIsPressed && mouseX > 50 && mouseX < 350 && mouseY > 160+id*60 && mouseY < 210+id*60) {
+        mopen = true
+        selected = name
+    }
+}
+function select() {
+    background(60, 80, 120)
+    textSize(30)
+    fill(255)
+    text("Level Select", 200, 100)
+    
+    for(let i = 0; i < songs.length; i++) {
+        level(songs[i].name, i)
+    }
+    
+    if(mopen) {
+        fill(100, 100, 120)
+        rect(380, 50, 220, 500)
+        
+        fill(180, 0, 0)
+        rect(390, 60, 30, 30, 5)
+        fill(255)
+        text("X", 405, 82)
+        if(mouseIsPressed && mouseX > 390 && mouseX < 420 && mouseY > 60 && mouseY < 90) {
+            mopen = false
+        }
+        
+        fill(255)
+        textSize(22)
+        text(selected, 495, 130)
+        fill(0, 50, 150)
+        rect(415, 480, 150, 40, 5)
+        fill(255, 255, 255)
+        text("Start", 488, 508)
+        
+        if(mouseIsPressed && mouseX > 415 && mouseX < 565 && mouseY > 480 && mouseY < 520) {
+            st = notes[songs.map(function(e) {return e.name}).indexOf(selected)]
+            parse(st)
+            closing = true
+        }
+        
+        if(closing) {
+            fill(0)
+            rect(ctimer-400, 0, 400, 600)
+            rect(600-ctimer, 0, 400, 600)
+            ctimer += 5
+            if(ctimer >= 400) {sc = "game"}
+        }
+    }
+}
+
+function tutorial() {
+    background(60, 80, 120)
+}
+function options() {    
+    background(60, 80, 120)
+}
+draw = function() {
+    textFont(createFont("Trebuchet MS"))
+    switch(sc) {
+        case "home": home(); break
+        case "game": game(); break
+        case "select": select(); break
+        case "tutorial": tutorial(); break
+        case "options": options()
+    }
+}
