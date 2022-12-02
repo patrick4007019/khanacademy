@@ -15,14 +15,14 @@ let saveCode = ""
 
 let tools = [
     0,0,0,0,0,
-    0,0,1
+    0,0,0,0
 ] 
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
-    "Fishing Spear", "Water Still", "Shelter"
+    "Fishing Spear", "Water Still", "Shelter", "Wooden Crate"
 ]
 let res = [
-    0,0,0,0,0,
+    100,0,0,100,0,
     0,0,0,0,
     0
 ] 
@@ -31,13 +31,13 @@ stone, fibrous leaves, lashing, sticks, palm leaves,
 coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 50
+let islandSize = 40
 //{
 noStroke()
 let ran = round(random(0, 10000))
+let press = false, canpress = true
 let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0
 
-let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, sleep = -0.5, thirst = 100, invy = 176
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
     "00000000330000000",
@@ -55,7 +55,9 @@ let hm = [
     "00000003333000000"
 ]
 let c1 = color(0, 0, 150)
-let f = 1
+//}
+let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, invy = 176, f = 1
+
 //} basic vars
 //{
 
@@ -69,6 +71,9 @@ let render = 600
 let maxweight = 30
 //} setting vars
 
+function df(e) {
+    return round(dist(e.x, e.y, 140, 140))
+} 
 //{
 function Stick(x, y) {
     this.x = x
@@ -304,8 +309,13 @@ function refuel() {
 function Shelter(x, y) {
     this.x = x
     this.y = y
+    this.prog = 0
     this.sleep = function() {
-        
+        if(keys.e && df(this) < 20) {
+            this.prog ++
+        }
+        strokeWeight(360+this.prog)
+        arc(300, 300, 1200, 1200, 0, 360)
     }
     this.draw = function() {
         pushMatrix()
@@ -454,9 +464,6 @@ for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
 }}
 //} land constructors
 //{
-function df(e) {
-    return round(dist(e.x, e.y, 140, 140))
-} 
 function pickup() {
     let uppable = others.filter(function(e) {return e.constructor === Rock || e.constructor === Stick})
     uppable.sort(function(a,b) {return df(a)-df(b)})
@@ -547,7 +554,8 @@ function include() {
         ["Kindling", tools[4], 2, [4, 1]],
         ["Fishing Spear", tools[5], 1, [5, 1]],
         ["Water Still", tools[6], 6.8, [6, 1]],
-        ["Shelter", tools[7], 7.7, [7, 1]]
+        ["Shelter", tools[7], 7.7, [7, 1]],
+        ["Wooden Crate", tools[8], 6.4, [8, 1]]
     ]
     invm = []
     for(let i = 0; i < invs.length; i++) {if(res[i] > 0) {invm.push(invs[i])}}
@@ -586,7 +594,7 @@ function interaction() {
         }
     }
     let cocon = yx.indexOf("Coconut"), drinka = yx.indexOf("Drinkable Coconut"), firea = yx.indexOf("Fire"), sard = yx.indexOf("Sardine"), cmeat = yx.indexOf("Cooked Meat"), wstill = yx.indexOf("Water Still"), shelt = yx.indexOf("Shelter")
-    mousePressed = function() {
+    if(press) {
         if(mouseX > 139 && mouseX < 470 && menu === 1) {
         if(mouseY > invy+cocon*25 && mouseY < invy+25+cocon*25) {
             res[6] ++
@@ -648,7 +656,7 @@ function inventory() {
 }
 //} inventory
 //{
-function craft(y, amounts, resources, name, current) {
+function craft(me, y, amounts, resources, name, current, ind, given, gam) {
     fill(120, 120, 175);
     if(mouseX > 120 && mouseX < 480 && mouseY > y-25 && mouseY < y+25) {rect(125, y-28, 350, 50)}
     fill(current.every(function(e, i) {return e >= amounts[i]}) ? color(255, 255, 255) : color(150, 150, 200))
@@ -657,6 +665,18 @@ function craft(y, amounts, resources, name, current) {
     textSize(13)
     for(let i = 0; i < amounts.length; i++) {
         text(amounts[i] + " " +  resources[i], 330, (y+i*14)-(amounts.length-1)*7+2)
+    }
+    if(mouseX > 120 && mouseX < 480 && menu === 2 && wm === 0 && press) {
+        if(mouseY > y-25 && mouseY < y+25 && mouseX > 120 && mouseX < 480 && current.every(function(e, i) {return e >= amounts[i]})) {
+            for(let i = 0; i < ind.length; i++) {
+                if(ind[i][0] === 0) {res[ind[i][1]] -= amounts[i]}
+                else {tools[ind[i][1]] -= amounts[i]}
+            }
+            for(let i = 0; i < given.length; i++) {
+                if(given[i][0] === 0) {res[given[i][1]] += gam[i]} 
+                else {tools[given[i][1]] += gam[i]}
+            }
+        }
     }
 }
 function exec(m) {
@@ -730,24 +750,27 @@ function crafting() {
             wm = i
         }
     }
-    exec(wm)
-    switch(wm) {
-    case 0: 
-        craft(240, [1], ["Stone"], "Stone Tool", [res[0]])
-        craft(290, [2, 1, 2], ["Stone Tool", "Lashing", "Stick"], "Crude Axe", [tools[0], res[2], res[3]])
-        craft(340, [1, 1, 1], ["Stone Tool", "Lashing", "Stick"], "Refined Knife", [tools[0], res[2], res[3]])
-        craft(390, [2], ["Stick"], "Fishing Spear", [res[3]])
-    break
+    //exec(wm)
+    craft(0, 240, [1], ["Stone"], "Stone Tool", 
+    [res[0]], [[0, 0]], [[1, 0]], [1])
+    
+    craft(0, 290, [5], ["Stick"], "Fire", 
+    [res[3]], [[0, 3]], [[1, 3]], [1])
+    //craft(290, [2, 1, 2], ["Stone Tool", "Lashing", "Stick"], "Crude Axe", [tools[0], res[2], res[3]])
+        //craft(340, [1, 1, 1], ["Stone Tool", "Lashing", "Stick"], "Refined Knife", [tools[0], res[2], res[3]])
+        //craft(390, [2], ["Stick"], "Fishing Spear", [res[3]])
+    /*
     case 1: 
         craft(240, [5], ["Stick"], "Fire", [res[3]])
         craft(290, [4, 4, 2], ["Palm Leaves", "Stick", "Lashing"], "Water Still", [res[3], res[4], res[2]])
         craft(340, [5, 4, 3], ["Palm Leaves", "Stick", "Lashing"], "Shelter", [res[3], res[4], res[2]])
+        craft(390, [6, 1], ["Stick", "Lashing"], "Wooden Crate", [res[4], res[2]])
     break
     case 2:
         craft(240, [4], ["Fibrous Leaves"], "Lashing", [res[1]])
         craft(290, [2], ["Stick"], "Kindling", [res[3]])
     break
-    }
+    */
 }
 //} crafting
 //{
@@ -816,7 +839,7 @@ function pause() {
         text("GET SAVE CODE", 190, 290)
         fill(mouseX > 180 && mouseX < 400 && mouseY > 320 && mouseY < 355 ? color(200, 200, 200) : color(255, 255, 255))
         text("CONTROLS", 190, 340)
-        mousePressed = function() {if(ps) {
+        if(ps && press) {
             if(mouseX > 180 && mouseX < 400) {
             if(mouseY > 210 && mouseY < 255 && ps) {Program.restart()} 
             else if(mouseY > 255 && mouseY < 320 && ps) {
@@ -825,7 +848,7 @@ function pause() {
             } else if(mouseY > 320 && mouseY < 355 && ps) {
                 con2 = true
             }
-        }}}
+        }}
         }
         if(con2) {
             fill(0, 0, 100)
@@ -1280,9 +1303,19 @@ draw = function() {
         case "options": options(); break
         case "controls": control(); break
     }
+    mousePressed = function() {
+        press = true
+        canpress = false
+    }
     textSize(15)
     fill(255, 255, 255)
     text(round(this.__frameRate), 10, 20)
+    
+    if(press && !canpress) {
+        press = false
+        canpress = true
+    }
+
 }
 
 
