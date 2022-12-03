@@ -22,16 +22,15 @@ let tnames = [
     "Fishing Spear", "Water Still", "Shelter", "Wooden Crate"
 ]
 let res = [
-    100,100,100,100,100,
-    100,0,0,0,
-    0
+    0,0,0,0,0,
+    0,0,0,0,0
 ] 
 /*
 stone, fibrous leaves, lashing, sticks, palm leaves, 
 coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 40
+let islandSize = 400
 //{
 noStroke()
 let ran = round(random(0, 10000))
@@ -312,10 +311,15 @@ function Shelter(x, y) {
     this.prog = 0
     this.sleep = function() {
         if(keys.e && df(this) < 20) {
-            this.prog ++
+            f *= 0.99
+            if(f < 0.03) {
+                hunger -= 20
+                thirst -= 20
+                hr = 7
+                sleep = 100
+                f = 1
+            }
         }
-        strokeWeight(360+this.prog)
-        arc(300, 300, 1200, 1200, 0, 360)
     }
     this.draw = function() {
         pushMatrix()
@@ -326,6 +330,36 @@ function Shelter(x, y) {
         rect(-4, -7, 8,14, 3)
         popMatrix()
         this.sleep()
+    }
+}
+function Crate(x, y) {
+    this.x = x
+    this.y = y
+    this.open = false
+    this.screen = function() {
+        if(this.open) {
+            pushMatrix()
+            scale(0.5)
+            rect(50, 50, 220, 500)
+            rect(320, 50, 220, 500)
+            popMatrix()
+        }
+    }
+    this.draw = function() {
+        pushMatrix()
+        translate(this.x, this.y)
+        fill(f*200, f*130, f*150)
+        stroke(100, 0, 0)
+        strokeWeight(2)
+        rect(-6, -6, 12, 12, 2)
+        popMatrix()
+        
+        this.screen()
+    }
+}
+function openstorages() {
+    for(let i = 0; i < builds.length; i++) {
+        builds[i].open = !builds[i].open
     }
 }
 //} building constructors
@@ -607,6 +641,7 @@ function interaction() {
         place("Fire", Fire, 3)
         place("Water Still", WStill, 6)
         place("Shelter", Shelter, 7)
+        place("Wooden Crate", Crate, 8)
         if(mouseY > invy+sard*25 && mouseY < invy+25+sard*25 && equipped === "Refined Knife") {
             res[10] --
             res[8] ++
@@ -682,6 +717,7 @@ function craft(me, y, amounts, resources, name, current, ind, given, gam) {
     }
 }
 function crafting() {
+    {
     fill(100, 100, 155)
     stroke(50, 50, 50)
     rect(120, 100, 360, 400)
@@ -698,6 +734,8 @@ function crafting() {
             wm = i
         }
     }
+    }//other
+    {
     craft(0, 240, [1], ["Stone"], "Stone Tool", [res[0]], 
     [[0, 0]], [[1, 0]], [1])
     
@@ -710,7 +748,8 @@ function crafting() {
     craft(0, 390, [2], ["Stick"], "Fishing Spear", [res[3]],
     [[0,3]], [[1,5]], [1])
 
-
+    }//0
+    {
     craft(1, 240, [5], ["Stick"], "Fire", [res[3]], 
     [[0, 3]], [[1, 3]], [1])
     
@@ -722,21 +761,21 @@ function crafting() {
     
     craft(1, 390, [6, 1], ["Stick", "Lashing"], "Wooden Crate", [res[4], res[2]],
     [[0,4],[0,2]], [[1,8]], [1])
-
+    }//1
+    {
     craft(2, 240, [4], ["Fibrous Leaves"], "Lashing", [res[1]],
     [[0,1]], [[0,2]], [1])
     
     craft(2, 290, [2], ["Stick"], "Kindling", [res[2]],
-    [[0,2]], [[0,4]], [1])
-    /*
-        craft(290, [2], ["Stick"], "Kindling", [res[3]])
-    break
-    */
+    [[0,2]], [[1,4]], [1])
+    }//2
 }
 //} crafting
 //{
 function fishing() {
     if(!on && equipped === "Fishing Spear" && keys.e) {
+        fill(255, 255, 255)
+        text("Fishing", 15, 580)
         nfish --
         if(nfish < 0) {
             not.push([1, "Sardine", 100, "Pickup"])
@@ -1008,10 +1047,12 @@ function init() {
         background(c1)
         fill(255, 255, 255)
         if(ajk2 > 95) {dl = true}
-        if(!dl) {text("Loading Map " + ajk2, 180, 290)}
-        else if(!removed) {text("Removing Duplicates", 140, 290)}
-        else if(!doing3) {text("Creating Map " + round(total2*100), 160, 290)}
-        else {text("Coloring Map " + round(che/bs.length*100), 160, 290)}
+        textSize(25)
+        textAlign(CENTER)
+        if(!dl) {text("Generating Coordinates\n " + ajk2, 300, 290)}
+        else if(!removed) {text("Removing Duplicate \nCoordinates", 300, 290)}
+        else if(!doing3) {text("Creating Map " + round(total2*100), 300, 290)}
+        else {text("Coloring Map " + round(che/bs.length*100), 300, 290)}
     }
     if(doing3 && loading) {
         for(let i = 0; i < 10; i++) {
@@ -1048,8 +1089,8 @@ function game() {
     }
     for(let i = 0; i < cbs.length; i++) {cbs[i].draw()}
     for(let i = 0; i < cothers.length; i++) {cothers[i].draw()}
-    for(let i = 0; i < cbuilds.length; i++) {cbuilds[i].draw()}
     if(climbed) {for(let i = 0; i < ctrees.length; i++) {ctrees[i].draw()}}
+    for(let i = 0; i < cbuilds.length; i++) {cbuilds[i].draw()}
     player()
     popMatrix()
     pushMatrix()
@@ -1247,6 +1288,7 @@ draw = function() {
         keys[keyCode] = true
         keys[key.toString()] = true
         if(menu === 1) {drop()}
+        if(keys.e) {openstorages()}
         refuel()
         switch(key.toString()) {
             case "z": ps = !ps; break
