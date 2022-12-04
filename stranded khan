@@ -30,7 +30,7 @@ stone, fibrous leaves, lashing, sticks, palm leaves,
 coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 400
+let islandSize = 50
 //{
 noStroke()
 let ran = round(random(0, 10000))
@@ -503,7 +503,6 @@ function pickup() {
     uppable.sort(function(a,b) {return df(a)-df(b)})
     if(uppable.some(function(e) {return df(e) < 15}) && keyIsPressed && key.toString() === "e") {
         if(totalweight < maxweight) {
-            picklog.push(others.indexOf(uppable[0]))
             not.push([1, uppable[0].constructor.__name, 100, "Pickup"])
             others.splice(others.indexOf(uppable[0]), 1)
             switch(uppable[0].constructor) {
@@ -521,7 +520,6 @@ function sapup() {
             if(totalweight < maxweight) {
             saplings[0].he -= 0.01
             if(saplings[0].he <= 0) {
-                picklog.push(others.indexOf(saplings[0]))
                 not.push([1, "Fibrous Leaves", 100, "Pickup"])
                 others.splice(others.indexOf(saplings[0]), 1)
                 res[1]++
@@ -538,7 +536,6 @@ function treedown() {
             if(totalweight < maxweight) {
             cutting[0].he -= 0.002
             if(cutting[0].he <= 0.3) {
-                picklog2.push(trees.indexOf(cutting[0]), 1)
                 not.push([8, "Stick", 100, "Pickup"], [5, "Palm Leaves", 100, "Pickup"])
                 trees.splice(trees.indexOf(cutting[0]), 1)
                 res[3] += 8
@@ -825,7 +822,11 @@ function mc(me) {
     else {menu = me}
 }     
 function pause() {
-    let sav = actual + " " + round(px) + " " + round(py) + " " + islandSize + " " + spd + " " + round(hr*1000)/1000 + " " + round(ox) + " " + round(he) + " " + round(thirst) + " " + round(hunger) + " " + picklog + " " + res + " " + tools
+    let otherdata = others.map(function(e) {
+        let n = e.constructor.__name
+        return "[" + (n === "Stick" ? 0 : n === "Rock" ? 1 : n === "PSapling" ? 2 : 3) + "," + round(e.x*10)/10 + "," + round(e.y*10)/10
+    })
+    let sav = actual + " " + round(px) + " " + round(py) + " " + islandSize + " " + spd + " " + round(hr*1000)/1000 + " " + round(ox) + " " + round(he) + " " + round(thirst) + " " + round(hunger) + " " + otherdata.join(",") + " " + res + " " + tools
     // seed, position x, position y, island size, speed, time, health, oxygen, thirst, hunger
     if(ps) {
         if(!con2) {
@@ -1008,11 +1009,13 @@ function afterload() {
         arr[i].x += Number(sp[1])
         arr[i].y += Number(sp[2])
     }
-    let gol = sp[10].split(",")
-    for(let i = 0; i < gol.length; i++) {
-        others.splice(Number(gol[i]), 1)
+    let data = sp[10].split("[")
+    others = []
+    for(let i = 0; i < data.length; i++) {
+        let entries = data[i].split(",")
+        let Thing = entries[0] === "0" ? Rock : entries[0] === "1" ? Stick : entries[0] === "2" ? PSapling : WStill
+        others.push(new Thing(Number(entries[1]), Number(entries[2])))
     }
-    picklog = gol
 }
 function init() {
     for(let i = 0; i < islands.length; i++) {
@@ -1070,7 +1073,8 @@ function init() {
 function filtered(arr) {
     return arr.filter(function(e) {return df(e) < render})
 }
-//} main game mechanic functions 
+//} main game mechanic functions
+
 function game() {
     let cbs = filtered(bs), cothers = filtered(others), cbuilds = filtered(builds), ctrees = filtered(trees)
     render = zoomed ? 10000 : 250
@@ -1126,6 +1130,7 @@ function game() {
     init()
 }
 //{
+
 function back() {
     fill(0, 0, 200)
     rect(30, 540, 90, 40)
@@ -1222,8 +1227,8 @@ function preload() {
         ox = sp[7]
         thirst = sp[8]
         hunger = sp[9]
-        res = sp2[11].split(",")
-        tools = sp2[12].split(",")
+        res = sp2[11].split(",").map(function(e) {return Number(e)})
+        tools = sp2[12].split(",").map(function(e) {return Number(e)})
     }
     seed = new Random(actual)
 }
