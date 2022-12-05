@@ -15,7 +15,7 @@ let saveCode = ""
 
 let tools = [
     0,0,0,0,0,
-    0,0,0,0
+    0,0,0,1
 ] 
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
@@ -30,7 +30,7 @@ stone, fibrous leaves, lashing, sticks, palm leaves,
 coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 50
+let islandSize = 20
 //{
 noStroke()
 let ran = round(random(0, 10000))
@@ -336,15 +336,7 @@ function Crate(x, y) {
     this.x = x
     this.y = y
     this.open = false
-    this.screen = function() {
-        if(this.open) {
-            pushMatrix()
-            scale(0.5)
-            rect(50, 50, 220, 500)
-            rect(320, 50, 220, 500)
-            popMatrix()
-        }
-    }
+    this.stuff = []
     this.draw = function() {
         pushMatrix()
         translate(this.x, this.y)
@@ -353,13 +345,11 @@ function Crate(x, y) {
         strokeWeight(2)
         rect(-6, -6, 12, 12, 2)
         popMatrix()
-        
-        this.screen()
     }
 }
 function openstorages() {
     for(let i = 0; i < builds.length; i++) {
-        builds[i].open = !builds[i].open
+        if(df(builds[i]) < 20) {builds[i].open = !builds[i].open}
     }
 }
 //} building constructors
@@ -503,6 +493,7 @@ function pickup() {
     uppable.sort(function(a,b) {return df(a)-df(b)})
     if(uppable.some(function(e) {return df(e) < 15}) && keyIsPressed && key.toString() === "e") {
         if(totalweight < maxweight) {
+            picklog.push(others.indexOf(uppable[0]))
             not.push([1, uppable[0].constructor.__name, 100, "Pickup"])
             others.splice(others.indexOf(uppable[0]), 1)
             switch(uppable[0].constructor) {
@@ -520,6 +511,7 @@ function sapup() {
             if(totalweight < maxweight) {
             saplings[0].he -= 0.01
             if(saplings[0].he <= 0) {
+                picklog.push(others.indexOf(saplings[0]))
                 not.push([1, "Fibrous Leaves", 100, "Pickup"])
                 others.splice(others.indexOf(saplings[0]), 1)
                 res[1]++
@@ -536,6 +528,7 @@ function treedown() {
             if(totalweight < maxweight) {
             cutting[0].he -= 0.002
             if(cutting[0].he <= 0.3) {
+                picklog2.push(trees.indexOf(cutting[0]), 1)
                 not.push([8, "Stick", 100, "Pickup"], [5, "Palm Leaves", 100, "Pickup"])
                 trees.splice(trees.indexOf(cutting[0]), 1)
                 res[3] += 8
@@ -822,11 +815,7 @@ function mc(me) {
     else {menu = me}
 }     
 function pause() {
-    let otherdata = others.map(function(e) {
-        let n = e.constructor.__name
-        return "[" + (n === "Stick" ? 0 : n === "Rock" ? 1 : n === "PSapling" ? 2 : 3) + "," + round(e.x*10)/10 + "," + round(e.y*10)/10
-    })
-    let sav = actual + " " + round(px) + " " + round(py) + " " + islandSize + " " + spd + " " + round(hr*1000)/1000 + " " + round(ox) + " " + round(he) + " " + round(thirst) + " " + round(hunger) + " " + otherdata.join(",") + " " + res + " " + tools
+    let sav = actual + " " + round(px) + " " + round(py) + " " + islandSize + " " + spd + " " + round(hr*1000)/1000 + " " + round(ox) + " " + round(he) + " " + round(thirst) + " " + round(hunger) + " " + picklog + " " + res + " " + tools
     // seed, position x, position y, island size, speed, time, health, oxygen, thirst, hunger
     if(ps) {
         if(!con2) {
@@ -869,6 +858,92 @@ function pause() {
                 con2 = false
             }
         }
+    }
+}
+function storage() {
+    if(builds.some(function(e) {return e.open})) {
+        
+        let stor = builds.filter(function(e) {return e.open})
+        
+        
+        pushMatrix()
+        fill(100, 100, 160)
+        rect(30, 50, 250, 500)
+        stroke(50)
+        rect(320, 50, 250, 500)
+        popMatrix()
+    pushMatrix()
+    {
+    translate(-90, 0)
+    scale(0.85)
+    {
+    fill(255, 255, 255)
+    textSize(23)
+    text("Inventory", 230, 120)
+    textSize(21)
+    text("Name    #   weight", 170, 155)
+    textSize(10)
+    text("Per/total", 335, 167)
+    textSize(14)
+    }
+    for(let i = 0; i < 15; i++) {
+        noStroke()
+        if(mouseX > 130 && mouseX < 470 && mouseY > 150+i*22 && mouseY < 150+20+i*22) {
+            fill(120, 120, 180)
+            rect(150, 178+i*25, 280, 25)
+        }
+    }
+    fill(255, 255, 255)
+    for(let i = 0; i < invm.length; i++) {
+        textAlign(CENTER)
+        textSize(14)
+        text(invm[i][0], 200, invy+19+i*25)
+        text(invm[i][1], 280, invy+19+i*25)
+        text(invm[i][2] + "/" + invm[i][2]*round(invm[i][1]*10)/10, 360, invy+19+i*25)
+    }
+    textAlign(LEFT)
+    interaction()
+    textSize(15)
+    text("Total weight: " + round(totalweight*10)/10 + "/" + maxweight, 155, 625)
+    text("Page " + (scroll ? 2 : 1) + "/" + (invm.length >= 12 || scroll ? 2 : 1), 350, 623)
+    if(keys[ALT] && mouseX < 300) {
+        scroll = scroll && keys[UP] ? false : !scroll && keys[DOWN] ? true : scroll 
+    }
+    }
+    popMatrix()
+    pushMatrix()
+    {
+    translate(200, 0)
+    scale(0.85)
+    {
+    fill(255, 255, 255)
+    textSize(23)
+    text("Storage", 235, 120)
+    textSize(21)
+    text("Name    #   weight", 170, 155)
+    textSize(10)
+    text("Per/total", 335, 167)
+    textSize(14)
+    }
+
+    fill(255, 255, 255)
+    for(let i = 0; i < invm.length; i++) {
+        textAlign(CENTER)
+        textSize(13)
+        text(invm[i][0], 195, invy+19+i*25)
+        text(invm[i][1], 300, invy+19+i*25)
+        text(invm[i][2] + "/" + invm[i][2]*round(invm[i][1]*10)/10, 395, invy+19+i*25)
+    }
+    textAlign(LEFT)
+    interaction()
+    textSize(15)
+    text("Total weight: " + round(totalweight*10)/10 + "/" + maxweight, 155, 625)
+    text("Page " + (scroll ? 2 : 1) + "/" + (invm.length >= 12 || scroll ? 2 : 1), 355, 623)
+    if(keys[ALT] && mouseX > 300) {
+        scroll = scroll && keys[UP] ? false : !scroll && keys[DOWN] ? true : scroll 
+    }
+    }
+    popMatrix()
     }
 }
 //} displayed functions
@@ -1009,13 +1084,11 @@ function afterload() {
         arr[i].x += Number(sp[1])
         arr[i].y += Number(sp[2])
     }
-    let data = sp[10].split("[")
-    others = []
-    for(let i = 0; i < data.length; i++) {
-        let entries = data[i].split(",")
-        let Thing = entries[0] === "0" ? Rock : entries[0] === "1" ? Stick : entries[0] === "2" ? PSapling : WStill
-        others.push(new Thing(Number(entries[1]), Number(entries[2])))
+    let gol = sp[10].split(",")
+    for(let i = 0; i < gol.length; i++) {
+        others.splice(Number(gol[i]), 1)
     }
+    picklog = gol
 }
 function init() {
     for(let i = 0; i < islands.length; i++) {
@@ -1073,8 +1146,7 @@ function init() {
 function filtered(arr) {
     return arr.filter(function(e) {return df(e) < render})
 }
-//} main game mechanic functions
-
+//} main game mechanic functions 
 function game() {
     let cbs = filtered(bs), cothers = filtered(others), cbuilds = filtered(builds), ctrees = filtered(trees)
     render = zoomed ? 10000 : 250
@@ -1106,13 +1178,14 @@ function game() {
     }    
     if(!climbed) {for(let i = 0; i < ctrees.length; i++) {ctrees[i].draw()}}
     popMatrix()
-    if(!loading && !ps && !zoomed && !climbed && !dead && menu === 0) {controls()}
+    if(!loading && !ps && !zoomed && !climbed && !dead && menu === 0 && !builds.some(function(e) {return e.open})) {controls()}
     HUD()
     notif()
-    switch(menu) {
+    if(!builds.some(function(e) {return e.open})) {switch(menu) {
         case 1: inventory(); break
         case 2: crafting(); break
-    }
+    }}
+    storage()
     pause()
     include()
     if(!ps) {
@@ -1130,7 +1203,6 @@ function game() {
     init()
 }
 //{
-
 function back() {
     fill(0, 0, 200)
     rect(30, 540, 90, 40)
@@ -1227,8 +1299,8 @@ function preload() {
         ox = sp[7]
         thirst = sp[8]
         hunger = sp[9]
-        res = sp2[11].split(",").map(function(e) {return Number(e)})
-        tools = sp2[12].split(",").map(function(e) {return Number(e)})
+        res = sp2[11].split(",")
+        tools = sp2[12].split(",")
     }
     seed = new Random(actual)
 }
