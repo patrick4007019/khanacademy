@@ -14,8 +14,8 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 let saveCode = ""
 
 let tools = [
-    1,0,0,0,0,
-    0,0,0,1
+    0,0,0,0,0,
+    0,0,0,0
 ] 
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
@@ -30,12 +30,12 @@ stone, fibrous leaves, lashing, sticks, palm leaves,
 coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 20
+let islandSize = 400
 //{
 noStroke()
 let ran = round(random(0, 10000))
 let press = false, canpress = true
-let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0
+let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0
 
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
@@ -556,7 +556,6 @@ function treedown() {
     }
 }
 //} picking up resources
-//{
 function include() {
     let invs = [
         ["Stone", round(res[0]), 1, [0, 0]],
@@ -588,6 +587,7 @@ function include() {
     if(!scroll) {invm.splice(12, invm.length-12)}
     else {invm.splice(0, 12)}
 }
+//{
 function drop() {
     let yx = invm.map(function(e, i) {return [e[0], e[3]]})
     for(let i = 0; i < yx.length; i++) {
@@ -1002,7 +1002,7 @@ function slept() {
         arc(300, 300, 1200, 1200, 0, 360)
     }
     if(sleep < -1.5) {
-        sleep = 100
+        sleep = 50
         hr += 8
         hunger -= 30
         thirst -= 30
@@ -1266,6 +1266,173 @@ function option(y, op, v, n) {
         text(op[i], 272+i*109, y+25)
     }
 }
+function preload() {
+    let sp = saveCode.split(" ").map(function(e) {return Number(e)})
+    let sp2 = saveCode.split(" ")
+    if(saveCode === "") {
+        actual = ran
+    } else {
+        actual = sp[0]
+        px = sp[1]
+        py = sp[2]
+        islandSize = sp[3]
+        spd = sp[4]
+        hr = sp[5]
+        he = sp[6]
+        ox = sp[7]
+        thirst = sp[8]
+        hunger = sp[9]
+        res = sp2[11].split(",")
+        tools = sp2[12].split(",")
+    }
+    seed = new Random(actual)
+}
+function nav(x, y, w, h, txt, tx, ty, loc) {
+    noStroke()
+    fill(0, 0, 200)
+    rect(x, y, w, h)
+    fill(255)
+    text(txt, tx, ty)
+    if(mouseX > x && mouseX < x+w && mouseY > y && mouseY < y+h && mouseIsPressed) {
+        sc = loc
+    }
+}
+//} home screen side functions
+//{
+function plants() {
+    noStroke()    
+    fill(255)
+    let names = ["Rock", "Stick", "Palm Sapling", "Yucca Tree", "Palm Tree"]
+    let data = [
+        ["1 Stone", "1 Stick", "1 Fibrous Leaf", "6 Fibrous Leaves", "8 Sticks, 5 Palm Leaves"],
+        ["Nothing", "Nothing", "Stone Tool or Crude Axe", "Stone Tool or Crude Axe", "Crude Axe"]
+    ]
+    for(let i = 0; i < 5; i++) {
+        fill(0, 0, 200)
+        rect(40, 200+i*50, 120, 40)
+        fill(255)
+        textAlign(CENTER)
+        textSize(15)
+        text(names[i], 100, 225+i*50)
+        
+        if(mouseX > 40 && mouseX < 160 && mouseY > 200+i*50 && mouseY < 240+i*50 && press) {
+            lant = i
+        }
+    }
+    fill(255)
+    textSize(25)
+    text(names[lant], 340, 200)
+    textAlign(LEFT)
+    fill(255)
+    rect(470, 170, 80, 80, 5)
+    textSize(15)
+    text("Resources gained from looting this item:\n" + data[0][lant] + "\n\nTools required to loot this item:\n" + data[1][lant], 200, 300)
+    textSize(13)
+    text("Plants/items can be looted/harvested by pressing E \nwhen the player is near it.\n\nPressing C+E near a palm tree will harvest the coconut, \nif it is there.", 150, 490)
+    switch(lant) {
+    case 0: 
+        fill(100)
+        rect(500, 200, 18, 18)
+    break
+    case 1:
+        fill(100, 0, 0)
+        rect(505, 180, 10, 60)
+    break
+    case 2:
+        fill(0, 150, 0)
+        rect(498, 198, 22, 22)
+    break
+    case 3: 
+        pushMatrix()
+        translate(502, 202)
+        strokeWeight(2)
+        scale(3)
+        stroke(0, 150, 0)
+        fill(0, 100, 50)
+        rect(-6, -6, 16, 16, 3)
+        fill(0, 200, 100);
+        rect(-3, -3, 10, 10, 3)
+        popMatrix()
+    break
+    case 4:
+        pushMatrix()
+        translate(502, 202)
+        scale(3)
+        stroke(0, 150, 0)
+        strokeWeight(2)
+        fill(0, 255, 98)
+        rect(-6, -6, 16, 16, 3)
+        fill(0, 255, 150)
+        rect(-3, -3, 10, 10, 3)
+        popMatrix()
+    break
+    }
+}
+function tools() {
+    
+    noStroke()    
+    fill(255)
+    let names = ["Stone Tool", "Refined Knife", "Crude Axe", "Fishing Spear", "Kindling"]
+    let data = [
+        ["Cuts down palm saplings and yucca trees.", "Skins fresh seafood that's been caught straight from the ocean.", "Cuts down all plants.", "Spears seafood automatically for you when you sit in the ocean and press the key E.", "Lights up fires."],
+        ["Press and hold E to cut palm saplings or yucca trees.", "Click on the seafood item that you wish to be skinned (e.g. Sardine => Raw Fish).", "Press and hold E to cut any plant down.", "", "Move your mouse frantically in any direction; the faster you move it the more the bar on your left will go up. Remember, you need to be near a fire!"]
+    ]
+    for(let i = 0; i < 5; i++) {
+        fill(0, 0, 200)
+        rect(35, 200+i*50, 130, 40)
+        fill(255)
+        textAlign(CENTER)
+        textSize(15)
+        text(names[i], 100, 225+i*50)
+        
+        if(mouseX > 40 && mouseX < 160 && mouseY > 200+i*50 && mouseY < 240+i*50 && press) {
+            lant = i
+        }
+    }
+    fill(255)
+    textSize(25)
+    text(names[lant], 370, 200)
+    textAlign(LEFT)
+    textSize(14)
+    text(data[0][lant] + "\n\n" + data[1][lant], 200, 240, 390, 600)
+}
+function survival() {
+    
+    
+    noStroke()    
+    fill(255)
+    let names = ["Food", "Water", "Oxygen", "Sleep"]
+    let data = [
+        ["You can get food by fishing using a fishing spear, skinning the fish, and cooking it by putting it onto a fire.",
+        "You can get water either way: \n   - collecting water from water stills\n   - drinking drinkable coconuts\n\nCoconuts, when freshly picked, need to be husked before being able to be drank from. \n\nSimply click on the coconut in inventory to husk it.", 
+        "Being in water reduces your movement speed and causes you to lose oxygen!!!\nIf you don't have any oxygen left, you'll start to lose health!!!\n\nYou totally didn't know anything of this!!!", 
+        "To sleep, you need to be near a shelter, while pressing and holding E until the screen turns completely dark.\n\nNot sleeping will result in a pulsating circle slowly closing in onto the center of the screen.\n\nIf the circle closes in completely, you'll be sent to 7AM with reduced food and water, but 50% sleep."],
+    ]
+    for(let i = 0; i < 4; i++) {
+        fill(0, 0, 200)
+        rect(35, 200+i*50, 130, 40)
+        fill(255)
+        textAlign(CENTER)
+        textSize(15)
+        text(names[i], 100, 225+i*50)
+        
+        if(mouseX > 40 && mouseX < 160 && mouseY > 200+i*50 && mouseY < 240+i*50 && press) {
+            lant = i
+        }
+    }
+    fill(255)
+    textSize(25)
+    text(names[lant], 370, 200)
+    textAlign(LEFT)
+    textSize(14)
+    text(data[0][lant], 200, 240, 390, 600)
+
+}
+function buildings() {
+    
+}
+//} guide 
+//{
 function options() {
     background(c1)
     textSize(30)
@@ -1296,24 +1463,19 @@ function advanced() {
     text("G to toggle binoculars.\n\nInventory Controls:\nQ to drop item (while hovered)\nLMB to equip/unequip item", 100, 200)
     back()
 }
-function control() {
+function guide() {
     background(c1)
-    fill(255, 255, 255)
+    textAlign(CENTER)
     textSize(30)
-    text("CONTROLS", 220, 130)
+    text("GUIDE", 300, 70)
+    textSize(15)
+    nav(70, 100, 100, 35, "Plants", 120, 123, "plants")
+    nav(190, 100, 100, 35, "Tools", 240, 123, "tools")
+    nav(310, 100, 100, 35, "Survival", 360, 123, "survival")
+    nav(430, 100, 100, 35, "Buildings", 480, 123, "buildings")
+    textAlign(LEFT)
     textSize(20)
-    text(tcontrol, 80, 200)
     back()
-    
-    fill(0, 0, 200)
-    rect(215, 505, 170, 40)
-    fill(255, 255, 255)
-    textSize(18)
-    text("VIEW ADVANCED", 230, 530)
-    if(mouseIsPressed && mouseX > 215 && mouseX < 385 && mouseY > 505 && mouseY < 555) {
-        advance = true
-    }
-    if(advance) {advanced()}
 }
 function load() {
     background(c1)
@@ -1324,27 +1486,6 @@ function load() {
     textSize(20)
     back()
 }
-function preload() {
-    let sp = saveCode.split(" ").map(function(e) {return Number(e)})
-    let sp2 = saveCode.split(" ")
-    if(saveCode === "") {
-        actual = ran
-    } else {
-        actual = sp[0]
-        px = sp[1]
-        py = sp[2]
-        islandSize = sp[3]
-        spd = sp[4]
-        hr = sp[5]
-        he = sp[6]
-        ox = sp[7]
-        thirst = sp[8]
-        hunger = sp[9]
-        res = sp2[11].split(",")
-        tools = sp2[12].split(",")
-    }
-    seed = new Random(actual)
-}
 function home() {
     background(c1)
     let cond = [
@@ -1353,7 +1494,7 @@ function home() {
         mouseX > 400 && mouseY > 280 && mouseY < 320, 
         mouseX > 400 && mouseY > 320 && mouseY < 380, 
     ]
-    let t = ["NEW GAME", "LOAD GAME", "CONTROLS", "OPTIONS"]
+    let t = ["NEW GAME", "LOAD GAME", "GUIDE", "OPTIONS"]
     
     if(loading) {
     }
@@ -1396,11 +1537,11 @@ function home() {
             preload()
         }
         if(cond[1]) {sc = "load"}
-        if(cond[2]) {sc = "controls"}
+        if(cond[2]) {sc = "plants"}
         if(cond[3]) {sc = "options"}
     }
 }
-//} home screen function
+//} home screen functions
 draw = function() {
     keyPressed = function() {
         keys[keyCode] = true
@@ -1424,7 +1565,10 @@ draw = function() {
         case "game": game(); break
         case "load": load(); break
         case "options": options(); break
-        case "controls": control(); break
+        case "plants": guide(); plants(); break
+        case "tools": guide(); tools(); break
+        case "survival": guide(); survival(); break
+        case "buildings": guide(); buildings(); break
     }
     mousePressed = function() {
         press = true
