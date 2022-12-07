@@ -11,8 +11,8 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //jshint asi: true 
 //jshint esnext: true
 //put your save code here:
-let saveCode = ""
-
+let saveCode = (true !== true) ? "" : 
+""
 let tools = [
     0,0,0,0,0,
     0,0,0,0
@@ -30,12 +30,12 @@ stone, fibrous leaves, lashing, sticks, palm leaves,
 coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 400
+let islandSize = 30
 //{
 noStroke()
 let ran = round(random(0, 10000))
 let press = false, canpress = true
-let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, picklog = [], picklog2 = [], climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0
+let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100
 
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to toggle pause menu\nE to interact with an item"
 let hm = [
@@ -55,9 +55,8 @@ let hm = [
 ]
 let c1 = color(0, 0, 150)
 //}
-let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, invy = 176, f = 1
+let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, f = 1, skill = [[0, 0], [0, 0], [0, 0]]
 
-//} basic vars
 //{
 
 //load speed
@@ -70,10 +69,10 @@ let render = 600
 let maxweight = 30
 //} setting vars
 
+//{
 function df(e) {
     return round(dist(e.x, e.y, 140, 140))
 } 
-//{
 function Stick(x, y) {
     this.x = x
     this.y = y
@@ -355,14 +354,15 @@ function openstorages() {
 //} building constructors
 //{
 function notif() {
-    textAlign(RIGHT)
+    textAlign(LEFT)
     for(let i = 0; i < not.length; i++) {
+        textSize(15)
     if(not[i]) {
         not[i][2] -= 0.25
         if(not[i][2] < 20) {not.splice(i, 1)}
         if(not[i] && not[i][3] === "Pickup") {
             fill(not[i][2]*1.5, not[i][2]*1.5, 155+not[i][2])
-            text("+" + not[i][0] + " " + not[i][1], 580, 100+i*20)
+            text("+" + not[i][0] + " " + not[i][1], 15, 100+i*20)
         } else if(not[i] && not[i][3] === "Heavy") {
             not[i][2] -= 0.1
             fill(not[i][2]*2.5, not[i][2]*1.5, 155+not[i][2])
@@ -493,7 +493,6 @@ function pickup() {
     uppable.sort(function(a,b) {return df(a)-df(b)})
     if(uppable.some(function(e) {return df(e) < 15}) && keyIsPressed && key.toString() === "e") {
         if(totalweight < maxweight) {
-            picklog.push(others.indexOf(uppable[0]))
             not.push([1, uppable[0].constructor.__name, 100, "Pickup"])
             others.splice(others.indexOf(uppable[0]), 1)
             switch(uppable[0].constructor) {
@@ -510,8 +509,8 @@ function sapup() {
         if(keys.e) {
             if(totalweight < maxweight) {
             saplings[0].he -= 0.01
+            skill[1][1] += 0.005
             if(saplings[0].he <= 0) {
-                picklog.push(others.indexOf(saplings[0]))
                 not.push([1, "Fibrous Leaves", 100, "Pickup"])
                 others.splice(others.indexOf(saplings[0]), 1)
                 res[1]++
@@ -527,8 +526,8 @@ function treedown() {
         if(keys.e) {
             if(totalweight < maxweight) {
             cutting[0].he -= 0.002
+            skill[1][1] += 0.005
             if(cutting[0].he <= 0.3) {
-                picklog2.push(trees.indexOf(cutting[0]), 1)
                 not.push([8, "Stick", 100, "Pickup"], [5, "Palm Leaves", 100, "Pickup"])
                 trees.splice(trees.indexOf(cutting[0]), 1)
                 res[3] += 8
@@ -542,9 +541,9 @@ function treedown() {
     if(cutting.some(function(e) {return df(e) < 18}) && (equipped === "Crude Axe" || equipped === "Stone Tool") && cutting[0].constructor === Yucca) {
         if(keys.e) {
             if(totalweight < maxweight) {
+            skill[1][1] += 0.005
             cutting[0].he -= equipped === "Stone Tool" ? 0.0015 : 0.005
             if(cutting[0].he <= 0.3) {
-                picklog2.push(trees.indexOf(cutting[0]), 1)
                 not.push([6, "Fibrous Leaves", 100, "Pickup"])
                 trees.splice(trees.indexOf(cutting[0]), 1)
                 res[1] += 6
@@ -694,6 +693,7 @@ function craft(me, y, amounts, resources, name, current, ind, given, gam) {
     }
     if(mouseX > 120 && mouseX < 480 && menu === 2 && press) {
         if(mouseY > y-25 && mouseY < y+25 && mouseX > 120 && mouseX < 480 && current.every(function(e, i) {return e >= amounts[i]})) {
+            skill[0][1] += amounts.reduce(function(a,b) {return a+b}, 0)*2
             for(let i = 0; i < ind.length; i++) {
                 if(ind[i][0] === 0) {res[ind[i][1]] -= amounts[i]}
                 else {tools[ind[i][1]] -= amounts[i]}
@@ -815,7 +815,15 @@ function mc(me) {
     else {menu = me}
 }     
 function pause() {
-    let sav = actual + " " + round(px) + " " + round(py) + " " + islandSize + " " + spd + " " + round(hr*1000)/1000 + " " + round(ox) + " " + round(he) + " " + round(thirst) + " " + round(hunger) + " " + picklog + " " + res + " " + tools
+    let otherdata = others.map(function(e) {
+        let n = e.constructor.__name
+        return "[" + (n === "Stick" ? 0 : n === "Rock" ? 1 : n === "PSapling" ? 2 : 3) + "," + round(e.x*10)/10 + "," + round(e.y*10)/10
+    })
+    let treedata = trees.map(function(e) {
+        let n = e.constructor.__name
+        return "[" + (n === "Palm" ? 0 : n === "Yucca" ? 1 : 2) + "," + round(e.x*10)/10 + "," + round(e.y*10)/10
+    })
+    let sav = actual + " " + round(px) + " " + round(py) + " " + islandSize + " " + spd + " " + round(hr*1000)/1000 + " " + round(ox) + " " + round(he) + " " + round(thirst) + " " + round(hunger) + " " + otherdata + " " + res + " " + tools + " " + treedata
     // seed, position x, position y, island size, speed, time, health, oxygen, thirst, hunger
     if(ps) {
         if(!con2) {
@@ -861,6 +869,31 @@ function pause() {
     }
 }
 //} displayed functions
+//{
+function skills() {
+    for(let i = 0; i < 3; i++) {
+        noFill()
+        stroke(200)
+        strokeWeight(1)
+        rect(550+i*11, 90, 4, 50) 
+        fill(i*80+50)
+        rect(550+i*11, 140, 4, -(skill[i][1]/(skill[i][0]*10))*50)
+        fill(255)
+        textSize(12)
+        text(skill[i][0]-1, 550-1+i*11, 155)
+        
+        if(skill[i][1] >= skill[i][0]*10) {
+            skill[i][0]++
+            skill[i][1] = 0
+        }
+        if(skill[i][0] >= 6) {
+            skill[i][1] = 0
+        }
+    }
+    maxweight = 30+(skill[1][0]-1)*5
+    spd = 0.5+skill[2][0]*0.05
+}
+//} skills
 //{
 function transfer() {
     let stor = builds.filter(function(e) {return e.open})[0]
@@ -1019,9 +1052,9 @@ function water() {
         return e.x >= 130 && e.x <= 150 && e.y >= 130 && e.y <= 150
     }).length >= 1
     if(!on) {
-        ox -= 0.06 // 0.06
+        ox -= 0.06-skill[2][0]*0.005 // 0.06
     } else {
-        ox += 0.16 //0.16
+        ox += 0.16+skill[2][0]*0.05 //0.16
     }
     ox = constrain(ox, 0, 100)
 }
@@ -1071,11 +1104,18 @@ function dying() {
         }
     }
 }
-//} other game mechanic functions
+//} survival functions
 //{
 function controls() {
     let x = keys[RIGHT] ? (on ? spd : spd/3) : keys[LEFT] ? -(on ? spd : spd/3) : 0
     let y = keys[UP] ? -(on ? spd : spd/3) : keys[DOWN] ? (on ? spd : spd/3) : 0
+    if(keys[RIGHT] || keys[LEFT] || keys[UP] || keys[DOWN]) {
+        skill[2][1] += 0.0015
+        if(on) {
+            skill[2][1] += 0.001
+            skill[1][1] += 0.002
+        }
+    }
     let items = bs.concat(trees).concat(others).concat(builds)
     for(let i = 0; i < items.length; i++) {
         items[i].x -= x
@@ -1125,11 +1165,19 @@ function afterload() {
         arr[i].x += Number(sp[1])
         arr[i].y += Number(sp[2])
     }
-    let gol = sp[10].split(",")
-    for(let i = 0; i < gol.length; i++) {
-        others.splice(Number(gol[i]), 1)
+    let data = sp[10].split("[")
+    others = []
+    for(let i = 0; i < data.length; i++) {
+        let entries = data[i].split(",")
+        let Thing = entries[0] === "0" ? Rock : entries[0] === "1" ? Stick : entries[0] === "2" ? PSapling : WStill
+        others.push(new Thing(Number(entries[1]), Number(entries[2])))
     }
-    picklog = gol
+    let tred = sp[13].split("[")
+    for(let i = 0; i < tred.length; i++) {
+        let entries = tred[i].split(",")
+        let Thing = entries[0] === "0" ? Palm : entries[0] === "1" ? Yucca : WStill
+        others.push(new Thing(Number(entries[1]), Number(entries[2])))
+    }
 }
 function init() {
     for(let i = 0; i < islands.length; i++) {
@@ -1221,6 +1269,7 @@ function game() {
     popMatrix()
     if(!loading && !ps && !zoomed && !climbed && !dead && menu === 0 && !builds.some(function(e) {return e.open})) {controls()}
     HUD()
+    skills()
     notif()
     if(!builds.some(function(e) {return e.open})) {switch(menu) {
         case 1: inventory(); break
@@ -1368,7 +1417,7 @@ function plants() {
     break
     }
 }
-function tools() {
+function tool() {
     
     noStroke()    
     fill(255)
@@ -1429,7 +1478,6 @@ function survival() {
 
 }
 function buildings() {
-    
 }
 //} guide 
 //{
@@ -1566,7 +1614,7 @@ draw = function() {
         case "load": load(); break
         case "options": options(); break
         case "plants": guide(); plants(); break
-        case "tools": guide(); tools(); break
+        case "tool": guide(); tool(); break
         case "survival": guide(); survival(); break
         case "buildings": guide(); buildings(); break
     }
