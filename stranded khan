@@ -15,7 +15,7 @@ let saveCode = (true !== true) ? "" :
 ""
 let tools = [
     0,0,0,0,0,
-    0,0,0,0
+    0,1,1,1
 ] 
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
@@ -30,7 +30,7 @@ stone, fibrous leaves, lashing, sticks, palm leaves,
 coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 30
+let islandSize = 50
 //{
 noStroke()
 let ran = round(random(0, 10000))
@@ -344,11 +344,6 @@ function Crate(x, y) {
         strokeWeight(2)
         rect(-6, -6, 12, 12, 2)
         popMatrix()
-    }
-}
-function openstorages() {
-    for(let i = 0; i < builds.length; i++) {
-        if(dist(builds[i].x, builds[i].y, 150, 150) < 10) {builds[i].open = !builds[i].open}
     }
 }
 //} building constructors
@@ -680,19 +675,20 @@ function inventory() {
 }
 //} inventory
 //{
-function craft(me, y, amounts, resources, name, current, ind, given, gam) {
+function craft(me, y, amounts, resources, name, current, ind, given, gam, lvl) {
     if(wm === me) {
     fill(120, 120, 175)
     if(mouseX > 120 && mouseX < 480 && mouseY > y-25 && mouseY < y+25) {rect(125, y-28, 350, 50)}
-    fill(current.every(function(e, i) {return e >= amounts[i]}) ? color(255, 255, 255) : color(150, 150, 200))
+    fill(current.every(function(e, i) {return e >= amounts[i]}) && skill[0][0] > lvl ? color(255, 255, 255) : color(150, 150, 200))
     textSize(15)
     text(name, 150, y)
+    text(lvl, 460, y-10)
     textSize(13)
     for(let i = 0; i < amounts.length; i++) {
         text(amounts[i] + " " +  resources[i], 330, (y+i*14)-(amounts.length-1)*7+2)
     }
     if(mouseX > 120 && mouseX < 480 && menu === 2 && press) {
-        if(mouseY > y-25 && mouseY < y+25 && mouseX > 120 && mouseX < 480 && current.every(function(e, i) {return e >= amounts[i]})) {
+        if(mouseY > y-25 && mouseY < y+25 && mouseX > 120 && mouseX < 480 && current.every(function(e, i) {return e >= amounts[i]}) &&  skill[0][0] > lvl) {
             skill[0][1] += amounts.reduce(function(a,b) {return a+b}, 0)*2
             for(let i = 0; i < ind.length; i++) {
                 if(ind[i][0] === 0) {res[ind[i][1]] -= amounts[i]}
@@ -727,37 +723,37 @@ function crafting() {
     }//other
     {
     craft(0, 240, [1], ["Stone"], "Stone Tool", [res[0]], 
-    [[0, 0]], [[1, 0]], [1])
+    [[0, 0]], [[1, 0]], [1], 0)
     
     craft(0, 290, [2, 1, 2], ["Stone Tool", "Lashing", "Stick"], "Crude Axe", [tools[0], res[2], res[3]],
-    [[1, 0], [0, 2], [0, 3]], [[1, 1]], [1])
+    [[1, 0], [0, 2], [0, 3]], [[1, 1]], [1], 1)
     
     craft(0, 340, [1, 1, 1], ["Stone Tool", "Lashing", "Stick"], "Refined Knife", [tools[0], res[2], res[3]],
-    [[1,0],[0,2],[0,3]], [[1,2]], [1])
+    [[1,0],[0,2],[0,3]], [[1,2]], [1], 1)
     
     craft(0, 390, [2], ["Stick"], "Fishing Spear", [res[3]],
-    [[0,3]], [[1,5]], [1])
+    [[0,3]], [[1,5]], [1], 1)
 
     }//0
     {
     craft(1, 240, [5], ["Stick"], "Fire", [res[3]], 
-    [[0, 3]], [[1, 3]], [1])
+    [[0, 3]], [[1, 3]], [1], 1)
     
     craft(1, 290, [4, 4, 2], ["Palm Leaves", "Stick", "Lashing"], "Water Still", [res[3], res[4], res[2]],
-    [[0,3],[0,4],[0,2]], [[1, 6]], [1])
+    [[0,3],[0,4],[0,2]], [[1, 6]], [1], 2)
     
     craft(1, 340, [5, 4, 3], ["Palm Leaves", "Stick", "Lashing"], "Shelter", [res[3], res[4], res[2]],
-    [[0,3],[0,4],[0,2]], [[1,7]], [1])
+    [[0,3],[0,4],[0,2]], [[1,7]], [1], 2)
     
     craft(1, 390, [6, 1], ["Stick", "Lashing"], "Wooden Crate", [res[4], res[2]],
-    [[0,4],[0,2]], [[1,8]], [1])
+    [[0,4],[0,2]], [[1,8]], [1], 2)
     }//1
     {
     craft(2, 240, [4], ["Fibrous Leaves"], "Lashing", [res[1]],
-    [[0,1]], [[0,2]], [1])
+    [[0,1]], [[0,2]], [1], 0)
     
     craft(2, 290, [2], ["Stick"], "Kindling", [res[2]],
-    [[0,2]], [[1,4]], [1])
+    [[0,2]], [[1,4]], [1], 0)
     }//2
 }
 //} crafting
@@ -895,6 +891,11 @@ function skills() {
 }
 //} skills
 //{
+function openstorages() {
+    for(let i = 0; i < builds.length; i++) {
+        if(dist(builds[i].x, builds[i].y, 150, 150) < 10) {builds[i].open = !builds[i].open}
+    }
+}
 function transfer() {
     let stor = builds.filter(function(e) {return e.open})[0]
     let names = stor.stuff.map(function(e) {return e[0]})
@@ -927,10 +928,9 @@ function transfer() {
     }
 }
 function storage() {
-    if(builds.some(function(e) {return e.open})) {
+    if(builds.some(function(e) {return e.open && e.constructor === Crate})) {
         let stor = builds.filter(function(e) {return e.open})[0]
         let totalweight2 = stor.stuff.reduce(function(b, e) {return b+e[1]}, 0)
-        
         transfer()
         
         pushMatrix()
@@ -948,7 +948,7 @@ function storage() {
     textSize(23)
     text("Inventory", 230, 120)
     textSize(21)
-    text("Name    #   weight", 170, 155)
+    text("Name   #   weight", 170, 155)
     textSize(10)
     text("Per/total", 335, 167)
     textSize(14)
@@ -964,7 +964,7 @@ function storage() {
     for(let i = 0; i < invm.length; i++) {
         textAlign(CENTER)
         textSize(14)
-        text(invm[i][0], 200, invy+19+i*25)
+        text(invm[i][0], 210, invy+19+i*25)
         text(invm[i][1], 280, invy+19+i*25)
         text(invm[i][2] + "/" + invm[i][2]*round(invm[i][1]*10)/10, 360, invy+19+i*25)
     }
@@ -1017,7 +1017,6 @@ function storage() {
     }
     popMatrix()
     }
-    
     }
 }
 //} storages
@@ -1264,7 +1263,7 @@ function game() {
     translate(x, x)
     } else {
         scale(2)
-    }    
+    }
     if(!climbed) {for(let i = 0; i < ctrees.length; i++) {ctrees[i].draw()}}
     popMatrix()
     if(!loading && !ps && !zoomed && !climbed && !dead && menu === 0 && !builds.some(function(e) {return e.open})) {controls()}
@@ -1342,7 +1341,7 @@ function nav(x, y, w, h, txt, tx, ty, loc) {
     rect(x, y, w, h)
     fill(255)
     text(txt, tx, ty)
-    if(mouseX > x && mouseX < x+w && mouseY > y && mouseY < y+h && mouseIsPressed) {
+    if(mouseX > x && mouseX < x+w && mouseY > y && mouseY < y+h && press) {
         sc = loc
     }
 }
@@ -1417,8 +1416,7 @@ function plants() {
     break
     }
 }
-function tool() {
-    
+function tooll() {
     noStroke()    
     fill(255)
     let names = ["Stone Tool", "Refined Knife", "Crude Axe", "Fishing Spear", "Kindling"]
@@ -1478,6 +1476,51 @@ function survival() {
 
 }
 function buildings() {
+    noStroke()    
+    fill(255)
+    let names = ["Fire", "Water Still", "Shelter", "Crate"]
+    let data = [
+        ["Provides light and a way to cook food.\n\nTo refill the fire by 33%, press R. This requires 1 stick per refill. \n\n Once the fire is placed and you have raw fish in your inventory, press E to place the fish onto the fire. \n\nAfter a while, the food will visibly brown and you can pick it back up by pressing E.",
+        "Provides water at the cost of palm leaves.\n\nTo refill the water still by 25%, press R. This requires 1 palm leaf per refill.\n\nThe gray and blue bars represent the fuel (palm leaves) and collected water, respectively.\n\nIf there is fuel in the water still, water will slowly accumulate. To collect the water, hold E.", 
+        "Allows you to skip nighttime and regain sleep.\n\nTo sleep, hold E until the black circle completely encloses the player. You'll wake up at 7am with full energy.", 
+        "Crates allow you to store extra resources without having to drop them.\n\nClicking items from one side will bring it to another. Each storage has "],
+    ]
+    for(let i = 0; i < 4; i++) {
+        fill(0, 0, 200)
+        rect(35, 200+i*50, 130, 40)
+        fill(255)
+        textAlign(CENTER)
+        textSize(15)
+        text(names[i], 100, 225+i*50)
+        
+        if(mouseX > 40 && mouseX < 160 && mouseY > 200+i*50 && mouseY < 240+i*50 && press) {
+            lant = i
+        }
+    }
+    textAlign(LEFT)
+    textSize(13)
+    text("Buildings can be placed by clicking on the item in inventory. It'll be placed on the exact place you're standing on.", 170, 500, 400, 600)
+    textAlign(CENTER)
+    fill(255)
+    textSize(25)
+    text(names[lant], 370, 200)
+    textSize(14)
+    text(data[0][lant], 200, 240, 390, 600)
+
+}
+function guide() {
+    background(c1)
+    textAlign(CENTER)
+    textSize(30)
+    text("GUIDE", 300, 70)
+    textSize(15)
+    nav(70, 100, 100, 35, "Plants", 120, 123, "plants")
+    nav(190, 100, 100, 35, "Tools", 240, 123, "tools")
+    nav(310, 100, 100, 35, "Survival", 360, 123, "survival")
+    nav(430, 100, 100, 35, "Buildings", 480, 123, "buildings")
+    textAlign(LEFT)
+    textSize(20)
+    back()
 }
 //} guide 
 //{
@@ -1509,20 +1552,6 @@ function advanced() {
     text("ADVANCED CONTROLS", 190, 120)
     textSize(20)
     text("G to toggle binoculars.\n\nInventory Controls:\nQ to drop item (while hovered)\nLMB to equip/unequip item", 100, 200)
-    back()
-}
-function guide() {
-    background(c1)
-    textAlign(CENTER)
-    textSize(30)
-    text("GUIDE", 300, 70)
-    textSize(15)
-    nav(70, 100, 100, 35, "Plants", 120, 123, "plants")
-    nav(190, 100, 100, 35, "Tools", 240, 123, "tools")
-    nav(310, 100, 100, 35, "Survival", 360, 123, "survival")
-    nav(430, 100, 100, 35, "Buildings", 480, 123, "buildings")
-    textAlign(LEFT)
-    textSize(20)
     back()
 }
 function load() {
@@ -1595,14 +1624,15 @@ draw = function() {
         keys[keyCode] = true
         keys[key.toString()] = true
         if(menu === 1) {drop()}
-        if(keys.e) {openstorages()}
+        if(keys.e && builds.some(function(e) {return e.constructor === Crate})) {openstorages()}
         refuel()
-        switch(key.toString()) {
+        if(!builds.some(function(e) {return e.open && e.constructor === Crate})) {
+            switch(key.toString()) {
             case "z": ps = !ps; break
             case "f": mc(1); break
             case "a": mc(2); break
             case "g": zoomed = !zoomed; break
-        }
+        }}
     }
     keyReleased = function() {
         keys[keyCode] = false
@@ -1614,7 +1644,7 @@ draw = function() {
         case "load": load(); break
         case "options": options(); break
         case "plants": guide(); plants(); break
-        case "tool": guide(); tool(); break
+        case "tools": guide(); tooll(); break
         case "survival": guide(); survival(); break
         case "buildings": guide(); buildings(); break
     }
