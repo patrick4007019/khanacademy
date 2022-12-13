@@ -14,16 +14,16 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 let saveCode = (true !== true) ? "" : 
 ""
 let tools = [
-    0,0,0,0,0,
-    0,0,0,0
+    1,1,1,1,1,
+    1,1,1,1
 ] 
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
     "Fishing Spear", "Water Still", "Shelter", "Wooden Crate"
 ]
 let res = [
-    0,0,0,0,0,
-    0,0,0,0,0
+    1,1,1,1,1,
+    1,1,1,1,1
 ] 
 /*
 stone, fibrous leaves, lashing, sticks, palm leaves, 
@@ -553,26 +553,26 @@ function treedown() {
 function include() {
     let invs = [
 ["Stone", round(res[0]), 1, [0, 0], "A rock", 0],
-["Fibrous Leaves", res[1], 0.1, [1, 0],],
-["Lashing", res[2], 0.4, [2, 0]],
-["Stick", round(res[3]), 1, [3, 0]],
-["Palm Leaves", res[4], 0.5, [4, 0]],
-["Coconut", res[5], 2, [5, 0]],
-["Drinkable Coconut", res[6], 1, [6, 0]],
-["Raw Meat", res[7], 0.5, [8, 0]],
-["Cooked Meat", res[8], 0.5, [9, 0]],
-["Sardine", res[9], 0.5, [10, 0]] 
-    ]
+["Fibrous Leaves", res[1], 0.1, [1, 0], "Leaves that can be made into rope", 0],
+["Lashing", res[2], 0.4, [2, 0], "Some rope", 0],
+["Stick", round(res[3]), 1, [3, 0], "A chunk of wood", 0],
+["Palm Leaves", res[4], 0.5, [4, 0], "Produces water when evaporated in a water still"],
+["Coconut", res[5], 2, [5, 0], "Should be husked before drinking", 3],
+["Drinkable Coconut", res[6], 1, [6, 0], "A coconut, but drinkable", 2],
+["Raw Meat", res[7], 0.5, [8, 0], "Don't eat this", 5],
+["Cooked Meat", res[8], 0.5, [9, 0], "Eat this", 2],
+["Sardine", res[9], 0.5, [10, 0], "Should be skinned before cooking", 4] 
+]
     let toolsm = [
-["Stone Tool", tools[0], 1, [0, 1], "A stone tool", 1],
-["Crude Axe", tools[1], 4.4, [1, 1]],
-["Refined Knife", tools[2], 2.4, [2, 1]],
-["Fire", tools[3], 4, [3, 1]],
-["Kindling", tools[4], 2, [4, 1]],
-["Fishing Spear", tools[5], 1, [5, 1]],
-["Water Still", tools[6], 6.8, [6, 1]],
-["Shelter", tools[7], 7.7, [7, 1]],
-["Wooden Crate", tools[8], 6.4, [8, 1]]
+["Stone Tool", tools[0], 1, [0, 1], "Primitive cutting tool", 1],
+["Crude Axe", tools[1], 4.4, [1, 1], "Better cutting tool that can cut down palm trees", 1],
+["Refined Knife", tools[2], 2.4, [2, 1], "Primitive knife to skin seafood", 1],
+["Fire", tools[3], 4, [3, 1], "A small campfire to produce warmth and cook food", 6],
+["Kindling", tools[4], 2, [4, 1],"Some wood to start a fire", 1],
+["Fishing Spear", tools[5], 1, [5, 1], "A sharp stick that kills fish", 1],
+["Water Still", tools[6], 6.8, [6, 1], "A water purifier that relies on the sun and palm leaves", 6],
+["Shelter", tools[7], 7.7, [7, 1], "A place to sleep", 6],
+["Wooden Crate", tools[8], 6.4, [8, 1], "Extra storage space", 6]
     ]
     invm = []
     for(let i = 0; i < invs.length; i++) {if(res[i] > 0) {invm.push(invs[i])}}
@@ -664,27 +664,27 @@ function inventory() {
         text(invm[i][1], 300, invy+19+i*25)
         text(invm[i][2] + "/" + invm[i][2]*round(invm[i][1]*10)/10, 395, invy+19+i*25)
     }
-    for(let i = 0; i < 12; i++) {
-        noStroke()
-        if(mouseX > 130 && mouseX < 470 && mouseY > 176+i*25 && mouseY < 176+25+i*25) {
-            if(invm[i]) {
-                fill(0)
-                textAlign(LEFT)
-                rect(mouseX, mouseY, 200, 150)
-                fill(255)
-                text(invm[i][4] + "\n\n" + (invm[i][5] === 1 ? "Click to equip" : "") + "\nQ to drop", mouseX+15, mouseY+25)
-            }
-        }
-    }
 
     textAlign(LEFT)
     interaction()
     textSize(15)
     text("Total weight: " + round(totalweight*10)/10 + "/" + maxweight, 140, 505)
     text("Page " + (scroll ? 2 : 1) + "/" + (invm.length >= 12 || scroll ? 2 : 1), 390, 503)
-    if(keys[ALT]) {
-        scroll = scroll && keys[UP] ? false : !scroll && keys[DOWN] ? true : scroll 
+    scroll = scroll && keys[UP] ? false : !scroll && keys[DOWN] ? true : scroll
+    for(let i = 0; i < 12; i++) {
+        noStroke()
+        if(mouseX > 130 && mouseX < 470 && mouseY > 176+i*25 && mouseY < 176+25+i*25) {
+            if(invm[i]) {
+                fill(0)
+                textSize(13)
+                textAlign(LEFT)
+                rect(mouseX, mouseY, 200, 150)
+                fill(255)
+                text(invm[i][4] + "\n\n" + (invm[i][5] === 1 ? "Click to equip" : invm[i][5] === 2 ? "Click to consume" : invm[i][5] === 3 ? "Click to Husk" : invm[i][5] === 4 ? "Click to skin (requires knife)" : invm[i][5] === 5 ? "Click to put on to fire (must be near one)" : invm[i][5] === 6 ? "Click to place building" : "") + "\nQ to drop", mouseX+15, mouseY+15, 180, 600)
+            }
+        }
     }
+
 }
 //} inventory
 //{
@@ -1125,8 +1125,7 @@ function controls() {
         skill[2][1] += 0.0015
         if(on) {
             skill[2][1] += 0.001
-            skill[1][1] += 0.002
-        }
+        } else {skill[1][1] += 0.002}
     }
     let items = bs.concat(trees).concat(others).concat(builds)
     for(let i = 0; i < items.length; i++) {
