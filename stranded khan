@@ -12,7 +12,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //jshint esnext: true
 //put your save code here:
 let saveCode = (true !== true) ? "" : 
-"0 1 17 30 0.55 7.187 100 100 99 99 [2,100.9,836.7,[2,120.9,856.7,[0,80.9,836.7,[1,100.9,116.7,[0,120.9,856.7,[0,-559.1,-583.3,[1,80.9,116.7,[1,120.9,876.7,[0,800.9,816.7,[1,-599.1,-563.3,[1,80.9,136.7,[0,820.9,816.7,[2,-579.1,116.7,[2,-599.1,856.7,[0,800.9,156.7,[2,-559.1,-603.3,[0,-579.1,816.7,[0,160.9,96.7,[1,100.9,816.7,[0,-579.1,-583.3,[2,140.9,116.7,[0,840.9,56.7,[0,-539.1,-603.3,[0,-559.1,76.7,[0,-619.1,836.7,[0,80.9,-543.3,[2,160.9,856.7,[2,-559.1,-623.3,[0,-559.1,136.7,[1,-559.1,856.7,[2,180.9,76.7,[1,780.9,-603.3,[2,-579.1,876.7,[0,140.9,-563.3,[0,820.9,836.7,[2,-579.1,896.7,[1,160.9,816.7,[0,760.9,-563.3,[2,-539.1,56.7,[2,120.9,56.7,[1,120.9,836.7,[2,740.9,-563.3,[1,840.9,76.7,[1,880.9,836.7,[0,180.9,876.7,[1,840.9,156.7,[0,-499.1,56.7,[2,80.9,-523.3,[2,140.9,136.7,[0,100.9,836.7,[1,-579.1,156.7,[2,-619.1,856.7,[2,100.9,-543.3,[2,140.9,876.7,[1,800.9,796.7,[2,-559.1,-563.3,[1,-599.1,136.7,[0,140.9,816.7,[0,740.9,-543.3,[0,800.9,776.7,[0,-519.1,-523.3,[1,-599.1,156.7,[1,-599.1,836.7,[0,160.9,876.7,[0,760.9,-523.3,[0,-519.1,36.7,[1,160.9,896.7,[2,-579.1,96.7,[0,120.9,-543.3,[1,780.9,816.7,[1,-579.1,-563.3,[1,-579.1,116.7,[0,900.9,56.7,[1,-539.1,96.7,[2,80.9,-563.3,[1,780.9,-503.3,[2,840.9,176.7,[1,-579.1,76.7,[0,140.9,96.7,[2,820.9,136.7,[1,840.9,836.7,[2,-519.1,16.7,[2,100.9,-563.3,[2,820.9,856.7,[0,-579.1,-543.3,[1,-599.1,176.7,[2,120.9,-583.3,[2,780.9,-523.3,[2,-599.1,96.7,[2,120.9,96.7,[2,-599.1,-603.3,[0,820.9,-583.3,[2,780.9,876.7,[2,-619.1,116.7,[2,840.9,-583.3,[0,840.9,856.7,[0,100.9,-623.3,[0,-539.1,96.7 1,1,1,1,1,1,1,1,1,1 1,1,1,1,1,1,1,1,1 [0,820.9,96.7 1"
+"0 19 23 30 0.55 7.219 100 100 99 99 [2,138.5,883.3,[1,-561.5,-616.7,[1,138.5,843.3,[0,-541.5,-556.7,[0,98.5,-556.7,[2,118.5,903.3,[1,-581.5,123.3,[2,-581.5,823.3,[0,118.5,-576.7,[0,138.5,103.3,[2,118.5,843.3,[1,838.5,-576.7,[0,78.5,-536.7,[0,118.5,103.3,[0,838.5,-556.7,[1,-601.5,123.3,[0,118.5,823.3,[2,838.5,143.3,[2,-601.5,863.3,[1,98.5,-596.7,[1,858.5,123.3,[2,178.5,143.3,[1,118.5,863.3,[1,858.5,863.3,[2,-641.5,123.3,[2,-621.5,883.3,[1,778.5,-576.7,[1,778.5,903.3,[1,-661.5,143.3,[2,98.5,843.3,[0,778.5,-556.7,[0,778.5,-516.7,[1,818.5,183.3,[2,858.5,883.3,[2,-561.5,-556.7,[2,-561.5,143.3,[2,-541.5,823.3,[1,18.5,-516.7,[2,-581.5,883.3,[1,878.5,923.3,[2,-521.5,-596.7,[2,-581.5,83.3,[0,-601.5,903.3,[1,158.5,83.3,[1,-621.5,143.3,[0,78.5,-596.7,[0,858.5,-476.7,[0,778.5,143.3,[1,858.5,-456.7,[0,818.5,243.3,[1,-601.5,-596.7,[0,-561.5,163.3,[0,138.5,163.3,[2,178.5,843.3,[2,798.5,-496.7,[0,818.5,103.3,[0,878.5,863.3,[0,-541.5,-616.7,[1,-661.5,123.3,[2,-581.5,903.3,[2,798.5,-536.7,[2,818.5,83.3,[0,778.5,863.3,[0,-561.5,-596.7,[1,-581.5,103.3,[1,-561.5,903.3,[2,38.5,-536.7,[1,178.5,883.3,[0,878.5,-556.7,[1,778.5,923.3,[2,-561.5,-576.7,[1,-561.5,103.3,[1,58.5,-556.7,[0,898.5,863.3,[2,-621.5,103.3,[2,138.5,843.3,[1,-581.5,63.3,[1,-501.5,823.3,[0,138.5,863.3,[2,838.5,83.3,[2,818.5,823.3,[0,-561.5,-556.7,[1,78.5,-556.7,[1,198.5,103.3,[1,818.5,-516.7,[0,878.5,83.3,[1,-521.5,-536.7,[0,-641.5,83.3,[1,-561.5,863.3,[2,178.5,103.3,[0,838.5,143.3,[1,-461.5,823.3,[0,838.5,103.3 1,1,1,1,1,1,1,1,1,1 1,1,1,1,1,1,1,1,1 [0,178.5,123.3,[1,-541.5,-576.7,[1,138.5,123.3,[1,-541.5,-556.7,[1,-581.5,123.3 1"
 let tools = [
     1,1,1,1,1,
     1,1,1,1
@@ -22,8 +22,8 @@ let tnames = [
     "Fishing Spear", "Water Still", "Shelter", "Wooden Crate"
 ]
 let res = [
-    1,1,1,1,1,
-    1,1,1,1,1
+    0,0,0,0,0,
+    0,0,0,0,0
 ] 
 /*
 stone, fibrous leaves, lashing, sticks, palm leaves, 
@@ -31,11 +31,12 @@ coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
 let islandSize = 30
+let skip = true
 //{
 noStroke()
 let ran = round(random(0, 10000))
 let press = false, canpress = true
-let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false
+let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5
 
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to open pause game\nE to interact with an item\nG to zoom out (developer function)"
 let hm = [
@@ -55,7 +56,7 @@ let hm = [
 ]
 let c1 = color(0, 0, 150)
 //}
-let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1
+let px = 0, py = 0, hr = 17, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1
 
 //{
 
@@ -309,17 +310,7 @@ function Shelter(x, y) {
     this.prog = 0
     this.sleep = function() {
         if(keys.e && df(this) < 20) {
-            f *= 0.99
-            if(f < 0.03) {
-                if(hr > 7) {
-                    day++
-                }
-                hunger -= 20
-                thirst -= 20
-                hr = 7
-                sleep = 100
-                f = 1
-            }
+            slopen = true
         }
     }
     this.draw = function() {
@@ -787,6 +778,27 @@ function fishing() {
 }
 //} fishing
 //{
+function hoverhud() {
+    fill(0)
+    stroke(150)
+    strokeWeight(2)
+    if(mouseX > 500 && mouseY < 80) {
+        rect(mouseX, mouseY, -150, 75)
+        fill(255)
+        text("Water: " + round(thirst) +"\nFood: " + round(hunger) + "\nEnergy: " + round(sleep), mouseX-135, mouseY+20)
+    }
+    if(mouseX > 540 && mouseY > 80 && mouseY < 160) {
+        rect(mouseX, mouseY, -160, 75)
+        fill(255)
+        text("Crafting Lvl " + skill[0][0] + "\nStrength Lvl " + skill[1][0] + "\nStamina Lvl " + skill[2][0], mouseX-145, mouseY+20)
+    }
+    if(mouseX > 100 && mouseX < 500 && mouseY < 50) {
+        rect(mouseX-100, mouseY+10, 200, 80)
+        fill(255)
+        textSize(14)
+        text("Health: " + he + "\nCurrent effects: \nNone", mouseX-90, mouseY+30)  
+    }
+}
 function HUD() {
     fill(255, 255, 255)
     textSize(15)
@@ -820,6 +832,8 @@ function HUD() {
     text("Equipped: " + equipped, 270, 580)
     textAlign(LEFT)
     text("Day " + day, 60, 20)
+    
+    hoverhud()
 
 }
 function mc(me) {
@@ -1038,23 +1052,30 @@ function storage() {
 //} storages
 //{
 function slept() {
-    sleep -= 0.0015
-    if(sleep < 30) {
-        spd = defaultspd/1.5
-    }
-    if(sleep < 15) {
-        pulsation += 0.7
-        noFill()
-        stroke(cos(pulsation)*130, cos(pulsation)*130, cos(pulsation)*130)
-        strokeWeight(360+(15-sleep)*50)
-        arc(300, 300, 1200, 1200, 0, 360)
-    }
-    if(sleep < -1.5) {
-        if(hr > 16) {day++}
-        sleep = 50
-        hr += 8
-        hunger -= 30
-        thirst -= 30
+    if(slopen) {
+        fill(130)
+        rect(150, 100, 300, 400)
+        fill(255, 0, 0)
+        rect(400, 110, 40, 40)
+        fill(255)
+        textSize(40)
+        textFont(createFont("arial"))
+        text("x", 410, 140)
+        textFont(createFont("monospace"))
+        
+        fill(255)
+        textAlign(CENTER)
+        textSize(27)
+        text("Sleep", 300, 170)
+        textSize(21)
+        text("hours", 320, 200)
+        fill(0)
+        
+        textAlign(LEFT)
+        
+        if(press && mouseX > 400 && mouseX < 440 && mouseY > 110 && mouseY < 150) {
+            slopen = false
+        }
     }
 }
 function health() {
@@ -1075,8 +1096,8 @@ function water() {
     ox = constrain(ox, 0, 100)
 }
 function time() {
-    hr += 0.0005
-    if(hr > 19 || hr < 5) {f = 0.04}
+    hr += 0.00045
+    if(hr > 19 || hr < 5) {f = 0}
     if(hr > 5 && hr < 8) {
         f += 0.00024
         f = constrain(f, 0, 1)
@@ -1085,7 +1106,7 @@ function time() {
         f = 1
     }
     if(hr > 17 && hr < 20) {
-        f -= 0.00024
+        f -= 0.00022
         f = constrain(f, 0, 1)
     }
     if(hr >= 25) {
@@ -1246,7 +1267,7 @@ function init() {
         che += 10
         if(che >= bs.length-15) {
             check++
-            if(saveCode !== "") {afterload()}
+            if(saveCode !== "" && saved) {afterload()}
             stickdup()
             loading = false
         }
@@ -1293,8 +1314,8 @@ function game() {
     popMatrix()
     if(!loading && !ps && !zoomed && !climbed && !dead && menu === 0 && !builds.some(function(e) {return e.open})) {controls()}
     if(!loading) {
-        HUD()
         skills()
+        HUD()
     }
     notif()
     if(!builds.some(function(e) {return e.open})) {switch(menu) {
@@ -1656,7 +1677,11 @@ function home() {
     
     if(mouseIsPressed) {
         if(cond[0]) {
-            sc = "newgame"; 
+            if(!skip) {sc = "newgame";}
+            else {
+                sc = "game"
+                loading = true
+            }
         }
         if(cond[1]) {sc = "load"}
         if(cond[2]) {sc = "plants"}
