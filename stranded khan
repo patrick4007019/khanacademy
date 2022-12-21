@@ -36,7 +36,7 @@ let skip = true
 noStroke()
 let ran = round(random(0, 10000))
 let press = false, canpress = true
-let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5
+let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0
 
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to open pause game\nE to interact with an item\nG to zoom out (developer function)"
 let hm = [
@@ -56,7 +56,7 @@ let hm = [
 ]
 let c1 = color(0, 0, 150)
 //}
-let px = 0, py = 0, hr = 17, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1
+let px = 0, py = 0, hr = 17, ox = 100, he = 100, hunger = 100, sleep = 5, thirst = 100, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
 
 //{
 
@@ -192,7 +192,7 @@ function Fire(x, y) {
             stroke(100, 100, 100)
             arc(0.25, 0, 8, 8, -130, this.fuel*360-150)
             this.fuel = constrain(this.fuel, 0, 1)
-            this.fuel -= 0.00005 //0.00003
+            this.fuel -= 0.00005*ts //0.00003
             if(this.fuel < 0) {
                 this.started = false
                 this.fuel = 100
@@ -287,10 +287,10 @@ function WStill(x, y) {
         this.fuel = constrain(this.fuel, 0, 1)
         this.water = constrain(this.water, 0, 1)
         if(this.fuel > 0) {
-            this.fuel -= 0.00007
-            this.water += 0.00007
+            this.fuel -= 0.00007*ts
+            this.water += 0.00007*ts
         }
-        if(keys.e && this.water > 0.05) {
+        if(keys.e && this.water > 0.05 && thirst < 99) {
             this.water -= 0.005
             thirst += 0.5
         }
@@ -1052,7 +1052,9 @@ function storage() {
 //} storages
 //{
 function slept() {
+    if(!sleeping) {sleep -= 0.0013*ts}
     if(slopen) {
+        if(!sleeping) {
         fill(130)
         rect(150, 100, 300, 400)
         fill(255, 0, 0)
@@ -1068,45 +1070,99 @@ function slept() {
         textSize(27)
         text("Sleep", 300, 170)
         textSize(21)
-        text("hours", 320, 200)
-        fill(0)
+        text("hours", 325, 220)
+        textSize(17)
+        text("Sleep gained: " + round(sleep) + "+" + shou*11 + "/100", 300, 330)
+        text("Food lost: " + round(shou*4) + "/" + round(hunger), 300, 360)
+        text("Water lost: " + round(shou*5.8) + "/" + round(thirst), 300, 390)
         
+        textSize(13)
+        text("If there isn't enough food or water while sleeping, your health will be used up as a replacement.", 155, 430, 300, 600)
+        fill(0)
+        shou = constrain(shou, 1, 11)
+        textSize(20)
+        text(shou, 265, 220)
+        textAlign(LEFT)
+        fill(0)
+        pushMatrix()
+        translate(265, 195)
+        triangle(-10, 4, 10, 4, 0, -4)
+        scale(1, -1)
+        translate(0, -37)
+        triangle(-10, 4, 10, 4, 0, -4)
+        popMatrix()
+        
+        fill(90)
+        rect(250, 250, 100, 45)
+        fill(255)
+        textSize(22)
+        textAlign(CENTER)
+        fill(169, 227, 118)
+        text("sleep", 300, 280)
         textAlign(LEFT)
         
+        if(press && mouseX > 250 && mouseX < 350 && mouseY > 250 && mouseY < 295) {
+            sleeping = true
+            endt = hr+shou > 24 ? hr+shou-24 : hr+shou
+            stt = hr
+        }
+        }
+        if(sleeping) {
+            sleep += 0.005*ts
+            ts = 35
+            fill(130)
+            textAlign(CENTER)
+            textSize(30)
+            rect(150, 100, 300, 400)
+            fill(255)
+            text("Sleeping", 300, 300)
+            textAlign(LEFT)
+            if((stt < endt && hr >= endt) || (stt > endt && hr < stt && hr >= endt)) {
+                sleeping = false
+                ts = 0.9
+            }
+        }
+        
+        if(press && mouseX > 265 && mouseX < 285) {
+            if(mouseY > 190 && mouseY < 205) {shou ++}
+            if(mouseY > 225 && mouseY < 240) {shou --}
+        }
         if(press && mouseX > 400 && mouseX < 440 && mouseY > 110 && mouseY < 150) {
             slopen = false
         }
     }
 }
 function health() {
-    he += ox <= 0 ? -0.05 : 0.01
+    he += ox <= 0 ? -0.04*ts : 0.003*ts
     he = constrain(he, 0, 100)
-    if(thirst <= 0) {he -= 0.01}
-    if(hunger <= 0) {he -= 0.01}
+    if(thirst <= 0) {
+        he -= 0.4
+    }
+    if(hunger <= 0) {he -= 0.01*ts}
 }
 function water() {
     on = bs.filter(function(e) {
         return e.x >= 130 && e.x <= 150 && e.y >= 130 && e.y <= 150
     }).length >= 1
     if(!on) {
-        ox -= 0.06-skill[2][0]*0.005 // 0.06
+        ox -= 0.06-skill[2][0]*0.005*ts // 0.06
     } else {
-        ox += 0.16+skill[2][0]*0.05 //0.16
+        ox += 0.16+skill[2][0]*0.05*ts //0.16
     }
     ox = constrain(ox, 0, 100)
 }
 function time() {
-    hr += 0.00045
+    hr += 0.00045*ts
     if(hr > 19 || hr < 5) {f = 0}
     if(hr > 5 && hr < 8) {
-        f += 0.00024
+        f += 0.00024*ts
         f = constrain(f, 0, 1)
     }
     if(hr > 8 && hr < 17) {
         f = 1
     }
     if(hr > 17 && hr < 20) {
-        f -= 0.00022
+        f -= 0.00022*ts
         f = constrain(f, 0, 1)
     }
     if(hr >= 25) {
@@ -1115,8 +1171,8 @@ function time() {
     }
 }
 function sustenance() {
-    hunger -= 0.002
-    thirst -= 0.003
+    hunger -= 0.002*ts
+    thirst -= 0.003*ts
     hunger = constrain(hunger, 0, 100)
     thirst = constrain(thirst, 0, 100)
 }
