@@ -30,13 +30,13 @@ stone, fibrous leaves, lashing, sticks, palm leaves,
 coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 30
+let islandSize = 35
 let skip = true
 //{
 noStroke()
 let ran = round(random(0, 10000))
 let press = false, canpress = true
-let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0
+let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0, cause = ""
 
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to open pause game\nE to interact with an item\nG to zoom out (developer function)"
 let hm = [
@@ -56,7 +56,7 @@ let hm = [
 ]
 let c1 = color(0, 0, 150)
 //}
-let px = 0, py = 0, hr = 17, ox = 100, he = 100, hunger = 100, sleep = 5, thirst = 100, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
+let px = 0, py = 0, hr = 19, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 15
 
 //{
 
@@ -317,7 +317,7 @@ function Shelter(x, y) {
         pushMatrix()
         translate(this.x, this.y)
         fill(0, f*130, 0)
-        stroke(100, 0, 0)
+        stroke(f*100, 0, 0)
         strokeWeight(2)
         rect(-4, -7, 8,14, 3)
         popMatrix()
@@ -1051,7 +1051,21 @@ function storage() {
 }
 //} storages
 //{
+function pulse() {
+    
+    if(sleep < 25) {
+        pulsation += 0.7
+        noFill()
+        stroke(cos(pulsation)*130, cos(pulsation)*130, cos(pulsation)*130)
+        strokeWeight(360+(22-sleep)*38)
+        arc(300, 300, 1200, 1200, 0, 360)
+    }
+}
 function slept() {
+    if(sleep < 0) {
+        dead = true
+        cause = "Aw man, you didn't notice that pulsating arc surrounding your screen that means you have low energy? Too bad for you."
+    }
     if(!sleeping) {sleep -= 0.0013*ts}
     if(slopen) {
         if(!sleeping) {
@@ -1072,7 +1086,7 @@ function slept() {
         textSize(21)
         text("hours", 325, 220)
         textSize(17)
-        text("Sleep gained: " + round(sleep) + "+" + shou*11 + "/100", 300, 330)
+        text("Sleep gained: " + round(sleep) + "+" + round(shou*8.8) + "/100", 300, 330)
         text("Food lost: " + round(shou*4) + "/" + round(hunger), 300, 360)
         text("Water lost: " + round(shou*5.8) + "/" + round(thirst), 300, 390)
         
@@ -1101,14 +1115,14 @@ function slept() {
         text("sleep", 300, 280)
         textAlign(LEFT)
         
-        if(press && mouseX > 250 && mouseX < 350 && mouseY > 250 && mouseY < 295) {
+        if(press && mouseX > 240 && mouseX < 350 && mouseY > 250 && mouseY < 295) {
             sleeping = true
             endt = hr+shou > 24 ? hr+shou-24 : hr+shou
             stt = hr
         }
         }
         if(sleeping) {
-            sleep += 0.005*ts
+            sleep += 0.004*ts
             ts = 35
             fill(130)
             textAlign(CENTER)
@@ -1123,9 +1137,9 @@ function slept() {
             }
         }
         
-        if(press && mouseX > 265 && mouseX < 285) {
-            if(mouseY > 190 && mouseY < 205) {shou ++}
-            if(mouseY > 225 && mouseY < 240) {shou --}
+        if(press && mouseX > 260 && mouseX < 280) {
+            if(mouseY > 180 && mouseY < 210) {shou ++}
+            if(mouseY > 220 && mouseY < 250) {shou --}
         }
         if(press && mouseX > 400 && mouseX < 440 && mouseY > 110 && mouseY < 150) {
             slopen = false
@@ -1153,16 +1167,18 @@ function water() {
 }
 function time() {
     hr += 0.00045*ts
-    if(hr > 19 || hr < 5) {f = 0}
-    if(hr > 5 && hr < 8) {
-        f += 0.00024*ts
+    if(hr > 20 || hr < 4) {f = 0}
+    if(hr > 4 && hr < 7) {
+        f = (hr-4)*1/3
+        f += 0.00015*ts
         f = constrain(f, 0, 1)
     }
-    if(hr > 8 && hr < 17) {
+    if(hr > 7 && hr < 17) {
         f = 1
     }
     if(hr > 17 && hr < 20) {
-        f -= 0.00022*ts
+        f = (20-hr)*1/3
+        f -= 0.00015*ts
         f = constrain(f, 0, 1)
     }
     if(hr >= 25) {
@@ -1179,6 +1195,7 @@ function sustenance() {
 function dying() {
     if(he <= 0) {
         dead = true
+        cause = "No health, no life."
     }
     if(dead) {
         dwid *= 0.99
@@ -1195,6 +1212,7 @@ function dying() {
             text("You've lost all your progress up to the last time\n you copied a save code.\n\nIf you didn't save at all,\n then you've lost your entire world :(\n\nLMB to go back to home screen", 300, 200)
             textAlign(LEFT)
             if(mouseIsPressed) {Program.restart()}
+            text(cause, 100, 450, 500, 600)
         }
     }
 }
@@ -1334,6 +1352,7 @@ function filtered(arr) {
 }
 //} main game mechanic functions 
 function game() {
+    if(!dead) {
     noStroke()
     let cbs = filtered(bs), cothers = filtered(others), cbuilds = filtered(builds), ctrees = filtered(trees)
     render = zoomed ? 10000 : 250
@@ -1370,6 +1389,7 @@ function game() {
     popMatrix()
     if(!loading && !ps && !zoomed && !climbed && !dead && menu === 0 && !builds.some(function(e) {return e.open})) {controls()}
     if(!loading) {
+        pulse()
         skills()
         HUD()
     }
@@ -1383,7 +1403,7 @@ function game() {
     pause()
     include()
     noStroke()
-    if(!ps) {
+    if(!ps && !loading) {
         water()
         time()
         slept()
@@ -1393,6 +1413,7 @@ function game() {
         treedown()
         sustenance()
         fishing()
+    }
     }
     noStroke()
     dying()
