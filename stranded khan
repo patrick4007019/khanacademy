@@ -1,10 +1,19 @@
 /*
 This is a 2d island survival game based on the actual game, Stranded Deep.
 
-Also please KA, add ES6; the lack of array destructuring is killing me!!!!
+TIPS:
+
+- hidden resources are commonly found under trees; always check!
+- nighttime can be useless if you don't happen to have a fire built; it's completely dark. Good luck finding resources :)
+
+
+This is a WORK IN PROGRESS!!
+Expect constant updates and buggy content.
+
 
 see full version history at 
 https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
+
 */
 
 //cheaty jshint stuff to make KA code more es6 ↓
@@ -14,8 +23,8 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 let saveCode = (true !== true) ? "" : 
 "0 19 23 30 0.55 7.219 100 100 99 99 [2,138.5,883.3,[1,-561.5,-616.7,[1,138.5,843.3,[0,-541.5,-556.7,[0,98.5,-556.7,[2,118.5,903.3,[1,-581.5,123.3,[2,-581.5,823.3,[0,118.5,-576.7,[0,138.5,103.3,[2,118.5,843.3,[1,838.5,-576.7,[0,78.5,-536.7,[0,118.5,103.3,[0,838.5,-556.7,[1,-601.5,123.3,[0,118.5,823.3,[2,838.5,143.3,[2,-601.5,863.3,[1,98.5,-596.7,[1,858.5,123.3,[2,178.5,143.3,[1,118.5,863.3,[1,858.5,863.3,[2,-641.5,123.3,[2,-621.5,883.3,[1,778.5,-576.7,[1,778.5,903.3,[1,-661.5,143.3,[2,98.5,843.3,[0,778.5,-556.7,[0,778.5,-516.7,[1,818.5,183.3,[2,858.5,883.3,[2,-561.5,-556.7,[2,-561.5,143.3,[2,-541.5,823.3,[1,18.5,-516.7,[2,-581.5,883.3,[1,878.5,923.3,[2,-521.5,-596.7,[2,-581.5,83.3,[0,-601.5,903.3,[1,158.5,83.3,[1,-621.5,143.3,[0,78.5,-596.7,[0,858.5,-476.7,[0,778.5,143.3,[1,858.5,-456.7,[0,818.5,243.3,[1,-601.5,-596.7,[0,-561.5,163.3,[0,138.5,163.3,[2,178.5,843.3,[2,798.5,-496.7,[0,818.5,103.3,[0,878.5,863.3,[0,-541.5,-616.7,[1,-661.5,123.3,[2,-581.5,903.3,[2,798.5,-536.7,[2,818.5,83.3,[0,778.5,863.3,[0,-561.5,-596.7,[1,-581.5,103.3,[1,-561.5,903.3,[2,38.5,-536.7,[1,178.5,883.3,[0,878.5,-556.7,[1,778.5,923.3,[2,-561.5,-576.7,[1,-561.5,103.3,[1,58.5,-556.7,[0,898.5,863.3,[2,-621.5,103.3,[2,138.5,843.3,[1,-581.5,63.3,[1,-501.5,823.3,[0,138.5,863.3,[2,838.5,83.3,[2,818.5,823.3,[0,-561.5,-556.7,[1,78.5,-556.7,[1,198.5,103.3,[1,818.5,-516.7,[0,878.5,83.3,[1,-521.5,-536.7,[0,-641.5,83.3,[1,-561.5,863.3,[2,178.5,103.3,[0,838.5,143.3,[1,-461.5,823.3,[0,838.5,103.3 1,1,1,1,1,1,1,1,1,1 1,1,1,1,1,1,1,1,1 [0,178.5,123.3,[1,-541.5,-576.7,[1,138.5,123.3,[1,-541.5,-556.7,[1,-581.5,123.3 1"
 let tools = [
-    1,1,1,1,1,
-    1,1,1,1
+    0,0,0,0,0,
+    1,10,0,0
 ] 
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
@@ -30,7 +39,7 @@ stone, fibrous leaves, lashing, sticks, palm leaves,
 coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 35
+let islandSize = 300
 let skip = true
 //{
 noStroke()
@@ -56,7 +65,7 @@ let hm = [
 ]
 let c1 = color(0, 0, 150)
 //}
-let px = 0, py = 0, hr = 19, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 15
+let px = 0, py = 0, hr = 5.5, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 50, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
 
 //{
 
@@ -161,6 +170,17 @@ function PSapling(x, y) {
     this.he = 1
     this.draw = function() {
         fill(f*100, f*255, f*100)
+        stroke(f*50, f*50, f*50)
+        strokeWeight(1)
+        rect(this.x+8, this.y+8, 5*this.he, 5*this.he)
+    }
+}
+function Cloth(x, y) {
+    this.x = x
+    this.y = y
+    this.he = 1.5
+    this.draw = function() {
+        fill(57*f, f*99, f*222)
         stroke(f*50, f*50, f*50)
         strokeWeight(1)
         rect(this.x+8, this.y+8, 5*this.he, 5*this.he)
@@ -290,7 +310,7 @@ function WStill(x, y) {
             this.fuel -= 0.00007*ts
             this.water += 0.00007*ts
         }
-        if(keys.e && this.water > 0.05 && thirst < 99) {
+        if(keys.e && this.water > 0.05 && thirst < 99 && df(this) < 25) {
             this.water -= 0.005
             thirst += 0.5
         }
@@ -350,11 +370,17 @@ function notif() {
         if(not[i][2] < 20) {not.splice(i, 1)}
         if(not[i] && not[i][3] === "Pickup") {
             fill(not[i][2]*1.5, not[i][2]*1.5, 155+not[i][2])
-            text("+" + not[i][0] + " " + not[i][1], 15, 100+i*20)
+            text("+" + not[i][0] + " " + not[i][1], 15, 60+i*20)
+        } else if(not[i] && not[i][3] === "Drop") {
+            fill(not[i][2]*2.5, not[i][2]*1.5, not[i][2]*1.5)
+            text("-" + not[i][0] + " " + not[i][1], 15, 60+i*20)
         } else if(not[i] && not[i][3] === "Heavy") {
             not[i][2] -= 0.1
             fill(not[i][2]*2.5, not[i][2]*1.5, 155+not[i][2])
-            text("You're carrying too much!", 580, 100+i*20)
+            text("You're carrying too much!", 15, 60+i*20)
+        } else if (not[i] && not[i][3] === "Close") {
+            fill(not[i][2]*2.5, not[i][2]*2.5, 155+not[i][2]*2.5)
+            text("Building placed too close to another building!", 15, 60+i*20)
         }
     }
     }
@@ -398,6 +424,7 @@ function Land(x, y) {
         if(this.rand > -0.1 && this.rand < 0.24) {others.push(new Stick(this.x, this.y))}
         }
         if(this.rand > -0.5 && this.rand < -0.1) {others.push(new PSapling(this.x, this.y))}
+        if(this.rand > 2.2) {others.push(new Cloth(this.x, this.y))}
     }
     this.draw = function() {
         let ff
@@ -565,7 +592,7 @@ function include() {
 ["Fishing Spear", tools[5], 1, [5, 1], "A sharp stick that kills fish", 1],
 ["Water Still", tools[6], 6.8, [6, 1], "A water purifier that relies on the sun and palm leaves", 6],
 ["Shelter", tools[7], 7.7, [7, 1], "A place to sleep", 6],
-["Wooden Crate", tools[8], 6.4, [8, 1], "Extra storage space", 6]
+["Wooden Crate", tools[8], 6.4, [8, 1], "Extra storage space", 6],
     ]
     invm = []
     for(let i = 0; i < invs.length; i++) {if(res[i] > 0) {invm.push(invs[i])}}
@@ -579,6 +606,7 @@ function drop() {
     let yx = invm.map(function(e, i) {return [e[0], e[3]]})
     for(let i = 0; i < yx.length; i++) {
         if(mouseX > 139 && mouseX < 470 && mouseY > invy+i*25 && mouseY < invy+25+i*25 && keys.q) {
+            not.push([1, yx[i][0], 100, "Drop"])
             if(yx[i][1][1] === 0) {res[yx[i][1][0]] --}
             if(yx[i][1][1] === 1) {tools[yx[i][1][0]] --}
         }
@@ -587,14 +615,23 @@ function drop() {
 function place(thing, construct, tool) {
     let yx = invm.map(function(e) {return e[0]})
     if(mouseY > invy+yx.indexOf(thing)*25 && mouseY < invy+yx.indexOf(thing)*25+25 && on && tools[tool] >= 1) {
-        builds.push(new construct(150, 150))
-        tools[tool] --
+        if(builds
+        .map(function(e) {return df(e)})
+        .sort(function(a,b) {return a-b})
+        .every(function(e) {return e > 25}) === true) {
+        
+            builds.push(new construct(150, 150))
+            tools[tool] --
+            not.push([1, thing, 100, "Drop"])
+        } else {
+            not.push([2, "", 100, "Close"])
+        }
     }
 }
 function interaction() {
     let yx = invm.map(function(e) {return e[0]})
     let yy = tnames.map(function(e) {return [yx.indexOf(e), e]})
-    if(mouseIsPressed) {
+    if(press) {
         for(let i = 0; i < yy.length; i++) {
             if(mouseX > 139 && mouseX < 470 && mouseY > invy+yy[i][0]*25 && mouseY < invy+25+yy[i][0]*25) {
                 equipped = yy[i][1]
@@ -657,13 +694,14 @@ function inventory() {
         text(invm[i][1], 300, invy+19+i*25)
         text(invm[i][2] + "/" + invm[i][2]*round(invm[i][1]*10)/10, 395, invy+19+i*25)
     }
-
+    if(invm.length < 12) {scroll = false}
     textAlign(LEFT)
     interaction()
     textSize(15)
     text("Total weight: " + round(totalweight*10)/10 + "/" + maxweight, 140, 505)
     text("Page " + (scroll ? 2 : 1) + "/" + (invm.length >= 12 || scroll ? 2 : 1), 390, 503)
     scroll = scroll && keys[UP] ? false : !scroll && keys[DOWN] ? true : scroll
+    if(invm.length < 12) {scroll = false}
     for(let i = 0; i < 12; i++) {
         noStroke()
         if(mouseX > 130 && mouseX < 470 && mouseY > 176+i*25 && mouseY < 176+25+i*25) {
@@ -839,7 +877,7 @@ function HUD() {
 function mc(me) {
     if(me === menu) {menu = 0}
     else {menu = me}
-}     
+}
 function pause() {
     let otherdata = others.map(function(e) {
         let n = e.constructor.__name
@@ -1394,15 +1432,17 @@ function game() {
         HUD()
     }
     notif()
-    if(!builds.some(function(e) {return e.open})) {switch(menu) {
+    if(!builds.some(function(e) {return e.open}) && !loading) {switch(menu) {
         case 1: inventory(); break
         case 2: crafting(); break
     }}
+    if(!loading) {
     noStroke()
     storage()
     pause()
     include()
     noStroke()
+    }
     if(!ps && !loading) {
         water()
         time()
@@ -1773,7 +1813,7 @@ draw = function() {
         if(menu === 1) {drop()}
         if(keys.e && builds.some(function(e) {return e.constructor === Crate})) {openstorages()}
         refuel()
-        if(!builds.some(function(e) {return e.open && e.constructor === Crate})) {
+        if(!builds.some(function(e) {return e.open && e.constructor === Crate}) && !loading) {
             switch(key.toString()) {
             case "z": ps = !ps; break
             case "f": mc(1); break
