@@ -1,4 +1,4 @@
-/*
+ /*
 This is a 2d island survival game based on the actual game, Stranded Deep.
 
 TIPS:
@@ -25,9 +25,9 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 let saveCode = (true !== true) ? "" : 
 "0 19 23 30 0.55 7.219 100 100 99 99 [2,138.5,883.3,[1,-561.5,-616.7,[1,138.5,843.3,[0,-541.5,-556.7,[0,98.5,-556.7,[2,118.5,903.3,[1,-581.5,123.3,[2,-581.5,823.3,[0,118.5,-576.7,[0,138.5,103.3,[2,118.5,843.3,[1,838.5,-576.7,[0,78.5,-536.7,[0,118.5,103.3,[0,838.5,-556.7,[1,-601.5,123.3,[0,118.5,823.3,[2,838.5,143.3,[2,-601.5,863.3,[1,98.5,-596.7,[1,858.5,123.3,[2,178.5,143.3,[1,118.5,863.3,[1,858.5,863.3,[2,-641.5,123.3,[2,-621.5,883.3,[1,778.5,-576.7,[1,778.5,903.3,[1,-661.5,143.3,[2,98.5,843.3,[0,778.5,-556.7,[0,778.5,-516.7,[1,818.5,183.3,[2,858.5,883.3,[2,-561.5,-556.7,[2,-561.5,143.3,[2,-541.5,823.3,[1,18.5,-516.7,[2,-581.5,883.3,[1,878.5,923.3,[2,-521.5,-596.7,[2,-581.5,83.3,[0,-601.5,903.3,[1,158.5,83.3,[1,-621.5,143.3,[0,78.5,-596.7,[0,858.5,-476.7,[0,778.5,143.3,[1,858.5,-456.7,[0,818.5,243.3,[1,-601.5,-596.7,[0,-561.5,163.3,[0,138.5,163.3,[2,178.5,843.3,[2,798.5,-496.7,[0,818.5,103.3,[0,878.5,863.3,[0,-541.5,-616.7,[1,-661.5,123.3,[2,-581.5,903.3,[2,798.5,-536.7,[2,818.5,83.3,[0,778.5,863.3,[0,-561.5,-596.7,[1,-581.5,103.3,[1,-561.5,903.3,[2,38.5,-536.7,[1,178.5,883.3,[0,878.5,-556.7,[1,778.5,923.3,[2,-561.5,-576.7,[1,-561.5,103.3,[1,58.5,-556.7,[0,898.5,863.3,[2,-621.5,103.3,[2,138.5,843.3,[1,-581.5,63.3,[1,-501.5,823.3,[0,138.5,863.3,[2,838.5,83.3,[2,818.5,823.3,[0,-561.5,-556.7,[1,78.5,-556.7,[1,198.5,103.3,[1,818.5,-516.7,[0,878.5,83.3,[1,-521.5,-536.7,[0,-641.5,83.3,[1,-561.5,863.3,[2,178.5,103.3,[0,838.5,143.3,[1,-461.5,823.3,[0,838.5,103.3 1,1,1,1,1,1,1,1,1,1 1,1,1,1,1,1,1,1,1 [0,178.5,123.3,[1,-541.5,-576.7,[1,138.5,123.3,[1,-541.5,-556.7,[1,-581.5,123.3 1"
 let tools = [
-    0,2,0,0,0,
-    2,2,2,1,0
-] 
+    0,0,0,0,0,
+    0,0,0,0,0
+]
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
     "Fishing Spear", "Water Still", "Shelter", "Wooden Crate","Wooden Torch"
@@ -69,6 +69,8 @@ let hm = [
 let c1 = color(0, 0, 150)
 //}
 let px = 0, py = 0, hr = 5, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 0, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
+
+let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light"]
 
 //{
 
@@ -606,16 +608,16 @@ function include() {
 ]
 // name, ? , weight, ? , description, 1(tool) 6(building), condition (tool only)
     let toolsm = [
-["Stone Tool", tools[0], 1, [0, 1], "Primitive cutting tool", 1],
-["Crude Axe", tools[1], 4.4, [1, 1], "Better cutting tool that can cut down palm trees", 1],
-["Refined Knife", tools[2], 2.4, [2, 1], "Primitive knife to skin seafood", 1],
-["Fire", tools[3], 4, [3, 1], "A small campfire to produce warmth and cook food", 6],
-["Kindling", tools[4], 2, [4, 1],"Some wood to start a fire", 1],
-["Fishing Spear", tools[5], 1, [5, 1], "A sharp stick that kills fish", 1],
-["Water Still", tools[6], 6.8, [6, 1], "A water purifier that relies on the sun and palm leaves", 6],
-["Shelter", tools[7], 7.7, [7, 1], "A place to sleep", 6],
-["Wooden Crate", tools[8], 6.4, [8, 1], "Extra storage space", 6],
-["Wooden Torch", tools[9], 1.6, [9, 1], "A hand-held source of light", 1]
+["Stone Tool", tools[0], 1, [0, 1], des[0], 1],
+["Crude Axe", tools[1], 4.4, [1, 1], des[1], 1],
+["Refined Knife", tools[2], 2.4, [2, 1], des[2], 1],
+["Fire", tools[3], 4, [3, 1], des[3], 6],
+["Kindling", tools[4], 2, [4, 1],des[4], 1],
+["Fishing Spear", tools[5], 1, [5, 1], des[5], 1],
+["Water Still", tools[6], 6.8, [6, 1], des[6], 6],
+["Shelter", tools[7], 7.7, [7, 1], des[7], 6],
+["Wooden Crate", tools[8], 6.4, [8, 1], des[8], 6],
+["Wooden Torch", tools[9], 1.6, [9, 1], des[9], 1]
     ]
     invm = []
     for(let i = 0; i < invs.length; i++) {if(res[i] > 0) {invm.push(invs[i])}}
@@ -743,13 +745,19 @@ function inventory() {
 //} inventory
 //{
 function craft(me, y, amounts, resources, name, current, ind, given, gam, lvl) {
+    let norm = fill(current.every(function(e, i) {return e >= amounts[i]}) && skill[0][0] > lvl ? color(255, 255, 255) : color(150, 150, 200))
+    
     if(wm === me) {
+        
     fill(120, 120, 175)
     if(mouseX > 120 && mouseX < 480 && mouseY > y-25 && mouseY < y+25) {rect(125, y-28, 350, 50)}
-    fill(current.every(function(e, i) {return e >= amounts[i]}) && skill[0][0] > lvl ? color(255, 255, 255) : color(150, 150, 200))
+    
+    fill(norm)
     textSize(15)
     text(name, 150, y)
+    fill(lvl < skill[2][0] ? norm : color(255, 0, 0))
     text(lvl, 460, y-10)
+    fill(norm)
     textSize(13)
     for(let i = 0; i < amounts.length; i++) {
         text(amounts[i] + " " +  resources[i], 330, (y+i*14)-(amounts.length-1)*7+2)
@@ -757,6 +765,12 @@ function craft(me, y, amounts, resources, name, current, ind, given, gam, lvl) {
     if(mouseX > 120 && mouseX < 480 && menu === 2 && press) {
         if(mouseY > y-25 && mouseY < y+25 && mouseX > 120 && mouseX < 480 && current.every(function(e, i) {return e >= amounts[i]}) &&  skill[0][0] > lvl) {
             skill[0][1] += amounts.reduce(function(a,b) {return a+b}, 0)*2
+            for(let i = 0; i < amounts.length; i++) {
+                not.push([amounts[i], resources[i], 100, "Drop"])
+            }
+            for(let i = 0; i < given.length; i++) {
+                not.push([gam[i], name, 100, "Pickup"])
+            }
             for(let i = 0; i < ind.length; i++) {
                 if(ind[i][0] === 0) {res[ind[i][1]] -= amounts[i]}
                 else {tools[ind[i][1]] -= amounts[i]}
@@ -766,6 +780,14 @@ function craft(me, y, amounts, resources, name, current, ind, given, gam, lvl) {
                 else {tools[given[i][1]] += gam[i]}
             }
         }
+    }
+    if(menu === 2 && mouseX > 120 && mouseX < 480 && mouseY > y-25 && mouseY < y+25) {
+        fill(0)
+        rect(180, 35, 240, 60)
+        fill(skill[2][0] > lvl ? color(255, 255, 255) : color(255, 0, 0))
+        textAlign(CENTER)
+        text(lvl < skill[2][0] ? des[given[0][1]] : "Crafting skill level not reached " + lvl + " yet!", 190, 50, 230, 600)
+        textAlign(LEFT)
     }
     }
 }
@@ -853,7 +875,7 @@ function hoverhud() {
     if(mouseX > 540 && mouseY > 80 && mouseY < 160) {
         rect(mouseX, mouseY, -160, 75)
         fill(255)
-        text("Crafting Lvl " + skill[0][0] + "\nStrength Lvl " + skill[1][0] + "\nStamina Lvl " + skill[2][0], mouseX-145, mouseY+20)
+        text("Crafting Lvl " + (skill[0][0]-1) + "\nStrength Lvl " + (skill[1][0]-1) + "\nStamina Lvl " + (skill[2][0]-1), mouseX-145, mouseY+20)
     }
     if(mouseX > 100 && mouseX < 500 && mouseY < 50) {
         rect(mouseX-100, mouseY+10, 200, 80)
