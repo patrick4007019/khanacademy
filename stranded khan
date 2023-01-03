@@ -22,6 +22,15 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //jshint asi: true 
 //jshint esnext: true
 //put your save code here:
+/*
+Checklist for adding a:
+
+PICKUP RESOURCE
+
+- add it in the land constructor
+- make its own constructor
+
+*/
 let saveCode = (true !== true) ? "" : 
 "0 19 23 30 0.55 7.219 100 100 99 99 [2,138.5,883.3,[1,-561.5,-616.7,[1,138.5,843.3,[0,-541.5,-556.7,[0,98.5,-556.7,[2,118.5,903.3,[1,-581.5,123.3,[2,-581.5,823.3,[0,118.5,-576.7,[0,138.5,103.3,[2,118.5,843.3,[1,838.5,-576.7,[0,78.5,-536.7,[0,118.5,103.3,[0,838.5,-556.7,[1,-601.5,123.3,[0,118.5,823.3,[2,838.5,143.3,[2,-601.5,863.3,[1,98.5,-596.7,[1,858.5,123.3,[2,178.5,143.3,[1,118.5,863.3,[1,858.5,863.3,[2,-641.5,123.3,[2,-621.5,883.3,[1,778.5,-576.7,[1,778.5,903.3,[1,-661.5,143.3,[2,98.5,843.3,[0,778.5,-556.7,[0,778.5,-516.7,[1,818.5,183.3,[2,858.5,883.3,[2,-561.5,-556.7,[2,-561.5,143.3,[2,-541.5,823.3,[1,18.5,-516.7,[2,-581.5,883.3,[1,878.5,923.3,[2,-521.5,-596.7,[2,-581.5,83.3,[0,-601.5,903.3,[1,158.5,83.3,[1,-621.5,143.3,[0,78.5,-596.7,[0,858.5,-476.7,[0,778.5,143.3,[1,858.5,-456.7,[0,818.5,243.3,[1,-601.5,-596.7,[0,-561.5,163.3,[0,138.5,163.3,[2,178.5,843.3,[2,798.5,-496.7,[0,818.5,103.3,[0,878.5,863.3,[0,-541.5,-616.7,[1,-661.5,123.3,[2,-581.5,903.3,[2,798.5,-536.7,[2,818.5,83.3,[0,778.5,863.3,[0,-561.5,-596.7,[1,-581.5,103.3,[1,-561.5,903.3,[2,38.5,-536.7,[1,178.5,883.3,[0,878.5,-556.7,[1,778.5,923.3,[2,-561.5,-576.7,[1,-561.5,103.3,[1,58.5,-556.7,[0,898.5,863.3,[2,-621.5,103.3,[2,138.5,843.3,[1,-581.5,63.3,[1,-501.5,823.3,[0,138.5,863.3,[2,838.5,83.3,[2,818.5,823.3,[0,-561.5,-556.7,[1,78.5,-556.7,[1,198.5,103.3,[1,818.5,-516.7,[0,878.5,83.3,[1,-521.5,-536.7,[0,-641.5,83.3,[1,-561.5,863.3,[2,178.5,103.3,[0,838.5,143.3,[1,-461.5,823.3,[0,838.5,103.3 1,1,1,1,1,1,1,1,1,1 1,1,1,1,1,1,1,1,1 [0,178.5,123.3,[1,-541.5,-576.7,[1,138.5,123.3,[1,-541.5,-556.7,[1,-581.5,123.3 1"
 let tools = [
@@ -71,6 +80,8 @@ let c1 = color(0, 0, 150)
 let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 0, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
 
 let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light"]
+
+let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tools."], ["Stick", "Stick", "A rough wood shaft. Could be useful for crafting tools."], ["PSapling", "Palm Sapling", "A small palm tree. Could be harvested for fibrous leaves, but requires a stone tool."], ["Palm", "Palm Tree", "A large tropical tree that might bear coconuts, but will always yield a lot of wood and leaves."], ["Cloth", "Cloth", "A square strip of cloth. Wonder how it got here."]]
 
 //{
 
@@ -551,9 +562,11 @@ for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
 //} land constructors
 //{
 function pickup() {
+    let done = false
     let uppable = others.filter(function(e) {return e.constructor === Rock || e.constructor === Stick || e.constructor === Cloth})
-    if(keys.e) {for(let i = 0; i < uppable.length; i++) {
+    if(keys.e && !done) {for(let i = 0; i < uppable.length; i++) {
         if(uppable[i] === hig) {
+            done = true
             others.splice(others.indexOf(uppable[i]), 1)
             switch(uppable[i].constructor) {
                 case Rock: res[0]++; break
@@ -781,8 +794,10 @@ function inventory() {
 //} inventory
 //{
 function craft(me, y, amounts, resources, name, current, ind, given, gam, lvl) {
-    let norm = fill(current.every(function(e, i) {return e >= amounts[i]}) && skill[0][0] > lvl ? color(255, 255, 255) : color(150, 150, 200))
-    
+    let norm1 = current.every(function(e, i) {return e >= amounts[i]})
+    let norm2 = skill[0][0] > lvl
+    let norm = norm1 && norm2 ? color(255, 255, 255) : color(150, 150, 200)
+
     if(wm === me) {
         
     fill(120, 120, 175)
@@ -791,11 +806,12 @@ function craft(me, y, amounts, resources, name, current, ind, given, gam, lvl) {
     fill(norm)
     textSize(15)
     text(name, 150, y)
-    fill(lvl < skill[2][0] ? norm : color(255, 0, 0))
+    fill(lvl < skill[0][0] ? color(255, 255, 255) : color(255, 0, 0))
     text(lvl, 460, y-10)
     fill(norm)
     textSize(13)
     for(let i = 0; i < amounts.length; i++) {
+        fill(norm1 ? color(255, 255, 255) : color(255, 150, 150))
         text(amounts[i] + " " +  resources[i], 330, (y+i*14)-(amounts.length-1)*7+2)
     }
     if(mouseX > 120 && mouseX < 480 && menu === 2 && press) {
@@ -950,7 +966,7 @@ function HUD() {
     textSize(15)
     textAlign(CENTER)
     fill(255, 255, 255)
-    text("Equipped: " + equipped, 270, 580)
+    text("Equipped: " + equipped, 300, 580)
     textAlign(LEFT)
     text("Day " + day, 60, 20)
     
@@ -1179,7 +1195,17 @@ function detect() {
     mb = mb.filter(function(e) {return df(e) < 20})
     hig = mb.sort(function(a,b) {return df(a)-df(b)})[0]
 }
-//} closest detection
+function desc() {
+    if(hig) {
+        let inf = ddes.filter(function(e) {return e[0] === hig.constructor.__name})[0]
+        fill(255)
+        textSize(16)
+        text(inf[1], 50, 525, 200, 600)
+        textSize(10)
+        text(inf[2], 50, 550, 200, 600)
+    }
+}
+//} closest detection and desc.
 //{
 function pulse() {
     
@@ -1510,6 +1536,7 @@ function game() {
         pulse()
         skills()
         HUD()
+        desc()
     }
     detect()
     notif()
