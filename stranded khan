@@ -48,7 +48,7 @@ let skip = true
 noStroke()
 let ran = round(random(0, 10000))
 let press = false, canpress = true
-let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0, cause = ""
+let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0, cause = "", hig
 
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to open pause game\nE to interact with an item\nG to zoom out (developer function)"
 let hm = [
@@ -68,7 +68,7 @@ let hm = [
 ]
 let c1 = color(0, 0, 150)
 //}
-let px = 0, py = 0, hr = 5, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 0, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
+let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 0, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
 
 let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light"]
 
@@ -92,6 +92,8 @@ function Stick(x, y) {
     this.y = y
     this.draw = function() {
         noStroke()
+        strokeWeight(2)
+        if(hig === this) {stroke(155*f)}
         fill(f*150, 0, 0)
         rect(this.x+9, this.y+4, 3, 12)
     }
@@ -108,6 +110,7 @@ function Palm(x, y) {
         translate(this.x+8, this.y+8)
         scale(this.he)
         stroke(0, f*150, 0)
+        if(hig === this) {stroke(0, f*220, 0)}
         strokeWeight(2)
         fill(0, f*255, f*98)
         rect(-6, -6, 16, 16, 3)
@@ -151,6 +154,7 @@ function Yucca(x, y) {
         translate(this.x+8, this.y+8)
         scale(this.he)
         stroke(0, f*150, 0)
+        if(hig === this) {stroke(0, 190*f, 0)}
         strokeWeight(2)
         fill(0, f*100, f*50)
         rect(-6, -6, 16, 16, 3)
@@ -165,6 +169,7 @@ function Rock(x, y) {
     this.draw = function() {
         fill(f*100, f*100, f*100)
         stroke(f*50, f*50, f*50)
+        if(hig === this) {stroke(255*f)}
         strokeWeight(1)
         rect(this.x+8, this.y+8, 4, 4)
     }
@@ -176,6 +181,7 @@ function PSapling(x, y) {
     this.draw = function() {
         fill(f*100, f*255, f*100)
         stroke(f*50, f*50, f*50)
+        if(hig === this) {stroke(255*f)}
         strokeWeight(1)
         rect(this.x+8, this.y+8, 5*this.he, 5*this.he)
     }
@@ -187,6 +193,7 @@ function Cloth(x, y) {
     this.draw = function() {
         fill(57*f, f*99, f*222)
         stroke(f*50, f*50, f*50)
+        if(hig === this) {stroke(255*f)}
         strokeWeight(1)
         rect(this.x+8, this.y+8, 5*this.he, 5*this.he)
     }
@@ -414,6 +421,25 @@ function Land(x, y) {
     this.rand = seed.nextGaussian()
     this.lit = false
     }
+    this.checkonly = function() {
+       if(check === 0) {
+        this.count = 0
+        for(let i = 0; i < bs.length; i++) {
+            if(
+            (bs[i].x === this.x-20 && bs[i].y === this.y) ||
+            (bs[i].x === this.x+20 && bs[i].y === this.y) ||
+            (bs[i].x === this.x && bs[i].y === this.y-20) || 
+            (bs[i].x === this.x && bs[i].y === this.y+20) ||
+            (bs[i].x === this.x-20 && bs[i].y === this.y-20) ||
+            (bs[i].x === this.x-20 && bs[i].y === this.y+20) ||
+            (bs[i].x === this.x+20 && bs[i].y === this.y-20) ||
+            (bs[i].x === this.x+20 && bs[i].y === this.y+20)
+            ) {
+                this.count++
+            }
+        }
+       }
+    }
     this.check = function() {
         if(check === 0) {
         this.count = 0
@@ -526,7 +552,16 @@ for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
 //{
 function pickup() {
     let uppable = others.filter(function(e) {return e.constructor === Rock || e.constructor === Stick || e.constructor === Cloth})
-    uppable.sort(function(a,b) {return df(a)-df(b)})
+    if(keys.e) {for(let i = 0; i < uppable.length; i++) {
+        if(uppable[i] === hig) {
+            others.splice(others.indexOf(uppable[i]), 1)
+            switch(uppable[i].constructor) {
+                case Rock: res[0]++; break
+                case Stick: res[3]++; break
+                case Cloth: res[10]++; break
+            }
+    }}}
+    /*
     if(uppable.some(function(e) {return df(e) < 15}) && keyIsPressed && key.toString() === "e") {
         if(totalweight < maxweight) {
             not.push([1, uppable[0].constructor.__name, 100, "Pickup"])
@@ -538,6 +573,7 @@ function pickup() {
             }
         } else {not.push([0, 0, 100, "Heavy"])}
     }
+    */
 }
 function sapup() {
     let saplings = others.filter(function(e) {return e instanceof PSapling})
@@ -1138,6 +1174,13 @@ function storage() {
 }
 //} storages
 //{
+function detect() {
+    let mb = others.concat(trees)
+    mb = mb.filter(function(e) {return df(e) < 20})
+    hig = mb.sort(function(a,b) {return df(a)-df(b)})[0]
+}
+//} closest detection
+//{
 function pulse() {
     
     if(sleep < 25) {
@@ -1345,17 +1388,6 @@ function player() {
     rect(-15, -15, 30, 30)
     popMatrix()
 }
-function stickdup() {
-    let sticks = others.concat(trees)
-    for(let i = 0; i < sticks.length; i++) {
-        for(let j = 0; j < sticks.length; j++) {if(i !== j) {
-            if(sticks[i].x === sticks[j].x && sticks[i].y === sticks[j].y) {
-                sticks.splice(sticks.indexOf(sticks[j]), 1)
-                others.splice(others.indexOf(sticks[j]), 1)
-            }
-        }}
-    }
-}
 function afterload() {
     if(saveCode !== "" && !saved) {
     let sp = saveCode.split(" ")
@@ -1423,13 +1455,12 @@ function init() {
     }
     if(doing3 && loading) {
         for(let i = 0; i < 10; i++) {
-            bs[che+i].check()
+            bs[che+i].checkonly()
         }
         che += 10
         if(che >= bs.length-15) {
             check++
             if(saveCode !== "" && saved) {afterload()}
-            stickdup()
             loading = false
         }
     }
@@ -1480,6 +1511,7 @@ function game() {
         skills()
         HUD()
     }
+    detect()
     notif()
     if(!builds.some(function(e) {return e.open}) && !loading) {switch(menu) {
         case 1: inventory(); break
@@ -1734,6 +1766,7 @@ function guide() {
     back()
 }
 //} guide 
+//{
 function infonew() {
     let p = saveCode.split(" ")
     fill(255)
@@ -1770,6 +1803,7 @@ function newgame() {
     } 
     back()
 }
+//} starting info
 //{
 function options() {
     textAlign(CENTER)
@@ -1896,7 +1930,6 @@ draw = function() {
         press = false
         canpress = true
     }
-
 }
 
 
