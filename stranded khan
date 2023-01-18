@@ -1,4 +1,4 @@
- /*
+/*
 This is a 2d island survival game based on the actual game, Stranded Deep.
 
 TIPS:
@@ -21,28 +21,22 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 //cheaty jshint stuff to make KA code more es6 ↓
 //jshint asi: true 
 //jshint esnext: true
+
 //put your save code here:
-/*
-Checklist for adding a:
-
-PICKUP RESOURCE
-
-- add it in the land constructor
-- make its own constructor
-
-*/
+//{
 let saveCode = (true !== true) ? "" : 
 "0 19 23 30 0.55 7.219 100 100 99 99 [2,138.5,883.3,[1,-561.5,-616.7,[1,138.5,843.3,[0,-541.5,-556.7,[0,98.5,-556.7,[2,118.5,903.3,[1,-581.5,123.3,[2,-581.5,823.3,[0,118.5,-576.7,[0,138.5,103.3,[2,118.5,843.3,[1,838.5,-576.7,[0,78.5,-536.7,[0,118.5,103.3,[0,838.5,-556.7,[1,-601.5,123.3,[0,118.5,823.3,[2,838.5,143.3,[2,-601.5,863.3,[1,98.5,-596.7,[1,858.5,123.3,[2,178.5,143.3,[1,118.5,863.3,[1,858.5,863.3,[2,-641.5,123.3,[2,-621.5,883.3,[1,778.5,-576.7,[1,778.5,903.3,[1,-661.5,143.3,[2,98.5,843.3,[0,778.5,-556.7,[0,778.5,-516.7,[1,818.5,183.3,[2,858.5,883.3,[2,-561.5,-556.7,[2,-561.5,143.3,[2,-541.5,823.3,[1,18.5,-516.7,[2,-581.5,883.3,[1,878.5,923.3,[2,-521.5,-596.7,[2,-581.5,83.3,[0,-601.5,903.3,[1,158.5,83.3,[1,-621.5,143.3,[0,78.5,-596.7,[0,858.5,-476.7,[0,778.5,143.3,[1,858.5,-456.7,[0,818.5,243.3,[1,-601.5,-596.7,[0,-561.5,163.3,[0,138.5,163.3,[2,178.5,843.3,[2,798.5,-496.7,[0,818.5,103.3,[0,878.5,863.3,[0,-541.5,-616.7,[1,-661.5,123.3,[2,-581.5,903.3,[2,798.5,-536.7,[2,818.5,83.3,[0,778.5,863.3,[0,-561.5,-596.7,[1,-581.5,103.3,[1,-561.5,903.3,[2,38.5,-536.7,[1,178.5,883.3,[0,878.5,-556.7,[1,778.5,923.3,[2,-561.5,-576.7,[1,-561.5,103.3,[1,58.5,-556.7,[0,898.5,863.3,[2,-621.5,103.3,[2,138.5,843.3,[1,-581.5,63.3,[1,-501.5,823.3,[0,138.5,863.3,[2,838.5,83.3,[2,818.5,823.3,[0,-561.5,-556.7,[1,78.5,-556.7,[1,198.5,103.3,[1,818.5,-516.7,[0,878.5,83.3,[1,-521.5,-536.7,[0,-641.5,83.3,[1,-561.5,863.3,[2,178.5,103.3,[0,838.5,143.3,[1,-461.5,823.3,[0,838.5,103.3 1,1,1,1,1,1,1,1,1,1 1,1,1,1,1,1,1,1,1 [0,178.5,123.3,[1,-541.5,-576.7,[1,138.5,123.3,[1,-541.5,-556.7,[1,-581.5,123.3 1"
+//} savecode
 let tools = [
     0,0,0,0,0,
-    0,0,0,0,0
+    0,3,0,0,0
 ]
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
     "Fishing Spear", "Water Still", "Shelter", "Wooden Crate","Wooden Torch"
 ]
 let res = [
-    0,0,0,0,0,
+    0,5,0,0,5,
     0,0,0,0,0,
     0
 ] 
@@ -52,7 +46,7 @@ coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
 let islandSize = 300
-let skip = true
+let skip = false
 //{
 noStroke()
 let ran = round(random(0, 10000))
@@ -77,12 +71,14 @@ let hm = [
 ]
 let c1 = color(0, 0, 150)
 //}
-let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 0, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
+let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 50, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
+//{
+let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire, also really good firewood.", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light"]
 
-let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light"]
+let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tools.", 0], ["Stick", "Stick", "A rough wood shaft. Could be useful for crafting tools.", 0], ["PSapling", "Palm Sapling", "A small palm tree. Could be harvested for fibrous leaves.", 1], ["Palm", "Palm Tree", "A large tropical tree that might bear coconuts, but will always yield a lot of wood and leaves.", 2], ["Cloth", "Cloth", "A square strip of cloth. Wonder how it got here.", 0], ["Yucca", "Yucca Tree", "A smaller tree that has fibrous leaves. Could be used to make rope.", 1]]
 
-let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tools.", 0], ["Stick", "Stick", "A rough wood shaft. Could be useful for crafting tools.", 0], ["PSapling", "Palm Sapling", "A small palm tree. Could be harvested for fibrous leaves.", 1], ["Palm", "Palm Tree", "A large tropical tree that might bear coconuts, but will always yield a lot of wood and leaves.", 2], ["Cloth", "Cloth", "A square strip of cloth. Wonder how it got here.", 0]]
 
+//} descriptions
 //{
 
 //load speed
@@ -218,8 +214,6 @@ function Fire(x, y) {
     this.open = false
     this.heat = 0
     this.name = "Fire"
-    this.ref = function() {
-    }
     this.start = function() {
         if(this.started) {
             noStroke()
@@ -270,8 +264,8 @@ function Fire(x, y) {
 function WStill(x, y) {
     this.x = x
     this.y = y
-    this.fuel = 0.25
-    this.water = 0.25
+    this.fuel = 25
+    this.water = 25
     this.name = "Water Still"
     this.d = function() {
         pushMatrix()
@@ -279,43 +273,17 @@ function WStill(x, y) {
         fill(0, f*255, f*150)
         strokeWeight(0.5)
         stroke(0)
+        if(hig === this) {stroke(255); strokeWeight(1)}
         rect(-5.5, -5.5, 13, 13, -3)
-        noFill()
-        strokeWeight(1.6)
-        stroke(f*100, f*100, f*100)
-        arc(0.5, 0.5, 9, 9, -90, this.fuel*360-90)
-        stroke(0, 0, f*255)
-        arc(0.5, 0.5, 5, 5, -90, this.water*360-90)
-        fill(f*150, f*150, f*150)
         popMatrix()
-    }
-    this.ref = function() {
-        if(keys.r && res[4] >= 1 && this.fuel <= 0.75 && this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165) {
-            res[4] --
-            this.fuel += 0.25
-        }
     }
     this.draw = function() {
         let fclose = this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165
         this.d()
-        this.fuel = constrain(this.fuel, 0, 1)
-        this.water = constrain(this.water, 0, 1)
-        if(this.fuel > 0) {
-            this.fuel -= 0.00007*ts
-            this.water += 0.0001*ts
+        if(this.fuel > 0 && this.water < 100) {
+            this.fuel -= 0.008
+            this.water += 0.013
         }
-        if(keys.e && this.water > 0.05 && thirst < 99 && df(this) < 20) {
-            this.water -= 0.005
-            thirst += 0.5
-        }
-    }
-}
-function refuel() {
-    let fires = builds.filter(function(e) {
-        return e instanceof Fire || e instanceof WStill
-    })
-    for(let i = 0; i < fires.length; i++) {
-        fires[i].ref()
     }
 }
 function Shelter(x, y) {
@@ -388,7 +356,49 @@ function firemenu() {
     }
 }
 function watermenu() {
-    
+    let stills = builds.filter(function(e) {return e.name === "Water Still"})
+    let still = stills.filter(function(e) {return hig === e})[0]
+    if(still) {
+        noStroke()
+        fill(0)
+        rect(150, 400, 300, 100)
+        rect(150, 400, 300, 100)
+        fill(255)
+        text("Water\nFuel", 165, 425)
+        fill(80)
+        rect(230, 419, 150, 5)
+        rect(230, 439, 150, 5)
+        fill(13, 96, 184)
+        rect(230, 419, still.water*1.5, 5)
+        fill(150)
+        rect(230, 439, still.fuel*1.5, 5)
+        fill(255)
+        textSize(17)
+        text("Add Fuel", 165, 475) 
+        fill(0, 0, 255)
+        rect(390, 410, 50, 25)
+        if(mouseIsPressed && mouseX > 390 && mouseX < 440 && mouseY > 410 && mouseY < 435 && thirst < 99.5 && still.water > 0.5) {
+            still.water -= 0.5
+            thirst += 0.5
+        }
+        fill(255)
+        textSize(13)
+        text("Drink", 395, 425)
+        textSize(14)
+        fill(mouseX > 260 && mouseX < 385 && mouseY > 450 && mouseY < 473 ? (res[1] > 0 ? color(100, 100, 100) : color(161, 12, 12)) : (res[1] > 0 ? color(163, 161, 161) : color(250, 3, 3)))
+        text("Fibrous Leaves (" + res[1] + ")", 270, 465)
+        fill(mouseX > 260 && mouseX < 385 && mouseY > 473 && mouseY < 495 ? (res[4] > 0 ? color(100, 100, 100) : color(161, 20, 20)) : (res[4] > 0 ? color(163, 161, 161) : color(250, 3, 3)))        
+        text("Palm Leaves (" + res[4] + ")", 270, 485)
+        
+        if(press && mouseX > 260 && mouseX < 385 && mouseY > 450 && mouseY < 473 && still.fuel < 90 && res[1] > 0) {
+            res[1] --
+            still.fuel += 10
+        }
+        if(press && mouseX > 260 && mouseX < 385 && mouseY > 473 && mouseY < 495 && still.fuel < 80 && res[4] > 0) {
+            res[4] --
+            still.fuel += 20
+        }
+    }
 }
 //} building menus
 //{
@@ -972,7 +982,7 @@ function HUD() {
     textSize(15)
     textAlign(CENTER)
     fill(255, 255, 255)
-    text("Equipped: " + equipped, 300, 580)
+    text("Equipped: " + equipped, 320, 580)
     textAlign(LEFT)
     text("Day " + day, 60, 20)
     
@@ -1829,7 +1839,7 @@ function infonew() {
     textAlign(LEFT)
     textSize(20)
     let dec = round(p[5].split(".")[1]/10)
-    text("Saved World \n\n" + (floor(p[5])) + ":" + (round(dec/100*60)) + "\nDay " + (p[14]), 80, 200)
+    text("Saved World \n\n" + (floor(p[5])) + ":" + (round(dec/100*60)) + "\nDay " + (p[14]) + "\nIsland Size " + (p[3]), 80, 200)
     
 }
 function newgame() {
@@ -1952,7 +1962,6 @@ draw = function() {
         if(menu === 1) {drop()}
         if(keys.e) {pickup()}
         if(keys.e && builds.some(function(e) {return e.constructor === Crate})) {openstorages()}
-        refuel()
         if(!builds.some(function(e) {return e.open && e.constructor === Crate}) && !loading) {
             switch(key.toString()) {
             case "z": ps = !ps; break
