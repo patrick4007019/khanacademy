@@ -51,7 +51,7 @@ stone, fibrous leaves, lashing, sticks, palm leaves,
 coconut, drinkable coconut, raw fish, cooked fish,
 sardine
 */
-let islandSize = 50
+let islandSize = 300
 let skip = true
 //{
 noStroke()
@@ -81,7 +81,7 @@ let px = 0, py = 0, hr = 7, ox = 100, he = 100, hunger = 100, sleep = 100, thirs
 
 let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light"]
 
-let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tools."], ["Stick", "Stick", "A rough wood shaft. Could be useful for crafting tools."], ["PSapling", "Palm Sapling", "A small palm tree. Could be harvested for fibrous leaves, but requires a stone tool."], ["Palm", "Palm Tree", "A large tropical tree that might bear coconuts, but will always yield a lot of wood and leaves."], ["Cloth", "Cloth", "A square strip of cloth. Wonder how it got here."]]
+let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tools.", 0], ["Stick", "Stick", "A rough wood shaft. Could be useful for crafting tools.", 0], ["PSapling", "Palm Sapling", "A small palm tree. Could be harvested for fibrous leaves.", 1], ["Palm", "Palm Tree", "A large tropical tree that might bear coconuts, but will always yield a lot of wood and leaves.", 2], ["Cloth", "Cloth", "A square strip of cloth. Wonder how it got here.", 0]]
 
 //{
 
@@ -103,8 +103,8 @@ function Stick(x, y) {
     this.y = y
     this.draw = function() {
         noStroke()
-        strokeWeight(2)
-        if(hig === this) {stroke(155*f)}
+strokeWeight(0.8)
+if(hig === this) {stroke(255*f)}
         fill(f*150, 0, 0)
         rect(this.x+9, this.y+4, 3, 12)
     }
@@ -122,7 +122,7 @@ function Palm(x, y) {
         scale(this.he)
         stroke(0, f*150, 0)
         if(hig === this) {stroke(0, f*220, 0)}
-        strokeWeight(2)
+        strokeWeight(0.8)
         fill(0, f*255, f*98)
         rect(-6, -6, 16, 16, 3)
         fill(0, f*255, f*150)
@@ -141,7 +141,6 @@ function Palm(x, y) {
             if(this.x > 125 && this.x < 155 && this.y > 125 && this.y < 155) {
                 fill(255, 255, 255)
                 textSize(7)
-                text("Hold C to climb tree", 25, 260)
                 climbed = keys.c
                 if(keys.c) {
                     this.isclimbed = true
@@ -166,7 +165,7 @@ function Yucca(x, y) {
         scale(this.he)
         stroke(0, f*150, 0)
         if(hig === this) {stroke(0, 190*f, 0)}
-        strokeWeight(2)
+        strokeWeight(0.8)
         fill(0, f*100, f*50)
         rect(-6, -6, 16, 16, 3)
         fill(0, f*200, f*100);
@@ -181,7 +180,7 @@ function Rock(x, y) {
         fill(f*100, f*100, f*100)
         stroke(f*50, f*50, f*50)
         if(hig === this) {stroke(255*f)}
-        strokeWeight(1)
+        strokeWeight(0.8)
         rect(this.x+8, this.y+8, 4, 4)
     }
 }
@@ -193,7 +192,7 @@ function PSapling(x, y) {
         fill(f*100, f*255, f*100)
         stroke(f*50, f*50, f*50)
         if(hig === this) {stroke(255*f)}
-        strokeWeight(1)
+        strokeWeight(0.8)
         rect(this.x+8, this.y+8, 5*this.he, 5*this.he)
     }
 }
@@ -205,7 +204,7 @@ function Cloth(x, y) {
         fill(57*f, f*99, f*222)
         stroke(f*50, f*50, f*50)
         if(hig === this) {stroke(255*f)}
-        strokeWeight(1)
+        strokeWeight(0.8)
         rect(this.x+8, this.y+8, 5*this.he, 5*this.he)
     }
 }
@@ -214,76 +213,46 @@ function Cloth(x, y) {
 function Fire(x, y) {
     this.x = x
     this.y = y
+    this.fuel = 3
+    this.started = true
+    this.open = false
     this.heat = 0
-    this.fuel = 1
-    this.started = false
-    this.meaton = false
-    this.mtimer = 500
+    this.name = "Fire"
     this.ref = function() {
-        if(keys.r && this.started && res[2] >= 1 && this.fuel <= 0.66 && this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165) {
-            this.fuel += 0.33
-            res[3] --
-        }
     }
     this.start = function() {
-        let fclose = this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165
         if(this.started) {
+            noStroke()
             fill(255, 100, 0)
-            ellipse(0.25, 0, 8, 8)
-            noFill()
-            strokeWeight(2)
-            stroke(100, 100, 100)
-            arc(0.25, 0, 8, 8, -130, this.fuel*360-150)
-            this.fuel = constrain(this.fuel, 0, 1)
-            this.fuel -= 0.00005*ts //0.00003
+            ellipse(this.x, this.y, 9, 9)
+            this.fuel -= 0.000436*ts
             if(this.fuel < 0) {
                 this.started = false
                 this.fuel = 100
             }
-            if(keys.e && !this.meaton && res[7] >= 1) {
-                res[7] --
-                this.meaton = true
-                this.mtimer = 1000
-            }
-            if(this.meaton) {
-                rotate(-45)
-                fill(this.ready ? 50 : 170, 0, 0)
-                noStroke()
-                rect(-2, -2, 3, 3)
-                this.mtimer --
-                if(this.mtimer < 0) {
-                    this.ready = true
-                }
-                
-                if(this.ready && fclose && keys.e) {
-                    this.ready = false
-                    this.meaton = false
-                    res[8]++
-                }
-            }
         }
     }
     this.draw = function() {
-        let fclose = this.x > 135 && this.x < 165 && this.y > 135 && this.y < 165
         pushMatrix()
         translate(this.x, this.y)
         fill(150, 0, 0)
         rotate(45)
         noStroke();
         scale(1.4)
+        if(hig === this) {stroke(255); strokeWeight(0.8)}
         rect(-1, -5, 2, 10)
         rect(-5, -1, 10, 2)
         scale(0.9)
-        this.start()
         popMatrix()
         pushMatrix()
         translate(0, -250)
         if(!this.started) {
             fill(255, 100, 0)
+            noStroke()
             rect(20, 500, 3, -this.heat*2.2)
         }
         popMatrix()
-        if(fclose && equipped === "Kindling") {
+        if(hig === this && equipped === "Kindling") {
             let mov = [abs(mouseX-pmouseX), abs(mouseY-pmouseY)]
             this.heat += mov[0]/100+mov[1]/100
             this.heat -= 0.3
@@ -294,7 +263,8 @@ function Fire(x, y) {
                 this.heat = 0
             }
         }
-        if(!fclose) {this.heat = 0}
+        if(hig !== this) {this.heat = 0}
+        this.start()
     }
 }
 function WStill(x, y) {
@@ -302,6 +272,7 @@ function WStill(x, y) {
     this.y = y
     this.fuel = 0.25
     this.water = 0.25
+    this.name = "Water Still"
     this.d = function() {
         pushMatrix()
         translate(this.x, this.y)
@@ -351,6 +322,7 @@ function Shelter(x, y) {
     this.x = x
     this.y = y
     this.prog = 0
+    this.name = "Shelter"
     this.sleep = function() {
         if(keys.e && df(this) < 20) {
             slopen = true
@@ -370,6 +342,7 @@ function Shelter(x, y) {
 function Crate(x, y) {
     this.x = x
     this.y = y
+    this.name = "Wooden Crate"
     this.open = false
     this.stuff = []
     this.draw = function() {
@@ -383,6 +356,41 @@ function Crate(x, y) {
     }
 }
 //} building constructors
+//{
+function firemenu() {
+    let fires = builds.filter(function(e) {return e.name === "Fire"})
+    let fire = fires.filter(function(e) {return hig === e})[0]
+    if(fire && fire.started) {
+        rect(150, 400, 300, 100)
+        rect(150, 400, 300, 100)
+        fill(255)
+        textSize(20)
+        text("Fuel:", 170, 430)
+        textSize(17)
+        text(floor(fire.fuel) + "h " + round(fire.fuel*60)%60+ "m", 165, 455)
+        textSize(19)
+        text("Add Fuel", 270, 430)
+        textSize(15)
+        fill(mouseX > 260 && mouseX < 385 && mouseY > 445 && mouseY < 468 ? (res[3] > 0 ? color(100, 100, 100) : color(128, 12, 12)) : (res[3] > 0 ? color(163, 161, 161) : color(250, 3, 3)))
+        text("Stick (" + res[3] + ")", 270, 460)
+        fill(mouseX > 260 && mouseX < 385 && mouseY > 468 && mouseY < 490 ? (tools[4] > 0 ? color(100, 100, 100) : color(128, 12, 12)) : (tools[4] > 0 ? color(163, 161, 161) : color(250, 3, 3)))        
+        text("Kindling (" + tools[4] + ")", 270, 480)
+        
+    }
+    
+    if(res[3] > 0 && mouseX > 260 && mouseX < 385 && mouseY > 445 && mouseY < 468 && press) {
+        res[3] --
+        fire.fuel += 0.5
+    }
+    if(tools[4] > 0 && mouseX > 260 && mouseX < 385 && mouseY > 468 && mouseY < 490 && press) {
+        tools[4] --
+        fire.fuel += 2
+    }
+}
+function watermenu() {
+    
+}
+//} building menus
 //{
 function notif() {
     textAlign(LEFT)
@@ -562,11 +570,9 @@ for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
 //} land constructors
 //{
 function pickup() {
-    let done = false
     let uppable = others.filter(function(e) {return e.constructor === Rock || e.constructor === Stick || e.constructor === Cloth})
-    if(keys.e && !done) {for(let i = 0; i < uppable.length; i++) {
+    if(keys.e) {for(let i = 0; i < uppable.length; i++) {
         if(uppable[i] === hig) {
-            done = true
             others.splice(others.indexOf(uppable[i]), 1)
             switch(uppable[i].constructor) {
                 case Rock: res[0]++; break
@@ -1191,18 +1197,40 @@ function storage() {
 //} storages
 //{
 function detect() {
-    let mb = others.concat(trees)
+    let mb = others.concat(trees).concat(builds)
     mb = mb.filter(function(e) {return df(e) < 20})
     hig = mb.sort(function(a,b) {return df(a)-df(b)})[0]
 }
 function desc() {
-    if(hig) {
+    if(hig && hig.constructor.__name !== "construct") {
         let inf = ddes.filter(function(e) {return e[0] === hig.constructor.__name})[0]
         fill(255)
         textSize(16)
-        text(inf[1], 50, 525, 200, 600)
+        text(inf[1], 30, 515, 200, 600)
         textSize(10)
-        text(inf[2], 50, 550, 200, 600)
+        text(inf[2], 30, 550, 200, 600)
+        switch(inf[3]) {
+            case 0: 
+                fill(200)
+                text("Press E to take", 30, 540); break
+            case 1: 
+                fill(200)
+                if(equipped === "Stone Tool" || equipped === "Crude Axe") {
+                    text("Hold E to harvest", 30, 540)
+                } else {
+                    fill(255, 0, 0)
+                    text("Stone Tool/Crude Axe required to harvest!", 30, 540)
+                }
+            break;
+            case 2: 
+                fill(200)
+                if(equipped === "Crude Axe") {
+                    text("Hold E to harvest", 30, 540)
+                } else {
+                    fill(255, 0, 0)
+                    text("Crude Axe required to harvest!", 30, 540)
+                }
+        }
     }
 }
 //} closest detection and desc.
@@ -1536,6 +1564,8 @@ function game() {
         pulse()
         skills()
         HUD()
+        firemenu()
+        watermenu()
         desc()
     }
     detect()
@@ -1556,7 +1586,6 @@ function game() {
         time()
         slept()
         health()
-        pickup()
         sapup()
         treedown()
         sustenance()
@@ -1921,6 +1950,7 @@ draw = function() {
         keys[keyCode] = true
         keys[key.toString()] = true
         if(menu === 1) {drop()}
+        if(keys.e) {pickup()}
         if(keys.e && builds.some(function(e) {return e.constructor === Crate})) {openstorages()}
         refuel()
         if(!builds.some(function(e) {return e.open && e.constructor === Crate}) && !loading) {
