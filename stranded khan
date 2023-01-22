@@ -31,15 +31,17 @@ let saveCode = (true !== true) ? "" :
 //{
 let tools = [
     0,0,0,0,0,
-    0,0,0,0,0
+    0,0,0,0,0,
+    0,0
 ]
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
-    "Fishing Spear", "Water Still", "Shelter", "Wooden Crate","Wooden Torch"
+    "Fishing Spear", "Water Still", "Shelter", "Wooden Crate","Wooden Torch", 
+    "Raft Foundation"
 ]
 let res = [
     0,0,0,0,0,
-    0,0,0,1,0,
+    0,0,0,0,0,
     0
 ] 
 /*
@@ -49,13 +51,13 @@ cloth
 */
 
 //} resources
-let islandSize = 30
-let skip = true
+let islandSize = 500
+let skip = false
 //{
 noStroke()
 let ran = round(random(0, 10000))
 let press = false, canpress = true
-let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0, cause = "", hig
+let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0, cause = "", hig, rafts = [], onraft = false
 
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to open pause game\nE to interact with an item\nG to zoom out (developer function)"
 let hm = [
@@ -75,11 +77,11 @@ let hm = [
 ]
 let c1 = color(0, 0, 150)
 //}
-let px = 0, py = 0, hr = 6, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
+let px = 0, py = 0, hr = 6, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, f = 1, skill = [[3, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
 //{
-let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire, also really good firewood.", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light"]
+let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire, also really good firewood.", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light", "A bunch of sticks arranged in a format so that you can step onto them", "A simple, manual raft that allows you to traverse the ocean without getting wet!"]
 
-let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tools.", 0], ["Stick", "Stick", "A rough wood shaft. Could be useful for crafting tools.", 0], ["PSapling", "Palm Sapling", "A small palm tree. Could be harvested for fibrous leaves.", 1], ["Palm", "Palm Tree", "A large tropical tree that might bear coconuts, but will always yield a lot of wood and leaves.", 2], ["Cloth", "Cloth", "A square strip of cloth. Wonder how it got here.", 0], ["Yucca", "Yucca Tree", "A smaller tree that has fibrous leaves. Could be used to make rope.", 1]]
+let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tools.", 0], ["Stick", "Stick", "A rough wood shaft. Could be useful for crafting tools.", 0], ["PSapling", "Palm Sapling", "A small palm tree. Could be harvested for fibrous leaves.", 1], ["Palm", "Palm Tree", "A large tropical tree that might bear coconuts, but will always yield a lot of wood and leaves.", 2], ["Cloth", "Cloth", "A square strip of cloth. Wonder how it got here.", 0], ["Yucca", "Yucca Tree", "A smaller tree that has fibrous leaves. Could be used to make rope.", 1], ["PaddleRaft", "Paddle Raft", des[10], 3]]
 
 
 //} descriptions
@@ -98,6 +100,9 @@ let maxweight = 30
 function df(e) {
     return round(dist(e.x, e.y, 140, 140))
 } 
+function df2(e) {
+    return round(dist(e.x, e.y, 150, 150))
+}
 function Stick(x, y) {
     this.x = x
     this.y = y
@@ -432,6 +437,81 @@ function watermenu() {
 }
 //} building menus
 //{
+function PaddleRaft(x, y) {
+    this.x = x
+    this.y = y
+    this.on = false
+    this.grounded = false
+    this.draw = function() {
+        stroke(0)
+        pushMatrix()
+        translate(this.x, this.y)
+        if(this.on && !this.grounded) {
+            rotate(pd)
+        }
+        if(hig === this) {stroke(255*f)}
+        rect(-6.5, -11, 12, 20)
+        if(press) {
+            onraft = false
+            this.on = false
+        }
+        if(keys.e && hig === this && !this.on) {
+            this.on = true
+            pd = 0
+            const x = 150-this.x
+            const y = 150-this.y
+            let items = bs.concat(trees).concat(others).concat(builds).concat(rafts)
+            for(let i = 0; i < items.length; i++) {
+                items[i].x += x
+                items[i].y += y
+            }
+        }
+        popMatrix()
+    }
+}
+function raft() {
+    onraft = rafts.some(function(e) {return e.on})
+    if(rafts.includes(hig) && !onraft) {
+        textAlign(CENTER)
+        fill(255)
+        text("Press E to get on raft", 300, 450)
+    }
+    if(onraft) {
+        fill(255)
+        text("Arrow keys to paddle\nClick to exit raft", 30, 550)
+        rafts.sort(function(a,b) {return df(a)-df(b)})
+        const raftt = rafts.filter(function(e) {return e.on})[0]
+        const dist = bs.filter(function(e) {return df(e) < 100}).sort(function(a,b) {return df2(a)-df2(b)}).map(function(e) {return df2(e)})[0]
+        
+        const mult = dist < 30 ? 0.1 : dist < 45 ? 0.2 : dist < 70 ? 0.4 : dist < 90 ? 0.8 : 1
+        
+        const tx = mult === 0.1 ? "0.1x speed due to land proximity" : mult === 0.2 ? "0.2x speed due to land proximity" : mult === 0.4 ? "0.4x speed due to land proximity" : mult === 0.8 ? "0.8x speed due to land proximity" : ""
+        
+        fill(mult === 0.1 ? color(255, 0, 0) : mult === 0.2 ? color(200, 100, 50) : mult === 0.4 ? color(150, 150, 0) : mult === 0.8 ? color(100, 200, 0) : color(255))
+        textSize(14)
+        if(!raftt.grounded) {text(tx + "\n", 150, 400)}
+        
+        fill(255, 0, 0)
+        text(dist < 40 && !raftt.grounded ? "Grounding Risk!" : "", 150, 430)
+        
+        if(on) {
+            raftt.grounded = true
+        }
+        if(raftt.grounded) {text("Raft is grounded and unusable!", 150, 430)}
+        
+        const x = keys[RIGHT] ? -1 : keys[LEFT] ? 1 : 0 
+        const y = keys[UP] ? 1 : keys[DOWN] ? -1 : 0
+        
+        let items = bs.concat(trees).concat(others).concat(builds).concat(rafts.slice(1, rafts.length-1))
+        if(!raftt.grounded) {for(let i = 0; i < items.length; i++) {
+            items[i].x += x/4*mult
+            items[i].y += y/4*mult
+        }}
+    }
+}
+
+//} rafts
+//{
 function notif() {
     textAlign(LEFT)
     for(let i = 0; i < not.length; i++) {
@@ -584,9 +664,6 @@ function Island(x, y) {
         }
         if(this.ri >= this.c.length-2) {
             this.pushing = true
-            for(let i = 0; i < this.c.length; i++) {
-                //bs.push(new Land(this.c[i].x, this.c[i].y))
-            }
 
             dup = false
             this.finish = true
@@ -604,8 +681,8 @@ function Island(x, y) {
         }
     }
 }
-for(let i = 1; i < 4; i++) {for(let j = 1; j < 4; j++) {
-    islands.push(new Island(i*700-1300, j*700-1300))
+for(let i = 1; i < 6; i++) {for(let j = 1; j < 6; j++) {
+    islands.push(new Island(i*750-2150, j*750-2150))
 }}
 //} land constructors
 //{
@@ -712,7 +789,9 @@ function include() {
 ["Water Still", tools[6], 6.8, [6, 1], des[6], 6],
 ["Shelter", tools[7], 7.7, [7, 1], des[7], 6],
 ["Wooden Crate", tools[8], 6.4, [8, 1], des[8], 6],
-["Wooden Torch", tools[9], 1.6, [9, 1], des[9], 1]
+["Wooden Torch", tools[9], 1.6, [9, 1], des[9], 1],
+["Raft Foundation", tools[10], 4, [10, 1], des[10], 1],
+["Paddle Raft", tools[11], 4, [11, 1], des[11], 7]
     ]
     invm = []
     for(let i = 0; i < invs.length; i++) {if(res[i] > 0) {invm.push(invs[i])}}
@@ -761,7 +840,7 @@ function interaction() {
             }
         }
     }
-    let cocon = yx.indexOf("Coconut"), drinka = yx.indexOf("Drinkable Coconut"), firea = yx.indexOf("Fire"), sard = yx.indexOf("Sardine"), cmeat = yx.indexOf("Cooked Meat"), wstill = yx.indexOf("Water Still"), shelt = yx.indexOf("Shelter")
+    let cocon = yx.indexOf("Coconut"), drinka = yx.indexOf("Drinkable Coconut"), firea = yx.indexOf("Fire"), sard = yx.indexOf("Sardine"), cmeat = yx.indexOf("Cooked Meat"), wstill = yx.indexOf("Water Still"), shelt = yx.indexOf("Shelter"), praft = yx.indexOf("Paddle Raft")
     if(press) {
         if(mouseX > 139 && mouseX < 470 && menu === 1) {
         if(mouseY > invy+cocon*25 && mouseY < invy+25+cocon*25) {
@@ -784,7 +863,11 @@ function interaction() {
             res[8] --
             hunger += 20
         }
+        if(mouseY > invy+praft*25 && mouseY < invy+25+praft*25 && !on) {
+            tools[11] --
+            rafts.push(new PaddleRaft(150, 150))
         }
+    }
     }
 }
 function inventory() {
@@ -830,8 +913,7 @@ function inventory() {
                 textSize(13)
                 textAlign(LEFT)
                 rect(mouseX, mouseY, 200, 150)
-                fill(255)
-                text(invm[i][4] + "\n\n" + (invm[i][5] === 1 ? "Click to equip" : invm[i][5] === 2 ? "Click to consume" : invm[i][5] === 3 ? "Click to Husk" : invm[i][5] === 4 ? "Click to skin (requires knife)" : invm[i][5] === 5 ? "Click to put on to fire (must be near one)" : invm[i][5] === 6 ? "Click to place building" : "") + "\nQ to drop", mouseX+15, mouseY+15, 180, 600)
+                text(invm[i][4] + "\n\n" + (invm[i][5] === 1 ? "Click to equip" : invm[i][5] === 2 ? "Click to consume" : invm[i][5] === 3 ? "Click to Husk" : invm[i][5] === 4 ? "Click to skin (requires knife)" : invm[i][5] === 5 ? "Click to put on to fire (must be near one)" : invm[i][5] === 6 ? "Click to place building" : invm[i][5] === 7 ? "Click to drop raft" : "") + "\nQ to drop", mouseX+15, mouseY+15, 180, 600)
             }
         }
     }
@@ -858,7 +940,7 @@ function craft(me, y, amounts, resources, name, current, ind, given, gam, lvl) {
     textSize(13)
     for(let i = 0; i < amounts.length; i++) {
         fill(norm1 ? color(255, 255, 255) : color(255, 150, 150))
-        text(amounts[i] + " " +  resources[i], 330, (y+i*14)-(amounts.length-1)*7+2)
+        text(amounts[i] + " " +  resources[i], 320, (y+i*14)-(amounts.length-1)*7+2)
     }
     if(mouseX > 120 && mouseX < 480 && menu === 2 && press) {
         if(mouseY > y-25 && mouseY < y+25 && mouseX > 120 && mouseX < 480 && current.every(function(e, i) {return e >= amounts[i]}) &&  skill[0][0] > lvl) {
@@ -882,9 +964,10 @@ function craft(me, y, amounts, resources, name, current, ind, given, gam, lvl) {
     if(menu === 2 && mouseX > 120 && mouseX < 480 && mouseY > y-25 && mouseY < y+25) {
         fill(0)
         rect(180, 35, 240, 60)
-        fill(skill[2][0] > lvl ? color(255, 255, 255) : color(255, 0, 0))
+        textSize(12)
+        fill(skill[0][0] > lvl ? color(255, 255, 255) : color(255, 0, 0))
         textAlign(CENTER)
-        text(lvl < skill[2][0] ? des[given[0][1]] : "Crafting skill level not reached " + lvl + " yet!", 190, 50, 230, 600)
+        text(lvl < skill[0][0] ? des[given[0][1]] : "Crafting skill level not reached " + lvl + " yet!", 190, 45, 230, 600)
         textAlign(LEFT)
     }
     }
@@ -898,13 +981,18 @@ function crafting() {
     fill(255, 255, 255)
     textSize(25)
     text("Crafting", 240, 140)
-    textSize(15)
-    text("Tools     Buildings    Resources", 170, 180)
+    textSize(13)
+    text("Tools", 152, 180)
+    textSize(11.5)
+    text("Buildings", 227, 180)
+    text("Resources", 310, 180)
+    textSize(13)
+    text("Rafts", 410, 180)
     fill(255, 255, 255)
     noStroke()
-    rect(140+wm*110, 190, 105, 5)
-    for(let i = 0; i < 3; i++) {
-        if(mouseIsPressed && mouseX > 140+i*110 && mouseX < 140+(i+1)*110 && mouseY > 140 && mouseY < 190) {
+    rect(130+wm*85, 190, 85, 5)
+    for(let i = 0; i < 4; i++) {
+        if(mouseIsPressed && mouseX > 130+i*85 && mouseX < 130+(i+1)*85 && mouseY > 140 && mouseY < 190) {
             wm = i
         }
     }
@@ -922,15 +1010,15 @@ function crafting() {
     craft(0, 390, [2], ["Stick"], "Fishing Spear", [res[3]],
     [[0,3]], [[1,5]], [1], 1)
     
-    craft(0, 440, [1, 1], ["Lashing", "Stick"], "Wooden Torch", [res[2], res[3]], [[0, 2], [0, 3]], [[1, 9]], [1], 2)
+    craft(0, 440, [1, 1], ["Lashing", "Stick"], "Wooden Torch", [res[10], res[3]], [[0, 10], [0, 3]], [[1, 9]], [1], 2)
 
     }//0
     {
     craft(1, 240, [5], ["Stick"], "Fire", [res[3]], 
     [[0, 3]], [[1, 3]], [1], 1)
     
-    craft(1, 290, [4, 4, 2], ["Palm Leaves", "Stick", "Lashing"], "Water Still", [res[3], res[4], res[2]],
-    [[0,3],[0,4],[0,2]], [[1, 6]], [1], 2)
+    craft(1, 290, [1, 4, 2], ["Cloth", "Stick", "Lashing"], "Water Still", [res[10], res[4], res[2]],
+    [[0,10],[0,4],[0,2]], [[1, 6]], [1], 2)
     
     craft(1, 340, [5, 4, 3], ["Palm Leaves", "Stick", "Lashing"], "Shelter", [res[3], res[4], res[2]],
     [[0,3],[0,4],[0,2]], [[1,7]], [1], 2)
@@ -945,6 +1033,10 @@ function crafting() {
     craft(2, 290, [2], ["Stick"], "Kindling", [res[3]],
     [[0,3]], [[1,4]], [1], 0)
     }//2
+    {
+    craft(3, 240, [4], ["Stick"], "Raft Foundation", [res[3]], [[0,3]], [[1, 10]], [1], 2)
+    craft(3, 290, [1], ["Raft Foundation"], "Paddle Raft", [tools[10]], [[1, 10]], [[1, 11]], [1], 2)
+    }
 }
 //{
 function fishing() {
@@ -1012,7 +1104,7 @@ function HUD() {
     textSize(15)
     textAlign(CENTER)
     fill(255, 255, 255)
-    text("Equipped: " + equipped, 320, 580)
+    if(!onraft) {text("Equipped: " + equipped, 320, 580)}
     textAlign(LEFT)
     text("Day " + day, 60, 20)
     
@@ -1237,11 +1329,13 @@ function storage() {
 //} storages
 //{
 function detect() {
-    let mb = others.concat(trees).concat(builds)
+    textAlign(LEFT)
+    let mb = others.concat(trees).concat(builds).concat(rafts)
     mb = mb.filter(function(e) {return df(e) < 20})
     hig = mb.sort(function(a,b) {return df(a)-df(b)})[0]
 }
 function desc() {
+    textAlign(LEFT)
     if(hig && hig.constructor.__name !== "construct") {
         let inf = ddes.filter(function(e) {return e[0] === hig.constructor.__name})[0]
         fill(255)
@@ -1261,7 +1355,7 @@ function desc() {
                     fill(255, 0, 0)
                     text("Stone Tool/Crude Axe required to harvest!", 30, 540)
                 }
-            break;
+            break
             case 2: 
                 fill(200)
                 if(equipped === "Crude Axe") {
@@ -1270,6 +1364,11 @@ function desc() {
                     fill(255, 0, 0)
                     text("Crude Axe required to harvest!", 30, 540)
                 }
+            break
+            case 3:
+                fill(200)
+                text("Press E to get on raft", 30, 540)
+            break
         }
     }
 }
@@ -1382,7 +1481,7 @@ function water() {
     on = bs.filter(function(e) {
         return e.x >= 130 && e.x <= 150 && e.y >= 130 && e.y <= 150
     }).length >= 1
-    if(!on) {
+    if(!on && !onraft) {
         ox -= 0.06-skill[2][0]*0.005*ts // 0.06
     } else {
         ox += 0.16+skill[2][0]*0.05*ts //0.16
@@ -1451,7 +1550,7 @@ function controls() {
             skill[2][1] += 0.001
         } else {skill[1][1] += 0.002}
     }
-    let items = bs.concat(trees).concat(others).concat(builds)
+    let items = bs.concat(trees).concat(others).concat(builds).concat(rafts)
     for(let i = 0; i < items.length; i++) {
         items[i].x -= x
         items[i].y -= y
@@ -1586,6 +1685,7 @@ function game() {
     for(let i = 0; i < cothers.length; i++) {cothers[i].draw()}
     if(climbed) {for(let i = 0; i < ctrees.length; i++) {ctrees[i].draw()}}
     for(let i = 0; i < cbuilds.length; i++) {cbuilds[i].draw()}
+    for(let i = 0; i < rafts.length; i++) {rafts[i].draw()}
     noStroke()
     player()
     popMatrix()
@@ -1599,18 +1699,19 @@ function game() {
     noStroke()
     if(!climbed) {for(let i = 0; i < ctrees.length; i++) {ctrees[i].draw()}}
     popMatrix()
-    if(!loading && !ps && !zoomed && !climbed && !dead && menu === 0 && !builds.some(function(e) {return e.open})) {controls()}
+    if(!loading && !ps && !zoomed && !climbed && !dead && menu === 0 && !builds.some(function(e) {return e.open}) && !onraft) {controls()}
     if(!loading) {
         pulse()
         skills()
         HUD()
         firemenu()
         watermenu()
-        desc()
+        raft()
+        if(!onraft) {desc()}
     }
-    detect()
+    if(!onraft) {detect()}
     notif()
-    if(!builds.some(function(e) {return e.open}) && !loading) {switch(menu) {
+    if(!builds.some(function(e) {return e.open}) && !loading && !onraft) {switch(menu) {
         case 1: inventory(); break
         case 2: crafting(); break
     }}
@@ -1927,7 +2028,11 @@ function load() {
     textSize(20)
     back()
 }
+function homeload() {
+    
+}
 function home() {
+    homeload()
     background(c1)
     let cond = [
         mouseX > 400 && mouseY > 180 && mouseY < 240,
@@ -1936,27 +2041,6 @@ function home() {
         mouseX > 400 && mouseY > 320 && mouseY < 380, 
     ]
     let t = ["START GAME", "BLANK", "GUIDE", "CONTROLS"]
-    
-    if(loading) {
-    }
-    for(let i = 0; i < hm.length; i++) {
-        for(let j = 0; j < hm[i].length; j++) {
-            switch(hm[i][j]) {
-                case "1": 
-                    fill(240, 240, 175)
-                    rect(j*15+220, i*15+200, 15, 15); 
-                break;
-                case "2":
-                    fill(0, 150, 0)
-                    rect(j*15+220, i*15+200, 15, 15)
-                break;
-                case "3":
-                    fill(10, 117, 166);
-                    rect(j*15+220, i*15+200, 15, 15)
-            }
-        }
-    }
-    
     textFont(createFont("sans-serif"))
     fill(255, 255, 255)
     textSize(30)
