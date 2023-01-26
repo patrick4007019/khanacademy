@@ -32,27 +32,27 @@ let saveCode = (true !== true) ? "" :
 let tools = [
     0,0,0,0,0,
     0,0,0,0,0,
-    0,0
+    1,0,0
 ]
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
     "Fishing Spear", "Water Still", "Shelter", "Wooden Crate","Wooden Torch", 
-    "Raft Foundation"
+    "Paddle Raft", "Wooden Spear"
 ]
 let res = [
+    0,0,0,4,0,
     0,0,0,0,0,
-    0,0,0,0,0,
-    0
+    0,0,0
 ] 
 /*
 stone, fibrous leaves, lashing, sticks, palm leaves, 
 coconut, drinkable coconut, raw meat, cooked meat, sardine
-cloth
+cloth, raft foundation
 */
 
 //} resources
-let islandSize = 500
-let skip = false
+let islandSize = 30
+let skip = true
 //{
 noStroke()
 let ran = round(random(0, 10000))
@@ -77,9 +77,9 @@ let hm = [
 ]
 let c1 = color(0, 0, 150)
 //}
-let px = 0, py = 0, hr = 6, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, f = 1, skill = [[3, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
+let px = 0, py = 0, hr = 6, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, f = 1, skill = [[4, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
 //{
-let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire, also really good firewood.", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light", "A bunch of sticks arranged in a format so that you can step onto them", "A simple, manual raft that allows you to traverse the ocean without getting wet!"]
+let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire, also really good firewood.", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light", "A bunch of sticks arranged in a format so that you can step onto them", "A simple, manual raft that allows you to traverse the ocean without getting wet!", "A sharp pokey stick to defend yourself"]
 
 let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tools.", 0], ["Stick", "Stick", "A rough wood shaft. Could be useful for crafting tools.", 0], ["PSapling", "Palm Sapling", "A small palm tree. Could be harvested for fibrous leaves.", 1], ["Palm", "Palm Tree", "A large tropical tree that might bear coconuts, but will always yield a lot of wood and leaves.", 2], ["Cloth", "Cloth", "A square strip of cloth. Wonder how it got here.", 0], ["Yucca", "Yucca Tree", "A smaller tree that has fibrous leaves. Could be used to make rope.", 1], ["PaddleRaft", "Paddle Raft", des[10], 3]]
 
@@ -96,6 +96,8 @@ let render = 600
 // max weight
 let maxweight = 30
 //} setting vars
+//{
+//}
 //{
 function df(e) {
     return round(dist(e.x, e.y, 140, 140))
@@ -776,7 +778,8 @@ function include() {
 ["Raw Meat", res[7], 0.5, [7, 0], "Don't eat this", 5],
 ["Cooked Meat", res[8], 0.5, [8, 0], "Eat this", 2],
 ["Sardine", res[9], 0.5, [9, 0], "Should be skinned before cooking", 4],
-["Cloth", res[10], 0.2, [10, 0], "A thin square strip of cloth, could be pretty useful"]
+["Cloth", res[10], 0.2, [10, 0], "A thin square strip of cloth, could be pretty useful"],
+["Raft Foundation", res[11], 4, [11, 0], des[10], 0],
 ]
 // name, ? , weight, ? , description, 1(tool) 6(building), condition (tool only)
     let toolsm = [
@@ -790,8 +793,8 @@ function include() {
 ["Shelter", tools[7], 7.7, [7, 1], des[7], 6],
 ["Wooden Crate", tools[8], 6.4, [8, 1], des[8], 6],
 ["Wooden Torch", tools[9], 1.6, [9, 1], des[9], 1],
-["Raft Foundation", tools[10], 4, [10, 1], des[10], 1],
-["Paddle Raft", tools[11], 4, [11, 1], des[11], 7]
+["Paddle Raft", tools[10], 4, [11, 1], des[11], 7],
+["Wooden Spear", tools[11], 2, [12, 1], des[12], 1]
     ]
     invm = []
     for(let i = 0; i < invs.length; i++) {if(res[i] > 0) {invm.push(invs[i])}}
@@ -913,6 +916,7 @@ function inventory() {
                 textSize(13)
                 textAlign(LEFT)
                 rect(mouseX, mouseY, 200, 150)
+                fill(255)
                 text(invm[i][4] + "\n\n" + (invm[i][5] === 1 ? "Click to equip" : invm[i][5] === 2 ? "Click to consume" : invm[i][5] === 3 ? "Click to Husk" : invm[i][5] === 4 ? "Click to skin (requires knife)" : invm[i][5] === 5 ? "Click to put on to fire (must be near one)" : invm[i][5] === 6 ? "Click to place building" : invm[i][5] === 7 ? "Click to drop raft" : "") + "\nQ to drop", mouseX+15, mouseY+15, 180, 600)
             }
         }
@@ -998,19 +1002,19 @@ function crafting() {
     }
     }//other
     {
-    craft(0, 240, [1], ["Stone"], "Stone Tool", [res[0]], 
-    [[0, 0]], [[1, 0]], [1], 0)
     
-    craft(0, 290, [2, 1, 2], ["Stone Tool", "Lashing", "Stick"], "Crude Axe", [tools[0], res[2], res[3]],
+    craft(0, 240, [2, 1, 2], ["Stone Tool", "Lashing", "Stick"], "Crude Axe", [tools[0], res[2], res[3]],
     [[1, 0], [0, 2], [0, 3]], [[1, 1]], [1], 1)
     
-    craft(0, 340, [1, 1, 1], ["Stone Tool", "Lashing", "Stick"], "Refined Knife", [tools[0], res[2], res[3]],
+    craft(0, 290, [1, 1, 1], ["Stone Tool", "Lashing", "Stick"], "Refined Knife", [tools[0], res[2], res[3]],
     [[1,0],[0,2],[0,3]], [[1,2]], [1], 1)
     
-    craft(0, 390, [2], ["Stick"], "Fishing Spear", [res[3]],
+    craft(0, 340, [2], ["Stick"], "Fishing Spear", [res[3]],
     [[0,3]], [[1,5]], [1], 1)
     
-    craft(0, 440, [1, 1], ["Lashing", "Stick"], "Wooden Torch", [res[10], res[3]], [[0, 10], [0, 3]], [[1, 9]], [1], 2)
+    craft(0, 390, [1, 1], ["Lashing", "Stick"], "Wooden Torch", [res[10], res[3]], [[0, 10], [0, 3]], [[1, 9]], [1], 2)
+    
+    craft(0, 440, [2], ["Stick"], "Wooden Spear", [res[3]], [[0, 3]], [[0, 11]], [1], 3)
 
     }//0
     {
@@ -1027,16 +1031,19 @@ function crafting() {
     [[0,4],[0,2]], [[1,8]], [1], 2)
     }//1
     {
-    craft(2, 240, [4], ["Fibrous Leaves"], "Lashing", [res[1]],
+    craft(2, 240, [1], ["Stone"], "Stone Tool", [res[0]], 
+    [[0, 0]], [[1, 0]], [1], 0)
+    
+    craft(2, 290, [4], ["Fibrous Leaves"], "Lashing", [res[1]],
     [[0,1]], [[0,2]], [1], 0)
     
-    craft(2, 290, [2], ["Stick"], "Kindling", [res[3]],
+    craft(2, 340, [2], ["Stick"], "Kindling", [res[3]],
     [[0,3]], [[1,4]], [1], 0)
     }//2
     {
-    craft(3, 240, [4], ["Stick"], "Raft Foundation", [res[3]], [[0,3]], [[1, 10]], [1], 2)
-    craft(3, 290, [1], ["Raft Foundation"], "Paddle Raft", [tools[10]], [[1, 10]], [[1, 11]], [1], 2)
-    }
+    craft(3, 240, [4], ["Stick"], "Raft Foundation", [res[3]], [[0,3]], [[0, 11]], [1], 2)
+    craft(3, 290, [1], ["Raft Foundation"], "Paddle Raft", [res[11]], [[0, 11]], [[1, 10]], [1], 2)
+    }//3
 }
 //{
 function fishing() {
