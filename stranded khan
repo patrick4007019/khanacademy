@@ -58,7 +58,7 @@ let skip = true
 noStroke()
 let ran = round(random(0, 10000))
 let press = false, canpress = true
-let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0, cause = "", hig, rafts = [], onraft = false, enemies = [], weapons = []
+let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0, cause = "", hig, rafts = [], onraft = false, enemies = [], weapons = [], ingame = false, tutor = true
 
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to open pause game\nE to interact with an item\nG to zoom out (developer function)"
 let hm = [
@@ -77,7 +77,7 @@ let hm = [
     "00000003333000000"
 ]
 let c1 = color(0, 0, 150)
-//}
+//} variables
 let px = 0, py = 0, hr = 6, ox = 100, he = 100, hunger = 100, sleep = 100, thirst = 100, f = 1, skill = [[0, 0], [0, 0], [0, 0]], day = 1, ts = 0.9
 //{
 let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire, also really good firewood.", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light", "A bunch of sticks arranged in a format so that you can step onto them", "A simple, manual raft that allows you to traverse the ocean without getting wet!", "A sharp pokey stick to defend yourself"]
@@ -1227,7 +1227,7 @@ function pause() {
     // seed, position x, position y, island size, speed, time, health, oxygen, thirst, hunger
     if(ps) {
         if(!con2) {
-        fill(0, 0, 100)
+        fill(0, 0, 150)
         rect(150, 100, 300, 400)
         textSize(30)
         fill(255, 255, 255)
@@ -1239,19 +1239,28 @@ function pause() {
         text("GET SAVE CODE", 190, 290)
         fill(mouseX > 180 && mouseX < 400 && mouseY > 320 && mouseY < 355 ? color(200, 200, 200) : color(255, 255, 255))
         text("CONTROLS", 190, 340)
+        fill(mouseX > 180 && mouseX < 400 && mouseY > 365 && mouseY < 405 ? color(200, 200, 200) : color(255, 255, 255))
+        text("GUIDE", 190, 390)
+        fill(mouseX > 180 && mouseX < 400 && mouseY > 415 && mouseY < 455 ? color(200, 200, 200) : color(255, 255, 255))
+        text("CONTINUE", 190, 440)
         if(ps && press) {
             if(mouseX > 180 && mouseX < 400) {
             if(mouseY > 210 && mouseY < 255 && ps) {Program.restart()} 
             else if(mouseY > 255 && mouseY < 320 && ps) {
-                println(sav)
                 
             } else if(mouseY > 320 && mouseY < 355 && ps) {
                 con2 = true
             }
+            
+            if(mouseY > 365 && mouseY < 405) {
+                sc = "plants"
+                ingame = true
+            }
+            if(mouseY > 415 && mouseY < 455) {ps = false}
         }}
         }
         if(con2) {
-            fill(0, 0, 100)
+            fill(0, 0, 150)
             rect(150, 100, 300, 400)
             textSize(30)
             fill(255, 255, 255)
@@ -1567,6 +1576,27 @@ function desc() {
     }
 }
 //} closest detection and desc.
+//{
+function initial() {
+    if(tutor && !loading) {
+        stroke(255)
+        strokeWeight(3)
+        fill(120)
+        rect(150, 100, 300, 400)
+        fill(255)
+        textAlign(CENTER)
+        textSize(23)
+        text("Basic Controls", 300, 170)
+        textSize(16)
+        fill(100, 255, 100)
+        text("Click to close tutorial", 300, 450)
+        textSize(14)
+        fill(255)
+        text("A to open crafting menu\nF to open inventory\nZ to pause game\nArrow keys to move\nOther controls explained later", 300, 230)
+        if(mouseIsPressed) {tutor = false}
+    }
+}
+//} initial tutorial
 //{
 function pulse() {
     if(sleep < 25) {
@@ -1944,6 +1974,7 @@ function game() {
     noStroke()
     dying()
     init()
+    initial()
 }
 //{
 function back() {
@@ -1956,9 +1987,10 @@ function back() {
     
     if(mouseIsPressed) {
         if(mouseX > 30 && mouseX < 120 && mouseY > 540 && mouseY < 580) {
+            if(!ingame) {
             if(advance) {advance = false}
             sc = "home"
-            
+            } else {sc = "game"}
         }
     }
 }
