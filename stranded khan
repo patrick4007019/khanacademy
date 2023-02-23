@@ -52,13 +52,13 @@ cloth, raft foundation
 */
 
 //} resources
-let islandSize = 20
+let islandSize = 80
 let skip = false
 //{
 noStroke()
 let ran = round(random(0, 10000))
 let press = false, canpress = true
-let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0, cause = "", hig, rafts = [], onraft = false, enemies = [], weapons = [], ingame = false, tutor = true
+let sc = "home", keys = [], seed = new Random(ran), bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0, cause = "", hig, rafts = [], onraft = false, enemies = [], weapons = [], ingame = false, tutor = true, diff = 0
 
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to open pause game\nE to interact with an item\nG to zoom out (developer function)"
 let hm = [
@@ -87,10 +87,10 @@ let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tool
 
 //} descriptions
 //{
-
+let sett = [0, 1]
 let loadSpeed = 5
 let spd
-let render = 600
+let render = 120
 let maxweight = 30
 //} setting vars
 //{
@@ -745,9 +745,15 @@ function Island(x, y) {
         }
     }
 }
-for(let i = 1; i < 6; i++) {for(let j = 1; j < 6; j++) {
-    islands.push(new Island(i*750-2145, j*750-2145))
+function pushIslands(sz) {
+for(let i = 1; i < sz+1; i++) {for(let j = 1; j < sz+1; j++) {
+    let bb = sz === 5 ? 5 : sz === 3 ? 2 : 9
+    islands.push(new Island(
+        i*750-(2145-(sz-bb)*750), 
+        j*750-(2145-(sz-bb)*750)
+    ))
 }}
+}
 //} land constructors
 //{
 function pickup() {
@@ -1878,7 +1884,7 @@ function game() {
     if(!dead) {
     noStroke()
     let cbs = filtered(bs), cothers = filtered(others), cbuilds = filtered(builds), ctrees = filtered(trees)
-    render = zoomed ? 10000 : 200
+    render = zoomed ? 10000 : 170
     c1 = color(0, 0, f*150)
     pushMatrix()    
     if(zoomed) {
@@ -2219,11 +2225,16 @@ function newgame() {
     } 
     back()
 }
-function option(name, o1, o2, o3, y) {
+function option(name, o1, o2, o3, y, j) {
     
     for(let i = 0; i < 3; i++) {
         fill(0, 0, 200)
+        if(sett[j] === i) {fill(30, 30, 235)}
         rect(170+i*140, y, 130, 40)
+        
+        if(press && mouseX > 170+i*140 && mouseX < 300+i*140 && mouseY > y && mouseY < y+40) {
+            sett[j] = i
+        }
     }
     
     fill(255)
@@ -2236,6 +2247,7 @@ function option(name, o1, o2, o3, y) {
     text(o3, 510, y+24)
 }
 function settings() {
+    let siz
     background(c1)
     textAlign(CENTER)
     textSize(27)
@@ -2247,14 +2259,29 @@ function settings() {
     textSize(20)
     text("Start", 300, 551)
     
-    option("Difficulty", "Normal", "Hard", "Brutal", 200)
-    option("Something", "Yes", "No", "Sure", 260)
+    option("Difficulty", "Normal", "Hard", "Brutal", 200, 0)
+    option("Map Size", "3x3", "5x5", "7x7", 340, 1)
+    
+    diff = sett[0]
+    siz = sett[1]
     
     if(press && mouseX > 200 && mouseX < 400 && mouseY > 520 && mouseY < 570) {
+        pushIslands((siz+1)*2+1)
+        render = 120
         sc = "game"
         loading = true
         saved = true
     }
+    if(sett[1] === 2) {
+        fill(255, 50, 50)
+        textAlign(CENTER)
+        textSize(15)
+        text("WARNING:\n7x7 Island grid takes a very long time to load in!", 300, 470) 
+    }
+    fill(255)
+    textSize(14)
+    text("Smaller map size = faster load time + better frames", 300, 430)
+    text("Normal Mode is made to be slightly forgiving, but isn't that easy.\nHard Mode is challenging, but Brutal mode is truly brutal.", 300, 280) 
 }
 //} starting info
 //{
