@@ -53,7 +53,7 @@ cloth, raft foundation
 
 //} resources
 let islandSize = 20
-let skip = true
+let skip = false
 //{
 noStroke()
 let ran = round(random(0, 10000))
@@ -88,13 +88,9 @@ let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tool
 //} descriptions
 //{
 
-//load speed
 let loadSpeed = 5
-//player speed 
-let spd = 0
-//render distance
+let spd
 let render = 600
-// max weight
 let maxweight = 30
 //} setting vars
 //{
@@ -115,27 +111,9 @@ function Agressive(x, y, health) {
         if(dist(this.x, this.y, 150, 150) < 8) {
             he -= 0.25
         } else if (on) {
-            this.poss = [[x-30, y, "LEFT"], [x+30, y, "RIGHT"], [x, y+30, "DOWN"], [x, y-30, "UP"]]
-            this.poss.sort(function(a,b) {
-                return dist(a[0], a[1], 150, 150)-dist(b[0], b[1], 150, 150)
-            })
-            if(!this.moving) {
-                this.targ = this.poss[0][2]
-                this.moving = true
-                this.x += this.targ === "LEFT" ? -0.2 : this.targ === "RIGHT" ? 0.2 : 0
-                    this.y += this.targ === "UP" ? -0.2 : this.targ === "DOWN" ? 0.2 : 0
-            }
-            if(this.moving) {
-                if(
-                    round(this.x-round(px))%30 === 0 && 
-                    round(this.y-round(py))%30 === 0
-                ) {
-                    this.moving = false
-                } else {
-                    this.x += this.targ === "LEFT" ? -0.2 : this.targ === "RIGHT" ? 0.2 : 0
-                    this.y += this.targ === "UP" ? -0.2 : this.targ === "DOWN" ? 0.2 : 0
-                }
-            }
+            this.ang = atan2(this.x-150, this.y-150)
+            this.x -= sin(this.ang)/5
+            this.y -= cos(this.ang)/5
         }
     }
     this.draw = function() {
@@ -1578,7 +1556,7 @@ function desc() {
 //} closest detection and desc.
 //{
 function initial() {
-    if(tutor && !loading) {
+    if(tutor && !loading && !skip) {
         stroke(255)
         strokeWeight(3)
         fill(120)
@@ -1596,7 +1574,7 @@ function initial() {
         if(mouseIsPressed) {tutor = false}
     }
 }
-//} initial tutorial
+//} tutorial
 //{
 function pulse() {
     if(sleep < 25) {
@@ -1896,6 +1874,7 @@ function filtered(arr) {
 }
 //} main game mechanic functions 
 function game() {
+    textAlign(LEFT)
     if(!dead) {
     noStroke()
     let cbs = filtered(bs), cothers = filtered(others), cbuilds = filtered(builds), ctrees = filtered(trees)
@@ -2217,7 +2196,9 @@ function newgame() {
     background(c1)
     textAlign(CENTER)
     textSize(27)
-    text("NEW GAME", 300, 120)
+    text("WORLD", 300, 80)
+    textSize(22)
+    text("SELECTION", 300, 110)
     fill(0, 0, 200)
     rect(180, 520, 180, 50)
     rect(380, 520, 180, 50)
@@ -2228,9 +2209,7 @@ function newgame() {
     text("Load World", 470, 550)
     if(saveCode !== "") {infonew()}
     if(press && mouseX > 180 && mouseX < 360 && mouseY > 520 && mouseY < 570) {
-        sc = "game"
-        loading = true
-        saved = true
+        sc = "settings"
     }
     if(press && saveCode !== "" && mouseX > 380 && mouseX < 560 && mouseY > 520 && mouseY < 570) {
         sc = "game"
@@ -2239,6 +2218,43 @@ function newgame() {
         saved = false
     } 
     back()
+}
+function option(name, o1, o2, o3, y) {
+    
+    for(let i = 0; i < 3; i++) {
+        fill(0, 0, 200)
+        rect(170+i*140, y, 130, 40)
+    }
+    
+    fill(255)
+    textAlign(CENTER)
+    textSize(15)
+    text(name, 85, y+24)
+    textSize(17)
+    text(o1, 235, y+24)
+    text(o2, 375, y+24)
+    text(o3, 510, y+24)
+}
+function settings() {
+    background(c1)
+    textAlign(CENTER)
+    textSize(27)
+    fill(255)
+    text("NEW GAME", 300, 100)
+    fill(0, 0, 200)
+    rect(200, 520, 200, 50)
+    fill(255)
+    textSize(20)
+    text("Start", 300, 551)
+    
+    option("Difficulty", "Normal", "Hard", "Brutal", 200)
+    option("Something", "Yes", "No", "Sure", 260)
+    
+    if(press && mouseX > 200 && mouseX < 400 && mouseY > 520 && mouseY < 570) {
+        sc = "game"
+        loading = true
+        saved = true
+    }
 }
 //} starting info
 //{
@@ -2268,11 +2284,7 @@ function load() {
     textSize(20)
     back()
 }
-function homeload() {
-    
-}
 function home() {
-    homeload()
     background(c1)
     let cond = [
         mouseX > 400 && mouseY > 180 && mouseY < 240,
@@ -2280,7 +2292,7 @@ function home() {
         mouseX > 400 && mouseY > 280 && mouseY < 320, 
         mouseX > 400 && mouseY > 320 && mouseY < 380, 
     ]
-    let t = ["START GAME", "BLANK", "GUIDE", "CONTROLS"]
+    let t = ["PLAY", "BLANK", "GUIDE", "CONTROLS"]
     textFont(createFont("sans-serif"))
     fill(255, 255, 255)
     textSize(30)
@@ -2338,6 +2350,7 @@ draw = function() {
         case "tools": guide(); tooll(); break
         case "survival": guide(); survival(); break
         case "buildings": guide(); buildings(); break
+        case "settings": settings(); break
     }
     mousePressed = function() {
         press = true
