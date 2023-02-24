@@ -30,8 +30,8 @@ let saveCode = (true !== true) ? "" :
 //} savecode
 //{
 let tools = [
-    0,0,0,1,1,
     0,0,0,0,0,
+    0,0,1,0,0,
     0,0
 ]
 let tnames = [
@@ -43,17 +43,14 @@ let res = [
     0,0,0,0,0,
     0,0,0,0,0,
     0,0,0
-] 
-//}
-/*
+] /*
 stone, fibrous leaves, lashing, sticks, palm leaves, 
 coconut, drinkable coconut, raw meat, cooked meat, sardine
 cloth, raft foundation
 */
-
 //} resources
-let islandSize = 80
-let skip = false
+let islandSize = 40
+let skip = true
 //{
 noStroke()
 let ran = round(random(0, 10000))
@@ -87,7 +84,7 @@ let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tool
 
 //} descriptions
 //{
-let sett = [0, 1]
+let sett = [2, 0]
 let loadSpeed = 5
 let spd
 let render = 120
@@ -360,6 +357,7 @@ function Shelter(x, y) {
         translate(this.x, this.y)
         fill(0, f*130, 0)
         stroke(f*100, 0, 0)
+        if(hig === this) {stroke(f*150, f*50, f*50)}
         strokeWeight(2)
         rect(-4, -7, 8,14, 3)
         popMatrix()
@@ -1596,7 +1594,7 @@ function slept() {
         dead = true
         cause = "Aw man, you didn't notice that pulsating arc surrounding your screen that means you have low energy? Too bad for you."
     }
-    if(!sleeping) {sleep -= 0.0013*ts}
+    if(!sleeping) {sleep -= 0.0013*ts*(sett[0] === 0 ? 1 : sett[0] === 1 ? 1.5 : 2)}
     if(slopen) {
         if(!sleeping) {
         fill(130)
@@ -1617,8 +1615,8 @@ function slept() {
         text("hours", 325, 220)
         textSize(17)
         text("Sleep gained: " + round(sleep) + "+" + round(shou*8.8) + "/100", 300, 330)
-        text("Food lost: " + round(shou*4) + "/" + round(hunger), 300, 360)
-        text("Water lost: " + round(shou*5.8) + "/" + round(thirst), 300, 390)
+        text("Food lost: " + round(shou*4*(sett[0] === 0 ? 1 : sett[0] === 1 ? 1.5 : 2)) + "/" + round(hunger), 300, 360)
+        text("Water lost: " + round(shou*5.8*(sett[0] === 0 ? 1 : sett[0] === 1 ? 1.5 : 2)) + "/" + round(thirst), 300, 390)
         
         textSize(13)
         text("If there isn't enough food or water while sleeping, your health will be used up as a replacement.", 155, 430, 300, 600)
@@ -1675,6 +1673,11 @@ function slept() {
             slopen = false
         }
     }
+    else if(hig && hig.name === "Shelter") {
+        fill(255)
+        textSize(13)
+        text("Press E to open sleep menu", 30, 550)
+    }
 }
 function health() {
     he += ox <= 0 ? -0.04*ts : 0.003*ts
@@ -1723,8 +1726,8 @@ function time() {
     }
 }
 function sustenance() {
-    hunger -= 0.002*ts
-    thirst -= 0.003*ts
+    hunger -= 0.002*ts*(sett[0] === 0 ? 1 : sett[0] === 1 ? 1.5 : 2)
+    thirst -= 0.003*ts*(sett[0] === 0 ? 1 : sett[0] === 1 ? 1.5 : 2)
     hunger = constrain(hunger, 0, 100)
     thirst = constrain(thirst, 0, 100)
 }
@@ -1921,7 +1924,7 @@ function game() {
     noStroke()
     if(!climbed) {for(let i = 0; i < ctrees.length; i++) {ctrees[i].draw()}}
     popMatrix()
-    if(!loading && !ps && !zoomed && !climbed && !dead && menu === 0 && !builds.some(function(e) {return e.open}) && !onraft) {controls()}
+    if(!loading && !ps && !zoomed && !climbed && !dead && menu === 0 && !builds.some(function(e) {return e.open}) && !onraft && !slopen) {controls()}
     if(!loading && !ps) { health()}
     if(!loading) {
         pulse()
@@ -1935,7 +1938,7 @@ function game() {
     if(!onraft) {detect()}
     notif()
     spear()
-    if(!builds.some(function(e) {return e.open}) && !loading && !onraft) {switch(menu) {
+    if(!builds.some(function(e) {return e.open}) && !loading && !onraft && !slopen) {switch(menu) {
         case 1: inventory(); break
         case 2: crafting(); break
     }}
@@ -2281,7 +2284,8 @@ function settings() {
     fill(255)
     textSize(14)
     text("Smaller map size = faster load time + better frames", 300, 430)
-    text("Normal Mode is made to be slightly forgiving, but isn't that easy.\nHard Mode is challenging, but Brutal mode is truly brutal.", 300, 280) 
+    textSize(13)
+    text(sett[0] === 0 ? "Forgiving with gradual loss of stats. Resources are plentiful and it's easy to make progress. Enemies are scarce and will only become aggressive when attacked." : sett[0] === 1 ? "Challenging with faster loss of stats. Resources are common, but enemies are much more common and will hunt you down." : "Brutally difficult; stats run out within hours and resources are scarce. Islands are filled with aggressive enemies ready to hunt you down the moment they see you.", 50, 270, 500, 600) 
 }
 //} starting info
 //{
@@ -2335,11 +2339,15 @@ function home() {
     }
     
     if(mouseIsPressed) {
+        sett[1] = 0
         if(cond[0]) {
             if(!skip) {sc = "newgame";}
             else {
+                pushIslands(3)
+                render = 120
                 sc = "game"
                 loading = true
+                saved = true
             }
         }
         if(cond[1]) {sc = "load"}
