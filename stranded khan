@@ -26,7 +26,7 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 
 //{
 let saveCode = (true !== true) ? "" : 
-"5219 93 26 40 0.55 6.208 100 100 97 98 2,68,50 1,0,0,2,0,0,0,0,0,0,0,0,0 0,0,0,0,0,0,0,1,0,0,0,0  1 2 0"
+"4229 -1 5 60 0.55 11.213 100 100 31 53 177,144,1,194 1,66,0,2,0,0,0,0,0,0,0,0,0 1,0,0,0,0,0,0,0,0,0,0,0 ,2 1 2 0"
 
 
 
@@ -55,7 +55,7 @@ coconut, drinkable coconut, raw meat, cooked meat, sardine
 cloth, raft foundation
 */
 //} resources
-let islandSize = 40
+let islandSize = 60
 let skip = false
 //{
 noStroke()
@@ -781,6 +781,7 @@ function sapup() {
             saplings[0].he -= 0.01
             skill[1][1] += 0.002
             if(saplings[0].he <= 0) {
+                plg.push(others.indexOf(saplings[0]))
                 not.push([1, "Fibrous Leaves", 100, "Pickup"])
                 others.splice(others.indexOf(saplings[0]), 1)
                 res[1]++
@@ -796,6 +797,7 @@ function treedown() {
             cutting[0].he -= 0.002
             skill[1][1] += 0.004
             if(cutting[0].he <= 0.3) {
+                tlg.push(trees.indexOf(cutting[0]))
                 not.push([8, "Stick", 100, "Pickup"], [5, "Palm Leaves", 100, "Pickup"])
                 trees.splice(trees.indexOf(cutting[0]), 1)
                 res[3] += 8
@@ -809,6 +811,7 @@ function treedown() {
             skill[1][1] += 0.003
             cutting[0].he -= equipped === "Stone Tool" ? 0.0015 : 0.005
             if(cutting[0].he <= 0.3) {
+                tlg.push(trees.indexOf(cutting[0]))
                 not.push([6, "Fibrous Leaves", 100, "Pickup"])
                 trees.splice(trees.indexOf(cutting[0]), 1)
                 res[1] += 6
@@ -1800,9 +1803,9 @@ function afterload() {
     tlg = tred
     for(let i = 0; i < data.length; i++) {
         others.splice(data[i], 1)
-        //for(let j = 0; j < data.length; j++) {
-            //data[j] --
-        //}
+    }
+    for(let i = 0; i < tred.length; i++) {
+        trees.splice(tred[i], 1)
     }
     }
 }
@@ -1980,8 +1983,8 @@ function preload() {
         ox = sp[7]
         thirst = sp[8]
         hunger = sp[9]
-        res = sp2[11].split(",")
-        tools = sp2[12].split(",")
+        res = sp2[11].split(",").map(function(e) {return Number(e)})
+        tools = sp2[12].split(",").map(function(e) {return Number(e)})
     }
     seed = new Random(actual)
 }
@@ -2345,7 +2348,6 @@ function home() {
 }
 //} home screen functions
 draw = function() {
-    //println(others.map(function(e) {return df(e)}))
     textFont(createFont("monospace"))
     keyPressed = function() {
         keys[keyCode] = true
