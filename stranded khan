@@ -26,7 +26,12 @@ https://github.com/patrick4007019/khanacademy/commits/main/stranded%20khan
 
 //{
 let saveCode = (true !== true) ? "" : 
-""
+"5219 93 26 40 0.55 6.208 100 100 97 98 2,68,50 1,0,0,2,0,0,0,0,0,0,0,0,0 0,0,0,0,0,0,0,1,0,0,0,0  1 2 0"
+
+
+
+
+
 
 //} savecode
 //{
@@ -56,7 +61,7 @@ let skip = false
 noStroke()
 let ran
 let press = false, canpress = true
-let sc = "home", keys = [], seed, bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0, cause = "", hig, rafts = [], onraft = false, enemies = [], weapons = [], ingame = false, tutor = true, diff = 0, newg = false
+let sc = "newgame", keys = [], seed, bs = [], pd = 0, loading, islands = [], dup = false, finish = false, check = 0, ps = false, con2 = false, trees = [], on = 0, others = [], dl = false, pushing = false, removed = false, check = 0, menu = 0, invm = [], che = 0, doing3 = false, zoomed = false, wm = 0, advance = false, equipped = "none", pressed = false, actual = 0, climbed = false, builds = [], totalweight = 0, not = [], nfish = 500+random(0, 1000), dead = false, dwid = 1300, scroll = false, pulsation = 0, lant = 0, invy = 176, maxox = 100, des = [], saved = false, slopen = false, shours = 5, shou = 6, sleeping = false, endt = 0, stt = 0, cause = "", hig, rafts = [], onraft = false, enemies = [], weapons = [], ingame = false, tutor = true, diff = 0, newg = false, plg = [], tlg = []
 
 let tcontrol = "Arrow Keys to move\nA to open crafting menu\nF to open inventory\nZ to open pause game\nE to interact with an item\nG to zoom out (developer function)"
 let hm = [
@@ -612,7 +617,7 @@ tt = "Storage space full!"; break
     if(not.length > 25) {not.shift()}
     textAlign(LEFT)
 }
-//} notifications 
+//} notifications  
 //{
 function Land(x, y) {
     {
@@ -759,7 +764,7 @@ function pickup() {
     let uppable = others.filter(function(e) {return e.constructor === Rock || e.constructor === Stick || e.constructor === Cloth})
     if(keys.e) {for(let i = 0; i < uppable.length; i++) {
         if(uppable[i] === hig) {
-            
+            plg.push(others.indexOf(uppable[i]))
             others.splice(others.indexOf(uppable[i]), 1)
             switch(uppable[i].constructor) {
                 case Rock: res[0]++; break
@@ -767,19 +772,6 @@ function pickup() {
                 case Cloth: res[10]++; break
             }
     }}}
-    /*
-    if(uppable.some(function(e) {return df(e) < 15}) && keyIsPressed && key.toString() === "e") {
-        if(totalweight < maxweight) {
-            not.push([1, uppable[0].constructor.__name, 100, "Pickup"])
-            others.splice(others.indexOf(uppable[0]), 1)
-            switch(uppable[0].constructor) {
-                case Rock: res[0]++; break
-                case Stick: res[3]++; break
-                case Cloth: res[10]++; break
-            }
-        } else {not.push([0, 0, 100, "Heavy"])}
-    }
-    */
 }
 function sapup() {
     let saplings = others.filter(function(e) {return e instanceof PSapling})
@@ -1198,16 +1190,7 @@ function mc(me) {
     else {menu = me}
 }
 function pause() {
-    let otherdata = others.map(function(e) {
-        let n = e.constructor.__name
-        return "[" + (n === "Stick" ? 0 : n === "Rock" ? 1 : n === "PSapling" ? 2 : 3) + "," + round(e.x*10)/10 + "," + round(e.y*10)/10
-    })
-    let treedata = trees.map(function(e) {
-        let n = e.constructor.__name
-        return "[" + (n === "Palm" ? 0 : n === "Yucca" ? 1 : 2) + "," + round(e.x*10)/10 + "," + round(e.y*10)/10
-    })
-    let sav = (newg ? ran : actual) + " " + round(px) + " " + round(py) + " " + islandSize + " " + spd + " " + round(hr*1000)/1000 + " " + round(ox) + " " + round(he) + " " + round(thirst) + " " + round(hunger) + " " + "OTHER DATA HERE" + " " + res + " " + tools + " " + "TREE DATA HERE" + " " + day + " " + sett[0] + " " + sett[1]
-    // seed, position x, position y, island size, speed, time, health, oxygen, thirst, hunger
+    let sav = (newg ? ran : actual) + " " + round(px) + " " + round(py) + " " + islandSize + " " + spd + " " + round(hr*1000)/1000 + " " + round(ox) + " " + round(he) + " " + round(thirst) + " " + round(hunger) + " " + plg + " " + res + " " + tools + " " + tlg + " " + day + " " + sett[0] + " " + sett[1]
     if(ps) {
         if(!con2) {
         fill(0, 0, 150)
@@ -1811,23 +1794,15 @@ function afterload() {
         arr[i].x += Number(sp[1])
         arr[i].y += Number(sp[2])
     }
-    let data = sp[10].split("[")
-    others = []
-    trees = []
+    let data = sp[10].split(",")
+    let tred = sp[13].split(",")
+    plg = data
+    tlg = tred
     for(let i = 0; i < data.length; i++) {
-        let entries = data[i].split(",")
-        if(Number(entries[0]) < 3) {
-            let Thing = entries[0] === "0" ? Stick : entries[0] === "1" ? Rock : entries[0] === "2" ? PSapling : WStill
-            others.push(new Thing(Number(entries[1]), Number(entries[2])))
-        }
-    }
-    let tred = sp[13].split("[")
-    for(let i = 0; i < tred.length; i++) {
-        let entries = tred[i].split(",")
-        if(Number(entries[0]) < 2) {
-        let Thing = entries[0] === "0" ? Palm : entries[0] === "1" ? Yucca : WStill
-        trees.push(new Thing(Number(entries[1]), Number(entries[2])))
-        }
+        others.splice(data[i], 1)
+        //for(let j = 0; j < data.length; j++) {
+            //data[j] --
+        //}
     }
     }
 }
@@ -2370,6 +2345,8 @@ function home() {
 }
 //} home screen functions
 draw = function() {
+    //println(others.map(function(e) {return df(e)}))
+    textFont(createFont("monospace"))
     keyPressed = function() {
         keys[keyCode] = true
         keys[key.toString()] = true
