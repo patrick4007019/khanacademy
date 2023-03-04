@@ -1,15 +1,13 @@
 /*
 This is a 2d island survival game based on the actual game, Stranded Deep.
 
-TIPS:
+Need to save your code? Press Z (Pause) and click "Get save code"
+(currently incomplete)
 
-- Hidden resources are commonly found under trees; always check!
-- Nighttime can be unproductive if you don't have a light source; it's completely dark. Good luck finding resources :)
-- Ran out of resources on your island? Go to another.
-- Sleep is really important; as soon as it reaches zero, you'll die (realism at its finest)
+Need help? Press Z (Pause) and click "Guide"
 
 
-This is a WORK IN PROGRESS!!
+
 Expect constant updates and buggy content.
 
 
@@ -36,9 +34,9 @@ let saveCode = (true !== true) ? "" :
 //} savecode
 //{
 let tools = [
-    0,0,0,0,0,
-    0,0,0,0,0,
-    0,0
+    1,1,1,1,1,
+    1,1,1,1,1,
+    1,1
 ]
 let tnames = [
     "Stone Tool", "Crude Axe", "Refined Knife", "Fire", "Kindling", 
@@ -46,16 +44,16 @@ let tnames = [
     "Paddle Raft", "Crude Spear"
 ]
 let res = [
-    0,0,0,0,0,
-    0,0,0,0,0,
-    0,0
+    1,1,1,1,1,
+    1,1,1,1,1,
+    1,1
 ] /*
 stone, fibrous leaves, lashing, sticks, palm leaves, 
 coconut, drinkable coconut, raw meat, cooked meat, sardine
 cloth, raft foundation
 */
 //} resources
-let islandSize = 80
+let islandSize = 30
 let skip = false
 //{
 noStroke()
@@ -84,7 +82,7 @@ let px = 0, py = 0, hr = 6, ox = 100, he = 100, hunger = 100, sleep = 100, thirs
 //{
 let des = ["Primitive cutting tool", "Better cutting tool that can cut down palm trees", "Primitive knife to skin seafood",  "A small campfire to produce warmth and cook food", "Some wood to start a fire, also really good firewood.", "A sharp stick that kills fish", "A water purifier that relies on the sun and palm leaves", "A place to sleep", "Extra storage space", "A hand-held source of light", "A bunch of sticks arranged in a format so that you can step onto them", "A simple, manual raft that allows you to traverse the ocean without getting wet!", "A sharp pokey stick to defend yourself"]
 
-let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tools.", 0], ["Stick", "Stick", "A rough wood shaft. Could be useful for crafting tools.", 0], ["PSapling", "Palm Sapling", "A small palm tree. Could be harvested for fibrous leaves.", 1], ["Palm", "Palm Tree", "A large tropical tree that might bear coconuts, but will always yield a lot of wood and leaves.", 2], ["Cloth", "Cloth", "A square strip of cloth. Wonder how it got here.", 0], ["Yucca", "Yucca Tree", "A smaller tree that has fibrous leaves. Could be used to make rope.", 1], ["PaddleRaft", "Paddle Raft", des[10], 3]]
+let ddes = [["Rock", "Rock", "A hunk of stone. Could be useful for crafting tools.", 0], ["Stick", "Stick", "A rough wood shaft. Could be useful for crafting tools.", 0], ["PSapling", "Palm Sapling", "A palm tree in its beginning stages of life.. Could be harvested for fibrous leaves.", 1], ["Palm", "Palm Tree", "A large tropical tree that bears coconuts, and will also yield a lot of wood and palm fronds.", 2], ["Cloth", "Cloth", "A square strip of cloth. Wonder how it got here.", 0], ["Yucca", "Yucca Tree", "A smaller tree that has fibrous leaves. Could be used to make rope.", 1], ["PaddleRaft", "Paddle Raft", des[10], 3]]
 
 
 //} descriptions
@@ -176,9 +174,8 @@ function Palm(x, y) {
         fill(0, f*255, f*150)
         rect(-3, -3, 10, 10, 3)
         fill(255, 255, 255)
-        if(!keys.c) {climbed = false; this.isclimbed = false}
         popMatrix()
-        if(this.he >= 0.7 && this.rand < -0.3 && this.coco) {
+        if(this.he >= 0.7) {
             noStroke()
             pushMatrix()
             translate(this.x+8, this.y+8)
@@ -186,20 +183,6 @@ function Palm(x, y) {
             fill(f*100, 0, 0)
             ellipse(3, 3, 4, 4)
             popMatrix()
-            if(this.x > 125 && this.x < 155 && this.y > 125 && this.y < 155) {
-                fill(255, 255, 255)
-                textSize(7)
-                climbed = keys.c
-                if(keys.c) {
-                    this.isclimbed = true
-                }
-            }
-            if(this.isclimbed) { text("E to pick coconut", 25, 270)}
-            if(climbed && this.isclimbed && keys.e && this.coco) {
-                not.push([1, "Coconut", 100, "Pickup"])
-                this.coco = false
-                res[5]++
-            }
         }
     }
 }
@@ -395,13 +378,17 @@ function firemenu() {
         if(fire.started) {
         fill(0)
         rect(150, 130, 300, 100)
+        fill(20)
+        stroke(150)
+        rect(160, 138, 120, 25)
+        
         if(mouseX > 150 && mouseX < 450 && mouseY > 100 && mouseY < 230 && press && fire.done) {
             if(fire.cooking === "Raw Meat") {res[8]++}
             fire.done = false
             fire.cooking = "None"
         }
         textSize(14.5)
-        fill(mouseX > 160 && mouseX < 280 && mouseY >140 && mouseY < 165 ? (res[7] > 0 ? color(100, 100, 100) : color(128, 12, 12)) : (res[7] > 0 ? color(163, 161, 161) : color(250, 3, 3)))
+        fill(mouseX > 160 && mouseX < 280 && mouseY >140 && mouseY < 165 ? (res[7] > 0 ? color(100, 100, 100) : color(168, 12, 12)) : (res[7] > 0 ? color(163, 161, 161) : color(250, 3, 3)))
         text("Raw Meat (" + res[7] + ")", 170, 155)
         if(mouseX > 160 && mouseX < 280 && mouseY > 140 && mouseY < 165 && res[7] > 0 && press && fire.cooking === "None") {
             res[7] --
@@ -409,28 +396,33 @@ function firemenu() {
             fire.timer = 45
         }
         fill(0)
+        stroke(150)
         rect(150, 400, 300, 100)
+        rect(260, 435, 125, 23)
+        rect(260, 465, 125, 23)
         fill(255)
         text("Cooking: ", 300, 155)
         fill(fire.done ? color(0, 200, 0) : color(255, 255, 255))
-        text(fire.done ? (fire.cooking + "\nClick to collect") : fire.cooking + "\n" + round(fire.timer) + "m", 300, 185)
+        text(fire.done ? ((fire.cooking === "Raw Meat" ? "Cooked Meat" : "") + "\nClick to collect") : fire.cooking + "\n" + round(fire.timer) + "m", 300, 185)
         fill(255)
         textSize(20)
         text("Fuel:", 170, 430)
         textSize(17)
         text((round(fire.fuel*60)%60 !== 0 ? floor(fire.fuel) : floor(fire.fuel)+1) + "h " + round(fire.fuel*60)%60+ "m", 165, 455)
         textSize(19)
+        fill(20)
+        
         text("Add Fuel", 270, 430)
-        textSize(15)
-        fill(mouseX > 260 && mouseX < 385 && mouseY > 445 && mouseY < 468 ? (res[3] > 0 ? color(100, 100, 100) : color(128, 12, 12)) : (res[3] > 0 ? color(163, 161, 161) : color(250, 3, 3)))
-        text("Stick (" + res[3] + ")", 270, 460)
-        fill(mouseX > 260 && mouseX < 385 && mouseY > 468 && mouseY < 490 ? (tools[4] > 0 ? color(100, 100, 100) : color(128, 12, 12)) : (tools[4] > 0 ? color(163, 161, 161) : color(250, 3, 3)))        
-        text("Kindling (" + tools[4] + ")", 270, 480)
-        if(res[3] > 0 && mouseX > 260 && mouseX < 385 && mouseY > 445 && mouseY < 468 && press) {
+        textSize(14)
+        fill(mouseX > 260 && mouseX < 385 && mouseY > 435 && mouseY < 458 ? (res[3] > 0 ? color(100, 100, 100) : color(168, 12, 12)) : (res[3] > 0 ? color(163, 161, 161) : color(250, 3, 3)))
+        text("Stick (" + res[3] + ")", 270, 451)
+        fill(mouseX > 260 && mouseX < 385 && mouseY > 465 && mouseY < 488 ? (tools[4] > 0 ? color(100, 100, 100) : color(168, 12, 12)) : (tools[4] > 0 ? color(163, 161, 161) : color(250, 3, 3)))        
+        text("Kindling (" + tools[4] + ")", 270, 481)
+        if(res[3] > 0 && mouseX > 260 && mouseX < 385 && mouseY > 435 && mouseY < 458 && press) {
         res[3] --
         fire.fuel += 0.5
     }
-    if(tools[4] > 0 && mouseX > 260 && mouseX < 385 && mouseY > 468 && mouseY < 490 && press) {
+    if(tools[4] > 0 && mouseX > 260 && mouseX < 385 && mouseY > 465 && mouseY < 488 && press) {
         tools[4] --
         fire.fuel += 2
     }
@@ -682,13 +674,14 @@ function Land(x, y) {
         let that = this
         let closefires = fires.filter(function(e) {return dist(e.x, e.y, that.x+10, that.y+10) < 35})
         let farfires = fires.filter(function(e) {return dist(e.x, e.y, that.x+10, that.y+10) < 55})
-        ff = closefires.length >= 1 && closefires.some(function(e) {return e.started}) ? 0.8 : farfires.length >= 1 && farfires.some(function(e) {return e.started}) && f <= 0.2 ? 0.2 : f
+        let closeto = df(this) < 60
+        ff = closefires.length >= 1 && closefires.some(function(e) {return e.started}) ? 1 : farfires.length >= 1 && farfires.some(function(e) {return e.started}) && f <= 0.2 ? 0.3 : closeto ? 0.04 : f
         } else {
             ff = f
         }
         ff = constrain(ff, f, 1)
         let dis = dist(this.x, this.y, 140, 140)
-        if(equipped === "Wooden Torch" && dis < 30) {
+        if(equipped === "Wooden Torch" && dis < 40) {
             ff = 1
         }
         this.col = color(0, ff*(230-(this.count-8)*7), 0);
@@ -798,10 +791,11 @@ function treedown() {
             skill[1][1] += 0.004
             if(cutting[0].he <= 0.3) {
                 tlg.push(trees.indexOf(cutting[0]))
-                not.push([8, "Stick", 100, "Pickup"], [5, "Palm Leaves", 100, "Pickup"])
+                not.push([8, "Stick", 100, "Pickup"], [5, "Palm Leaves", 100, "Pickup"], [1, "Coconut", 100, "Pickup"])
                 trees.splice(trees.indexOf(cutting[0]), 1)
                 res[3] += 8
                 res[4] += 5
+                res[5] ++
             }
         }
     }
@@ -939,7 +933,7 @@ function inventory() {
     textSize(25)
     text("Inventory", 225, 120)
     textSize(21)
-    text("Name     #     weight", 175, 155)
+    text("Name     #    weight", 190, 155)
     textSize(10)
     text("Per/total", 375, 167)
     textSize(14)
@@ -959,8 +953,8 @@ function inventory() {
         textAlign(CENTER)
         fill(255)
         textSize(13)
-        text(invm[i][0], 200, invy+19+i*25)
-        text(invm[i][1], 300, invy+19+i*25)
+        text(invm[i][0], 215, invy+19+i*25)
+        text(invm[i][1], 315, invy+19+i*25)
         text(invm[i][2] + "/" + round(invm[i][2]*invm[i][1]*10)/10, 395, invy+19+i*25)
         fill(255, 0, 0)
         rect(120, invy+5+i*25, 20, 20)
@@ -1788,11 +1782,11 @@ function water() {
 }
 function time() {
     hr += 0.00045*ts
-    if(hr > 20 || hr < 4) {f = 0.05}
+    if(hr > 20 || hr < 4) {f = 0}
     if(hr > 4 && hr < 7) {
         f = (hr-4)*1/3
         f += 0.00015*ts
-        f = constrain(f, 0.05, 1)
+        f = constrain(f, 0, 1)
     }
     if(hr > 7 && hr < 17) {
         f = 1
@@ -1853,12 +1847,9 @@ function controls() {
         } else {skill[1][1] += 0.002}
     }
     let items = bs.concat(trees).concat(others).concat(builds).concat(rafts).concat(enemies).concat(weapons)
-    //println(1-o/60)
     for(let i = 0; i < items.length; i++) {
         let xx = 1-o/60
         xx = constrain(xx, 0, 1)
-        //xx = constrain(xx, -x, x)
-        //yy = constrain(yy, -y, y)
         items[i].x -= x*xx
         items[i].y -= y*xx
     }
@@ -2130,7 +2121,7 @@ function plants() {
     textSize(15)
     text("Resources gained from looting this item:\n" + data[0][lant] + "\n\nTools required to loot this item:\n" + data[1][lant], 200, 300)
     textSize(13)
-    text("Plants/items can be looted/harvested by pressing E \nwhen the player is near it.\n\nPressing C+E near a palm tree will harvest the coconut, \nif it is there.", 150, 490)
+    text("Plants/items can be looted/harvested by pressing E \nwhen the player is near it.", 150, 500)
     switch(lant) {
     case 0: 
         fill(100)
@@ -2176,7 +2167,7 @@ function tooll() {
     let names = ["Stone Tool", "Refined Knife", "Crude Axe", "Fishing Spear", "Kindling"]
     let data = [
         ["Cuts down palm saplings and yucca trees.", "Skins fresh seafood that's been caught straight from the ocean.", "Cuts down all plants.", "Spears seafood automatically for you when you sit in the ocean and press the key E.", "Lights up fires."],
-        ["Press and hold E to cut palm saplings or yucca trees.", "Click on the seafood item that you wish to be skinned (e.g. Sardine => Raw Fish).", "Press and hold E to cut any plant down.", "", "Move your mouse frantically in any direction; the faster you move it the more the bar on your left will go up. Remember, you need to be near a fire!"]
+        ["Press and hold E to cut palm saplings or yucca trees.", "Click on the seafood item that you wish to be skinned (e.g. Sardine => Raw Fish).", "Press and hold E to cut any plant down.", "", "Also great firewood.\nIt gives 4x more fuel for 2x the wood."]
     ]
     for(let i = 0; i < 5; i++) {
         fill(0, 0, 200)
@@ -2207,7 +2198,7 @@ function survival() {
         ["You can get food by fishing using a fishing spear, skinning the fish, and cooking it by putting it onto a fire.",
         "You can get water either way: \n   - collecting water from water stills\n   - drinking drinkable coconuts\n\nCoconuts, when freshly picked, need to be husked before being able to be drank from. \n\nSimply click on the coconut in inventory to husk it.", 
         "Being in water reduces your movement speed and causes you to lose oxygen!!!\nIf you don't have any oxygen left, you'll start to lose health!!!\n\nYou totally didn't know anything of this!!!", 
-        "To sleep, you need to be near a shelter, while pressing and holding E until the screen turns completely dark.\n\nNot sleeping will result in a pulsating circle slowly closing in onto the center of the screen.\n\nIf the circle closes in completely, you'll be sent to 7AM with reduced food and water, but 50% sleep."],
+        "To sleep, you need to be near a shelter, while pressing and holding E until the screen turns completely dark.\n\nNot sleeping will result in a pulsating circle slowly closing in onto the center of the screen.\n\nIf the circle closes in completely, you'll die. (yes, you can die from not sleeping)"],
     ]
     for(let i = 0; i < 4; i++) {
         fill(0, 0, 200)
@@ -2234,10 +2225,10 @@ function buildings() {
     fill(255)
     let names = ["Fire", "Water Still", "Shelter", "Crate"]
     let data = [
-        ["Provides light and a way to cook food.\n\nTo refill the fire by 33%, press R. This requires 1 stick per refill. \n\n Once the fire is placed and you have raw fish in your inventory, press E to place the fish onto the fire. \n\nAfter a while, the food will visibly brown and you can pick it back up by pressing E.",
-        "Provides water at the cost of palm leaves.\n\nTo refill the water still by 25%, press R. This requires 1 palm leaf per refill.\n\nThe gray and blue bars represent the fuel (palm leaves) and collected water, respectively.\n\nIf there is fuel in the water still, water will slowly accumulate. To collect the water, hold E.", 
-        "Allows you to skip nighttime and regain sleep.\n\nTo sleep, hold E until the black circle completely encloses the player. You'll wake up at 7am with full energy.", 
-        "Crates allow you to store extra resources without having to drop them.\n\nClicking items from one side will bring it to another. Each storage has "],
+        ["Provides light and a way to cook food.\n\nWhen approached, the fire menu will appear, which allows you to refill the fire or cook food.",
+        "Provides water at the cost of fibrous and palm leaves.\n\nWhen approached, the water still menu will appear, which allows you to refill the still with leaves.", 
+        "Allows you to skip nighttime and regain energy.\n\nPress E to open the shelter menu when approached.", 
+        "Crates allow you to store extra resources without having to drop them.\n\nClicking items from one side will bring it to another. Each storage has 50 max weight capacity."],
     ]
     for(let i = 0; i < 4; i++) {
         fill(0, 0, 200)
@@ -2253,14 +2244,12 @@ function buildings() {
     }
     textAlign(LEFT)
     textSize(13)
-    text("Buildings can be placed by clicking on the item in inventory. It'll be placed on the exact place you're standing on.", 170, 500, 400, 600)
     textAlign(CENTER)
     fill(255)
     textSize(25)
     text(names[lant], 370, 200)
     textSize(14)
     text(data[0][lant], 200, 240, 390, 600)
-
 }
 function guide() {
     background(c1)
