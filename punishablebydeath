@@ -1,0 +1,1037 @@
+/**
+This is a zombie-based 3D FPS.
+
+Try to survive for as long as possible.
+
+The longer you survive, the more zombies that will spawn, and the more speed and health they will have.
+
+Zombies spawn 360 (all around you), so make sure to turn around every few seconds!
+
+Mistakes are Punishable by Death.
+
+
+Achievements (survival time): {
+1 min - you tried to die
+2 min - severe skill issue
+3 min - skill issue
+5 min - average
+8 min - pretty good
+10 min - kind of insane
+15 min - you're on steroids wtf
+
+My best time: 9:44
+}
+
+CONTROLS:
+Click on canvas to lock cursor.
+Move - WASD
+Look around - Mouse
+Aim - Right click
+Shoot - Left click
+Reload - R
+Switch weapns - 1-5
+
+No switching weapons while aiming
+*/
+//jshint asi: true
+//jshint esnext: true
+const production = false
+
+const walls = [], fov = 220, keys = [], mX = 0, mY = 0, tX = 0, tY = 0, aim = false, press = false, canpress = true, bullets = [], hits = 0, weapon = production ? 0 : 1, del = 0, del2 = 0, ammo = [[50,250,50], [30, 150,30], [20, 100,20], [10, 50, 10], [8, 50, 8]], reloading = false, putdown = false, canjump = true, jumping = false, jup = 0, b = 1, shor = 0, downing = false, downto = 0, sp = 0, he = 100, timer = 0, score = 0, dead = false, sc = production ? "home" : "game", headshots = 0, yy = [0, 0, 100]
+//{
+function distance(x, z) {
+    return Math.hypot(0, 0, x, z)
+}
+//} miscellaneous
+//{
+function rotX(theta, reverse) {
+    for(let i = 0; i < walls.length; i++) {
+        for(let j = 0; j < walls[i].n.length; j++) {
+            let node = walls[i].n[j]
+            let x = node.x
+            let z = node.z
+            node.x = x*cos(theta) + z*sin(theta)
+            node.z = z*cos(theta) - x*sin(theta)
+        }
+    }
+    if(!reverse) {
+    for(let i = 0; i < bullets.length; i++) {
+        let x = bullets[i].x
+        let z = bullets[i].z
+        bullets[i].x = x*cos(theta) + z*sin(theta)
+        bullets[i].z = z*cos(theta) - x*sin(theta)
+    }}
+}
+function rotY(theta, reverse) {
+    for(let i = 0; i < walls.length; i++) {
+        for(let j = 0; j < walls[i].n.length; j++) {
+            let node = walls[i].n[j]
+            let y = node.y
+            let z = node.z
+            node.y = y*cos(theta) + z*sin(theta)
+            node.z = z*cos(theta) - y*sin(theta)
+        }
+    }
+    if(!reverse) {
+    for(let i = 0; i < bullets.length; i++) {
+        let y = bullets[i].y
+        let z = bullets[i].z
+        bullets[i].y = y*cos(theta) + z*sin(theta)
+        bullets[i].z = z*cos(theta) - y*sin(theta)
+    }}
+}
+function movement(x, z, y) {
+    rotY(tY)
+    for(let i = 0; i < bullets.length; i++) {
+        if(bullets[i].x) {bullets[i].x += x*bullets[i].z/2000}
+        bullets[i].z += z
+        if(y) {bullets[i].y += y}
+    }
+    
+    for(let i = 0; i < walls.length; i++) {
+        for(let j = 0; j < walls[i].n.length; j++) {
+            let n = walls[i].n[j]
+            n.x += x/3
+            n.z += z/3
+            if(y) {
+                n.y += y
+            }
+        }
+    }
+    rotY(-tY)
+}
+//} movement/rotation
+if(production) {println("Add ?width=800 to the end of the link if you haven't already.")}
+//{
+function Zombie(x, y, w, h, z, rot, type) {
+    {
+    this.type = type
+    this.x = x
+    this.y = y
+    this.z = z
+    this.h = this.type ? 8 : 4
+    this.rot = rot
+    this.n = []
+    this.n.push(
+        new PVector(x-w, y+h, z),
+        new PVector(x+w, y+h, z),
+        new PVector(x+w, y-h, z),
+        new PVector(x-w, y-h, z),
+        new PVector(x-w/2.0+0, y+h/2.5-20, z),
+        new PVector(x+w/2.0+0, y+h/2.5-20, z),
+        new PVector(x+w/2.0+0, y-h/2.5-20, z),
+        new PVector(x-w/2.0+0, y-h/2.5-20, z)
+    )
+    
+    }
+    this.rotX = function(theta) {
+        rotY(tY)
+        for(let i = 0; i < this.n.length; i++) {
+            let x = this.n[i].x
+            let z = this.n[i].z
+            
+            this.n[i].x = x*cos(theta) + z*sin(theta)
+            this.n[i].z = z*cos(theta) - x*sin(theta)
+        }
+        rotY(-tY)
+    }
+    this.rotX(this.rot)
+    this.average = function() {
+        return [
+            this.n.reduce(function(a, c) {return a+c.x},0)/4,
+            this.n.reduce(function(a, c) {return a+c.z},0)/4,
+            this.n.reduce(function(a, c) {return a+c.y},0)/4
+        ]
+    }
+    this.draw = function() {
+        fill(this.type ? 0 : 150)
+        noStroke()
+        quad(
+            this.n[0].x*fov/this.n[0].z, this.n[0].y*fov/this.n[0].z, 
+            this.n[1].x*fov/this.n[1].z, this.n[1].y*fov/this.n[1].z, 
+            this.n[2].x*fov/this.n[2].z, this.n[2].y*fov/this.n[2].z, 
+            this.n[3].x*fov/this.n[3].z, this.n[3].y*fov/this.n[3].z
+        )
+        quad(
+            this.n[4].x*fov/this.n[4].z, this.n[4].y*fov/this.n[4].z,            
+            this.n[5].x*fov/this.n[5].z, this.n[5].y*fov/this.n[5].z,
+            this.n[6].x*fov/this.n[6].z, this.n[6].y*fov/this.n[6].z,
+            this.n[7].x*fov/this.n[7].z, this.n[7].y*fov/this.n[7].z
+
+            )
+        fill(0)
+        stroke(0)
+    }
+    this.display = function() {
+        this.ang = atan2(this.average()[0], this.average()[1])
+        rotY(tY)
+        for(let i = 0; i < this.n.length; i++) {
+            this.n[i].x -= sin(this.ang)/(this.type ? 1.7 : 2.2)
+            this.n[i].z -= cos(this.ang)/(this.type ? 1.7 : 2.2)
+        }
+        if(dist(this.average()[0], this.average()[1], 0, 0) < 2) {
+            he -= 0.5
+        }
+        rotY(-tY)
+        if(this.n.every(function(e) {return e.z >= 0})) {this.draw()}
+    }
+}
+function Floor() {
+    this.n = [
+        new PVector(-300, 5, 5),new PVector(-300, 5, 10000),new PVector(300, 5, 10000),new PVector(300, 5, 5)
+    ]
+    this.average = function() {
+        return [10000, 1000000, 100000]
+    }
+    this.draw = function() {
+        let n0 = [this.n[0].z < 0 ? (this.n[0].x < 0 ? 0 : 600) : this.n[0].x*fov/this.n[0].z, this.n[0].z < 0 ? 600 : this.n[0].y*fov/this.n[0].z]
+        let n1 = [this.n[1].z < 0 ? (this.n[1].x < 0 ? 0 : 600) : this.n[1].x*fov/this.n[1].z, this.n[1].z < 0 ? 600 : this.n[0].y*fov/this.n[1].z]
+        let n2 = [this.n[2].z < 0 ? (this.n[2].x < 0 ? 0 : 600) : this.n[2].x*fov/this.n[2].z, this.n[2].z < 0 ? 600 : this.n[0].y*fov/this.n[2].z]
+        let n3 = [this.n[3].z < 0 ? (this.n[3].x < 0 ? 0 : 600) : this.n[3].x*fov/this.n[3].z, this.n[3].z < 0 ? 600 : this.n[0].y*fov/this.n[3].z]
+
+        fill(180)
+        noStroke()
+        quad(n0[0], n0[1], n1[0], n1[1], n2[0], n2[1], n3[0], n3[1])
+        fill(200, 50, 150)
+        fill(0)
+        stroke(0)
+    }
+    this.display = function() {
+        this.draw()
+    }
+}
+//walls.push(new Zombie(0, 0, 8, 12, 50, 0))
+//} 3D shape constructors
+//{
+function scopeOut(p) {
+  return function(){return this;}()[p];
+}
+function handleMove(e) {
+    if(!scopeOut('document').pointerLockElement) {return}
+    tX += e.movementX/6
+    tY += e.movementY/6
+    for(let i = 0; i < bullets.length; i++) {
+        bullets[i].mov[0] = e.movementX/6
+        bullets[i].mov[1] = e.movementY/6
+    }
+}
+mouseClicked = function(){
+   if(!scopeOut('document').pointerLockElement && sc === "game") {
+        scopeOut('document').getElementById('output-canvas').requestPointerLock();
+        scopeOut('document').getElementById('output-canvas').onmousemove = handleMove;
+    }
+}
+//} pointer lock element
+//{
+function Bullet(x, y, z, angX, angY, vel, wep) {
+    {
+    this.x = x
+    this.y = y
+    this.z = z
+    this.angX = angX
+    this.angY = angY
+    this.vel = vel
+    this.wep = wep
+    this.drop = 0
+    }
+    this.detect = function() {
+        for(let i = 0; i < walls.length; i++) {
+            if(walls[i].constructor.__name === "Zombie" && abs(this.x-(walls[i].average()[0])) < 17 && abs(this.z-(walls[i].average()[1])) < 40 && abs(this.y-(walls[i].average()[2]+20)) < 25) {
+                playSound(getSound("rpg/hit-thud"))
+                bullets.splice(bullets.indexOf(this), 1)
+                walls[i].h -= this.wep === 0 || this.wep === 4 ? 1 : this.wep === 1 ? 1.4 : 2
+                if(walls[i].h <= 0) {
+                    hits++
+                    walls.splice(i, 1)
+                    i--
+                }
+            }
+            
+            if(walls[i].constructor.__name === "Zombie" && abs(this.x-(walls[i].average()[0])) < 8 && abs(this.z-(walls[i].average()[1])) < 40 && abs(this.y-(walls[i].average()[2]-15)) < 12) {
+                playSound(getSound("rpg/hit-thud"))
+                bullets.splice(bullets.indexOf(this), 1)
+                walls[i].h -= 4
+                if(walls[i].h <= 0) {
+                    hits++
+                    headshots++
+                    walls.splice(i, 1)
+                    i--
+                }
+            }
+            
+        }
+        
+        rotY(tY)
+        if(this.y > 50 || this.y < -100 || this.z > 150000) {
+            bullets.splice(bullets.indexOf(this), 1)
+        }
+        rotY(-tY)
+        
+    }
+    this.fly = function() {
+        rotX(-this.angX)
+        rotX(tX)
+        rotY(-this.angY)
+        rotY(tY)
+        this.z += this.vel*b
+        this.drop += 0.0035*b
+        this.y += this.drop
+        rotY(-tY)        
+        rotY(this.angY)
+        rotX(-tX)
+        rotX(this.angX)
+    }
+    this.draw = function() {
+        ellipse(this.x*fov/this.z, this.y*fov/this.z, 200*(1/this.z), 200*(1/this.z))
+    }
+    this.display = function() {
+        this.fly()
+        this.detect()
+        this.draw()
+    }
+}
+function Gun() {
+    this.reinit = function() {
+    if(!reloading) {
+    switch(weapon) {
+    case 0:
+        this.nodes = [
+        [this.nx, this.ny, this.nz],
+        [this.nx, this.ny, this.pz],
+        [this.nx, this.py, this.nz],
+        [this.nx, this.py, this.pz],
+        [this.px, this.ny, this.nz],
+        [this.px, this.ny, this.pz],
+        [this.px, this.py, this.nz],
+        [this.px, this.py, this.pz],
+        //rear sight
+        [this.px-2, this.py, this.pz],
+        [this.px-2, this.py-0.8, this.pz], 
+        [this.px-2, this.py, this.pz],
+        [this.px-2, this.py-0.8, this.pz],
+        //left front sight
+        [this.px-2.2, this.py, this.nz+2],
+        [this.px-2.2, this.py-0.8, this.nz+2], 
+        [this.px-2.2, this.py, this.nz+2],
+        [this.px-2.2, this.py-0.8, this.nz+2],
+        //right front sight
+        [this.px-1.8, this.py, this.nz+2],
+        [this.px-1.8, this.py-0.8, this.nz+2], 
+        [this.px-1.8, this.py, this.nz+2],
+        [this.px-1.8, this.py-0.8, this.nz+2],
+        //magazine right
+        [this.px-1.4, this.py+2, this.pz-6],
+        [this.px-1.4, this.py+2, this.pz-8],
+        [this.px-1.4, this.py+12, this.pz-6], 
+        [this.px-1.4, this.py+12, this.pz-8],
+        //magazine back
+        [this.px-1.4, this.py+2, this.pz-8],
+        [this.px-3, this.py+2, this.pz-8],
+        [this.px-1.4, this.py+12, this.pz-8], 
+        [this.px-3, this.py+12, this.pz-8],
+        //stock1
+        [this.nx, this.py+1, this.nz],
+        [this.nx, this.py+5, this.nz-2],
+        [this.px, this.py+5, this.nz-2],
+        [this.px, this.py+1, this.nz],
+    ]
+    break
+    case 1:
+        this.nodes = [
+        [this.nx, this.ny+1.5, this.nz], //0
+        [this.nx, this.ny+1.5, this.pz+4],
+        [this.nx, this.py, this.nz],
+        [this.nx, this.py, this.pz+4],
+        [this.px, this.ny+1.5, this.nz],
+        [this.px, this.ny+1.5, this.pz+4],
+        [this.px, this.py, this.nz],
+        [this.px, this.py, this.pz+4],
+        //rear sight
+        [this.px-2, this.py, this.pz+4], //8
+        [this.px-2, this.py-0.8, this.pz+4], 
+        [this.px-2, this.py, this.pz+4],
+        [this.px-2, this.py-0.8, this.pz+4],
+        //left front sight
+        [this.px-2.2, this.py, this.nz+2], //12
+        [this.px-2.2, this.py-0.8, this.nz+2], 
+        [this.px-2.2, this.py, this.nz+2],
+        [this.px-2.2, this.py-0.8, this.nz+2],
+        //right front sight
+        [this.px-1.8, this.py, this.nz+2], //16
+        [this.px-1.8, this.py-0.8, this.nz+2], 
+        [this.px-1.8, this.py, this.nz+2],
+        [this.px-1.8, this.py-0.8, this.nz+2],
+        //magazine right 
+        [this.px-1.2, this.py+2, this.pz-3], //20
+        [this.px-1.2, this.py+2, this.pz-9],
+        [this.px-1.2, this.py+14, this.pz-3], 
+        [this.px-1.2, this.py+14, this.pz-9],
+        //magazine back
+        [this.px-1.2, this.py+2, this.pz-9], //24
+        [this.px-3.5, this.py+2, this.pz-9],
+        [this.px-1.2, this.py+15, this.pz-9], 
+        [this.px-3.5, this.py+15, this.pz-9],
+        //stock
+        [this.nx, this.py+1, this.nz], //28
+        [this.nx, this.py+5, this.nz-2],
+        [this.px, this.py+5, this.nz-2],
+        [this.px, this.py+1, this.nz],
+    ]
+    break
+    case 2:
+        this.nodes = [
+        [this.nx, this.ny+1.2, this.nz], //0
+        [this.nx, this.ny+1.2, this.pz+12],
+        [this.nx, this.py, this.nz],
+        [this.nx, this.py, this.pz+12],
+        [this.px, this.ny+1.2, this.nz],
+        [this.px, this.ny+1.2, this.pz+12],
+        [this.px, this.py, this.nz],
+        [this.px, this.py, this.pz+12],
+        //rear sight
+        [this.px-2, this.py, this.pz+12], //8
+        [this.px-2, this.py-0.8, this.pz+12], 
+        [this.px-2, this.py, this.pz+12],
+        [this.px-2, this.py-0.8, this.pz+12],
+        //left front sight
+        [this.px-2.2, this.py, this.nz+2], //12
+        [this.px-2.2, this.py-0.8, this.nz+2], 
+        [this.px-2.2, this.py, this.nz+2],
+        [this.px-2.2, this.py-0.8, this.nz+2],
+        //right front sight
+        [this.px-1.8, this.py, this.nz+2], //16
+        [this.px-1.8, this.py-0.8, this.nz+2], 
+        [this.px-1.8, this.py, this.nz+2],
+        [this.px-1.8, this.py-0.8, this.nz+2],
+        //magazine right 
+        [this.px-1.2, this.py+2, this.pz-3], //20
+        [this.px-1.2, this.py+2, this.pz-9],
+        [this.px-1.2, this.py+14, this.pz-3], 
+        [this.px-1.2, this.py+14, this.pz-9],
+        //magazine back
+        [this.px-1.2, this.py+2, this.pz-9], //24
+        [this.px-3.5, this.py+2, this.pz-9],
+        [this.px-1.2, this.py+15, this.pz-9], 
+        [this.px-3.5, this.py+15, this.pz-9],
+        //stock
+        [this.nx, this.py+1, this.nz], //28
+        [this.nx, this.py+5, this.nz-2],
+        [this.px, this.py+5, this.nz-2],
+        [this.px, this.py+1, this.nz],
+        //scope top
+        [this.nx+0.8, this.py-5, this.nz+1], //32
+        [this.nx+0.8, this.py-5, this.nz+6],
+        [this.px-0.8, this.py-5, this.nz+6],
+        [this.px-0.8, this.py-5, this.nz+1],
+        //scope right
+        [this.px-0.8, this.py-2.5, this.nz+1],
+        [this.px-0.8, this.py-2.5, this.nz+6],
+        //scope back
+        [this.nx+0.8, this.py-2.5, this.nz+1],
+        [this.px-0.8, this.py-2.5, this.nz+1],
+        
+        [this.nx+0.8, this.py-2.5,this.nz+4],
+        [this.nx, this.py, this.nz+3],
+        [this.nx, this.py, this.nz+4],
+        [this.nx+0.8, this.py-2.5, this.nz+3],
+        //bolt top
+[this.px, this.py+1,this.zz],
+[this.px+2, this.py+1, this.zz+1],
+[this.px, this.py+1, this.zz+1],
+[this.px+2, this.py+1, this.zz],
+//bolt right
+[this.px+2, this.py+2,this.zz],
+[this.px+2, this.py+1, this.zz+1],
+[this.px+2, this.py+2, this.zz+1],
+[this.px+2, this.py+1, this.zz],
+//bolt front
+[this.px, this.py+1,this.zz],
+[this.px+2, this.py+2, this.zz],
+[this.px, this.py+2, this.zz],
+[this.px+2, this.py+1, this.zz],
+    ]
+    break
+    case 3:
+        this.nodes = [
+        [this.nx, this.ny, this.nz], //0
+        [this.nx, this.ny, this.pz+18],
+        [this.nx, this.py, this.nz],
+        [this.nx, this.py, this.pz+18],
+        [this.px, this.ny, this.nz],
+        [this.px, this.ny, this.pz+18],
+        [this.px, this.py, this.nz],
+        [this.px, this.py, this.pz+18],
+        //rear sight
+        [this.px-2, this.py, this.pz+18], //8
+        [this.px-2, this.py-0.8, this.pz+18], 
+        [this.px-2, this.py, this.pz+18],
+        [this.px-2, this.py-0.8, this.pz+18],
+        //left front sight
+        [this.px-2.2, this.py, this.nz+2], //12
+        [this.px-2.2, this.py-0.8, this.nz+2], 
+        [this.px-2.2, this.py, this.nz+2],
+        [this.px-2.2, this.py-0.8, this.nz+2],
+        //right front sight
+        [this.px-1.8, this.py, this.nz+2], //16
+        [this.px-1.8, this.py-0.8, this.nz+2], 
+        [this.px-1.8, this.py, this.nz+2],
+        [this.px-1.8, this.py-0.8, this.nz+2],
+        //magazine right 
+        [this.px-1.2, this.py+2, this.pz-3], //20
+        [this.px-1.2, this.py+2, this.pz-9],
+        [this.px-1.2, this.py+14, this.pz-3], 
+        [this.px-1.2, this.py+14, this.pz-9],
+        //magazine back
+        [this.px-1.2, this.py+2, this.pz-9], //24
+        [this.px-3.5, this.py+2, this.pz-9],
+        [this.px-1.2, this.py+15, this.pz-9], 
+        [this.px-3.5, this.py+15, this.pz-9],
+        //stock
+        [this.nx, this.py+1, this.nz], //28
+        [this.nx, this.py+5, this.nz-2],
+        [this.px, this.py+5, this.nz-2],
+        [this.px, this.py+1, this.nz],
+        //scope top
+        [this.nx+0.8, this.py-5, this.nz+1], //32
+        [this.nx+0.8, this.py-5, this.nz+8],
+        [this.px-0.8, this.py-5, this.nz+8],
+        [this.px-0.8, this.py-5, this.nz+1],
+        
+        //scope right
+        [this.px-0.8, this.py-2.5, this.nz+1],
+        [this.px-0.8, this.py-2.5, this.nz+8],
+        //scope back
+        [this.nx+0.8, this.py-2.5, this.nz+1],
+        [this.px-0.8, this.py-2.5, this.nz+1],
+        
+        [this.nx+0.8, this.py-2.5,this.nz+4],
+        [this.nx, this.py, this.nz+3],
+        [this.nx, this.py, this.nz+4],
+        [this.nx+0.8, this.py-2.5, this.nz+3],
+//bolt top
+[this.px, this.py+1,this.zz],
+[this.px+2, this.py+1, this.zz+1],
+[this.px, this.py+1, this.zz+1],
+[this.px+2, this.py+1, this.zz],
+//bolt right
+[this.px+2, this.py+2,this.zz],
+[this.px+2, this.py+1, this.zz+1],
+[this.px+2, this.py+2, this.zz+1],
+[this.px+2, this.py+1, this.zz],
+//bolt front
+[this.px, this.py+1,this.zz],
+[this.px+2, this.py+2, this.zz],
+[this.px, this.py+2, this.zz],
+[this.px+2, this.py+1, this.zz],
+    ]
+    break
+    case 4:
+        this.nodes = [
+        [this.nx, this.ny, this.nz], //0
+        [this.nx, this.ny, this.pz+16],
+        [this.nx, this.py, this.nz],
+        [this.nx, this.py, this.pz+16],
+        [this.px, this.ny, this.nz],
+        [this.px, this.ny, this.pz+16],
+        [this.px, this.py, this.nz],
+        [this.px, this.py, this.pz+16],
+        //rear sight
+        [this.px-2, this.py, this.pz+16], //8
+        [this.px-2, this.py-0.8, this.pz+16], 
+        [this.px-2, this.py, this.pz+16],
+        [this.px-2, this.py-0.8, this.pz+16],
+        //left front sight
+        [this.px-2.2, this.py, this.nz+2], //12
+        [this.px-2.2, this.py-0.8, this.nz+2], 
+        [this.px-2.2, this.py, this.nz+2],
+        [this.px-2.2, this.py-0.8, this.nz+2],
+        //right front sight
+        [this.px-1.8, this.py, this.nz+2], //16
+        [this.px-1.8, this.py-0.8, this.nz+2], 
+        [this.px-1.8, this.py, this.nz+2],
+        [this.px-1.8, this.py-0.8, this.nz+2],
+        //stock
+        [this.nx, this.py+1, this.nz], //28
+        [this.nx, this.py+5, this.nz-2],
+        [this.px, this.py+5, this.nz-2],
+        [this.px, this.py+1, this.nz],
+        //bolt
+        [this.px, this.py-2, this.nz],
+        [this.px, this.py-2, this.nz+2],
+        [this.px, this.py-4, this.nz+2],
+        [this.px, this.py-4, this.nz]
+    ]
+    }
+    }
+    }
+    this.recoil = function() {
+        if((weapon === 2 || weapon === 3) && aim) {
+            if(downing) {
+            tY -= (this.rec/7)-0.137
+            if(tY > downto) {downing = false}
+            }
+        }
+        this.rec *= 0.9
+        this.recx *=0.9
+        for(let i = 0; i < this.nodes.length; i++) {
+            let n = this.nodes[i]
+            let y = n[1]
+            let z = n[2]
+            n[1] = y*cos(-this.rec) + z*sin(-this.rec)
+            n[2] = z*cos(-this.rec) - y*sin(-this.rec)
+            
+            let x = n[0]
+            z = n[2]
+            n[0] = x*cos(-this.recx) + z*sin(-this.recx)
+            n[2] = z*cos(-this.recx) - x*sin(-this.recx)
+            
+        }
+    }
+    {
+    this.sd = 0.55
+    this.go = false
+    this.bol = false
+    this.rec = 0
+    this.recx = 0
+    this.back = false
+    this.reinit()
+    this.nx = -9
+    this.px = -5
+    this.ny = 8
+    this.py = 4.7
+    this.nz = 5
+    this.pz = 18
+    this.zz = this.nz+3
+    }
+    this.bolt = function() {
+        this.sd = weapon === 2 ? 0.8 : 0.55
+        if(this.bol) {
+            if(this.zz < 5) {
+                this.go = true
+            }
+            this.zz -= this.go ? -this.sd : this.sd
+            if(this.go && this.zz > 7.9) {
+                this.bol = false
+            }
+        }
+    }
+    this.reload = function() {
+        if(keys.r && !reloading) {
+            this.back = false
+            if(!aim && !putdown && ammo[weapon][1] > 0 && ammo[weapon][0] < ammo[weapon][2]) {
+                reloading = true
+                playSound(getSound("rpg/metal-clink"))
+            }
+            else {
+                aim = false
+                putdown = true
+            }
+        }
+        if(this.px === -5 && putdown && ammo[weapon][1] > 0 && ammo[weapon][0] < ammo[weapon][2]) {
+            putdown = false
+            playSound(getSound("rpg/metal-clink"))
+            reloading = true
+        }
+        if(reloading && ammo[weapon][2] > 0 && ammo[weapon][1] > 0) {
+            if(weapon !== 4) {
+            for(let i = 20; i < 28; i++) {
+                this.nodes[i][1] += 0.4*(this.back ? -1 : 1)
+                if(this.nodes[i][1] > 40) {
+                    this.back = true
+                }
+                if(this.nodes[i][1] < 6 && this.back && reloading) {
+                    playSound(getSound("rpg/metal-clink"))
+                    reloading = false
+                    if(ammo[weapon][1] >= ammo[weapon][2]) {
+                    ammo[weapon][1] -= ammo[weapon][2]-ammo[weapon][0]
+                    ammo[weapon][0] = ammo[weapon][2]
+                    } else {
+                    ammo[weapon][0] += ammo[weapon][1]
+                    ammo[weapon][1] = 0
+                    }
+                }
+            }}
+            else {
+                if(reloading && ammo[weapon][0] < ammo[weapon][2]) {
+                    this.rec = 0
+                    shor++
+                    if(shor > 30) {
+                        ammo[weapon][0] ++
+                        ammo[weapon][1] --
+                        let clop = getSound("rpg/hit-clop")
+                        clop.audio.volume = 0.3
+                        playSound(clop)
+                        shor = 0
+                        if(ammo[weapon][0] >= ammo[weapon][2] || ammo[weapon][1] === 0) {
+                            reloading = false
+                        }
+                    }
+                }
+            }
+        }
+    }
+    this.fire = function() {
+        if(mouseButton === LEFT && !reloading && !this.bol) {
+            if((press && (weapon === 2 || weapon === 3 || weapon === 4))) {
+            if(ammo[weapon][0] > 0) {
+                downing = true
+                downto = tY
+                this.go = false
+                this.bol = true
+            ammo[weapon][0] --
+            playSound(getSound("retro/hit2"))
+            for(let i = 0; i < (weapon === 4 ? 4 : 1); i++) {
+            bullets.push(new Bullet(0, 0, 0, 
+                (weapon === 0 ? (tX+random(-0.8, 0.8)) : weapon === 1 ? (tX+random(-0.5, 0.5)) : weapon === 2  ? (tX+random(-0.2, 0.2)) : weapon === 3 ? (tX+random(-0.15, 0.15)) : (tX+random(-2.5, 2.5)))-this.recx, 
+                (weapon === 0 ? (tY+random(-0.8, 0.8)) : weapon === 1 ? (tY+random(-0.5, 0.5)) : weapon === 2 ? (tY+random(-0.2, 0.2)) : weapon === 3 ? (tY+random(-0.1, 0.1)) : (tY+random(-2.5, 2.5)))-this.rec,
+                weapon === 0 ? 15 : weapon === 1 ? 20 : weapon === 2 ? 25 : weapon === 3 ? 30 : 15, weapon
+            ))
+            if((weapon === 4 && i === 3) || weapon !== 4) {this.rec += weapon === 4 ? 7 : 2.5}
+            this.recx = random(-1.5, 1.5)
+            }} else if(mouseIsPressed) {
+                playSound(getSound("retro/hit1"))
+            }}
+            if(mouseIsPressed && (weapon === 0 || weapon === 1)) {
+                del2 ++
+            }
+            if(del2 > (weapon === 0 ? 3.5 : 5.5) ) {
+                if(ammo[weapon][0] > 0) {
+                    downing = true
+                    downto = tY
+                ammo[weapon][0] --
+                playSound(getSound("retro/hit2"))
+            bullets.push(new Bullet(0, 0, 0, 
+            (weapon === 0 ? (tX+random(-0.8, 0.8)) : weapon === 1 ? (tX+random(-0.5, 0.5)) : weapon === 2  ? (tX+random(-0.2, 0.2)) : weapon === 3 ? (tX+random(-0.15, 0.15)) : (tX+random(-2.5, 2.5)))-this.recx, 
+                (weapon === 0 ? (tY+random(-0.8, 0.8)) : weapon === 1 ? (tY+random(-0.5, 0.5)) : weapon === 2 ? (tY+random(-0.2, 0.2)) : weapon === 3 ? (tY+random(-0.1, 0.1)) : (tY+random(-2.5, 2.5)))-this.rec,
+                weapon === 0 ? 15 : weapon === 1 ? 20 : weapon === 2 ? 25 : weapon === 3 ? 30 : 15, weapon
+            ))
+                del2 = 0
+                this.rec += 2.5
+                this.recx = random(-1.5, 1.5)
+            } else if (mouseIsPressed) {
+                playSound(getSound("retro/hit1"))
+            }
+            }
+        }
+    }
+    this.aim = function() {
+        if(weapon === 0 || weapon === 1 || weapon === 4) {
+        fov = constrain(fov, 220, 240)
+        fov += aim ? 1.8 : -1.8
+        this.nx += 0.01*40 * (aim ? 1 : -1)
+        this.px += 0.01*40 * (aim ? 1 : -1)
+        this.ny -= 0.0058*40 * (aim ? 1 : -1)
+        this.py -= 0.0058*40 * (aim ? 1 : -1)
+        this.nx = constrain(this.nx, -9, -2)
+        this.px = constrain(this.px, -5, 2)
+        this.ny = constrain(this.ny, 4, 8)
+        this.py = constrain(this.py, 0.7, 4.7)
+        } else  {
+            if(this.nz < -0.999) {
+                noFill()
+                strokeWeight(650)
+                stroke(0)
+                arc(0, 0, 1200, 1200, 0, 360)
+                strokeWeight(1)
+                line(-300, 0, -8, 0)
+                line(8, 0, 300, 0)
+                line(0, -300, 0, -8)
+                line(0, 8, 0, 300)
+                line(-5, 12, 5, 12)
+                line(-5, 22, 5, 22)
+                line(-5, 32, 5, 32)
+                line(-5, 45, 5, 45)
+                line(-5, 60, 5, 60)
+                textSize(10)
+                if(weapon === 3) {
+                    text("300", 10, 15)
+                    text("400", 10, 25)
+                    text("500", 10, 35)
+                    text("600", 10, 48)
+                } else if (weapon === 2) {
+                    text("200", 10, 15)
+                    text("300", 10, 25)
+                    text("400", 10, 35)
+                    text("500", 10, 48)
+                    text("600", 10, 63)
+                }
+            }
+            strokeWeight(1)
+            fov = this.nz < -0.999 ? (weapon === 2 ? 1200 : 1800) : 220
+            fov = constrain(fov, 220, (weapon === 2 ? 1200 : 1800))
+            this.nx += 0.01*40 * (aim ? 1 : -1)
+            this.px += 0.01*40 * (aim ? 1 : -1)
+            this.ny -= 0.0018*40 * (aim ? 1 : -1)
+            this.py -= 0.0018*40 * (aim ? 1 : -1)
+            this.zz -= 0.0085*40 * (aim ? 1 : -1)
+            this.nz -= 0.0085*40 * (aim ? 1 : -1)
+            this.pz -= 0.0085*40 * (aim ? 1 : -1)
+            this.ny -= 0.0075*40 * (aim ? 1 : -1)
+            this.nx = constrain(this.nx, -9, -2)
+            this.px = constrain(this.px, -5, 2)
+            this.ny = constrain(this.ny, 4, 8)
+            this.py = constrain(this.py, 3.8, 4.7)
+            this.nz = constrain(this.nz, -1.2, 5)
+            this.zz = constrain(this.zz, 2.2, 8)
+            this.pz = constrain(this.pz, 13.1, 18)
+        }
+        this.fire()
+        this.reinit()
+        }
+    this.animate = function() {
+        this.aim()
+        if(weapon === 2 || weapon === 3) {
+            this.faces = [
+                [20,22,23,21],
+                [27,26,24,25],
+                
+                [1,3,7,5], //body
+                [0,1,3,2],
+                [0,4,5,1],
+                [7,5,4,6],
+                [3,2,6,7],
+                [0,2,6,4],
+                
+                [8,9,10,11], //sights
+                [12,13,14,15],
+                [16,17,18,19],
+                
+                [28,29,30,31], //stock
+                
+                [42,41,43,40],//scope mount
+                
+                [32,33,34,35], //scope
+                [34,35,36,37],
+                [35,32,38,39],
+                
+                [44,46,45,47], //bolt
+                [48,50,49,51],
+                [52,54,53,55],
+            ]
+        } else if(weapon === 4) {
+            this.faces = [
+                [1,3,7,5], //body
+                [0,1,3,2],
+                [0,4,5,1],
+                [7,5,4,6],
+                [3,2,6,7],
+                [0,2,6,4],
+                
+                [8,9,10,11], //sights
+                [12,13,14,15],
+                [16,17,18,19],
+                
+                [20,21,22,23], //stock
+            ]
+        } else {
+            this.faces = [
+                [20,22,23,21],
+                [27,26,24,25],
+                
+                [1,3,7,5], //body
+                [0,1,3,2],
+                [0,4,5,1],
+                [7,5,4,6],
+                [3,2,6,7],
+                [0,2,6,4],
+                
+                [8,9,10,11], //sights
+                [12,13,14,15],
+                [16,17,18,19],
+                
+                [28,29,30,31], //stock
+            ]
+        }
+    }
+    this.draw = function() {
+        for(let i = 0; i < this.faces.length; i++) {
+            let n = [this.nodes[this.faces[i][0]], this.nodes[this.faces[i][1]], this.nodes[this.faces[i][2]], this.nodes[this.faces[i][3]]]
+            fill(i === 0 || i === 1 ? color(50) : i === 15 ? color(0) : 100)
+            if((i === 11 && (weapon === 2 || weapon === 3) && !aim && this.ny === 8) || (weapon === 0 || weapon === 1 || weapon === 4) || ( ((weapon === 2 || weapon === 3) &&  i !== 11))) {
+            if((this.nz < 0 && i !== 6 && i !== 5 && i !== 4 && i !== 3) || (this.nz > 0)) {
+            if(this.nz > -0.999) {
+            quad(
+                n[0][0]*fov/n[0][2], n[0][1]*fov/n[0][2],
+                n[1][0]*fov/n[1][2], n[1][1]*fov/n[1][2],
+                n[2][0]*fov/n[2][2], n[2][1]*fov/n[2][2],
+                n[3][0]*fov/n[3][2], n[3][1]*fov/n[3][2]
+            )
+            }}}
+        }
+
+    }
+    this.display = function() {
+        this.bolt()
+        this.animate()
+        this.recoil()
+        this.draw()
+        this.reload()
+    }
+}
+const gun = new Gun()
+//} weapons/aiming
+function controls() {
+    if(keys[68] || keys[65] || keys[83] || keys[87]) {
+        del ++
+    } 
+    if(del > (keys[SHIFT] ? 15: 30)) {
+        let step = getSound("rpg/step-heavy")
+        step.audio.volume = 0.35
+        playSound(getSound("rpg/step-heavy"))
+        del = 0
+    }
+    if(keys[" "] && canjump && !jumping) { 
+        jumping = true
+        let swing = getSound("rpg/battle-swing")
+        swing.audio.volume = 0.5
+        playSound(swing)
+    }
+    if(jumping) {
+        jup += 2.5*b
+        movement(0,0,cos(jup)/2.5)
+        if(jup > 176) {
+            jumping = false
+            canjump = true
+            jup = 0
+        }
+    }
+    movement((keys[68] ? -1 : keys[65] ? 1 : 0)*b, (keys[83] ? 1 : keys[87] ? (keys[SHIFT] ? -2 : -1) : 0)*b)
+    
+    if(press && mouseButton === RIGHT && !reloading) {
+        aim = !aim
+    }
+    if((keys[49] || keys[50] || keys[51] || keys[52] || keys[53]) && !aim && !reloading) {
+        weapon = Number(key.toString())-1
+    }
+}
+function HUD() {
+    fill(100)
+    textSize(15)
+    text(round(this.__frameRate), 10, 20)
+    text("Kills: " + hits + "\nHeadshots: " + headshots, 40, 20)
+    textSize(20)
+    text("Gun: " + (weapon === 0 ? "MP5" : weapon === 1 ? "AKM" : weapon === 2 ? "SVD" : weapon === 3 ? "M700" : "MP-153"), 660, 30)
+    textSize(18)
+    text(round((timer-timer%60))/60 + ":" + (round(timer%60) < 10 ? "0" : "") + round(timer%60), 370, 40)
+    textSize(20)
+    text("Score: 0", 660, 55)
+    for(let i = 0; i < ammo.length; i++) {
+        if(i === weapon) {
+            textSize(30)
+            textAlign(RIGHT)
+            text(ammo[i][0] + "/", 765, 580)
+            textSize(15)
+            textAlign(LEFT)
+            text(ammo[i][1], 765, 580)
+        }
+    }
+    stroke(0)
+    strokeWeight(1)
+    noFill()
+    rect(270, 10, 220, 10)
+    fill(255, 0, 0)
+    rect(270, 10, he*2.2, 10)
+    
+    if(he < 0) {
+        dead = true
+    }
+}
+function spawn() {
+    sp ++
+    if(sp > 10 && walls.length < 25+timer/10) {
+        let rX = round(random(0, 1))
+        let rY = round(random(0, 1))
+        sp = 0
+        rotY(tY)        
+        rotX(tX)
+        let x = rX === 1 ? random(-4500, -2000) : random(2000, 4500)
+        let z = rY === 1 ? random(-4500, -2000) : random(2000, 4500)
+        walls.push(new Zombie(0, 0, 8, 12, random(1500, 4000), random(0, 360), random(0, 1+timer/200) > 1))
+        rotX(-tX)
+        rotY(-tY)
+    }
+}
+function death() {
+    he = constrain(he, -1, 100)
+    he += 0.02
+    if(dead) {
+        background(150, 0, 0)
+        fill(200)
+        textAlign(CENTER)
+        text("You literally died from computer-generated objects\nShame on you\n\n\n\nClick to restart", 400, 200)
+        textAlign(LEFT)
+        if(mouseIsPressed) {Program.restart()}
+    }
+}
+function home() {
+    let on = mouseX > 300 && mouseX < 500 && mouseY > 320 && mouseY < 370
+    background(100)
+    textAlign(CENTER)
+    fill(200)
+    textFont(createFont("Trebuchet MS"), 22)
+    text("Punishable by", 400, 150)
+    textSize(50)
+    fill(255, 50, 50)
+    text("Death", 400, 195)
+    fill(150)
+    noStroke()
+    rect(300, 320, 200, 50, 10)
+    fill(on ? color(255, 0, 0) : color(255))
+    textSize(25)
+    text("Play", 400, 353)
+    textAlign(LEFT)
+    if(on && press) {
+        sc = "game"
+    }
+}
+function game() {
+    rotX(-tX)
+    rotY(-tY)
+    timer += 1/60
+    b = 60/this.__frameRate
+    keyPressed = function() {keys[keyCode] = true;keys[key.toString()] = true}
+    keyReleased = function() {keys[keyCode] = false; keys[key.toString()] = false}        
+    background(255)
+    pushMatrix()
+    translate(400, 300)
+    controls()
+    spawn()
+    walls.sort(function(a, b) {
+        return distance(b.average()[0], b.average()[1])-distance(a.average()[0], a.average()[1])
+    })
+    for(let i = 0; i < walls.length; i++) {
+        walls[i].display()
+    }
+    if(bullets.length > 25) {bullets.shift()}
+    for(let i = 0; i < bullets.length; i++) {
+        bullets[i].display()
+    }
+    rotY(tY)
+    rotX(tX)
+    gun.display()
+    popMatrix()
+    HUD()
+    mousePressed = function() {
+        press = true
+        canpress = false
+    }
+    if(press && !canpress) {
+        press = false
+        canpress = true
+    }
+    death()
+}
+draw = function() {
+    switch(sc) {
+        case "game": game(); break
+        case "home": home(); break
+    }
+    mousePressed = function() {
+        press = true
+        canpress = false
+    }
+    if(press && !canpress) {
+        press = false
+        canpress = true
+    }
+}
